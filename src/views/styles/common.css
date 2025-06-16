@@ -1,0 +1,36 @@
+/* スマホ横画面以外は背景を黒にし、中央に最大幅でコンテンツを表示 */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-width: 100vw;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* スマホ横画面のみ、背景を白にして全画面表示 */
+@media only screen and (max-width: 900px) and (orientation: landscape) {
+  body {
+    background: #fff;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .main-content {
+    width: 100vw;
+    height: 100vh;
+    box-shadow: none;
+    background: #fff;
+  }
+}
+
+/* 通常時は中央に最大幅400pxで表示 */
+.main-content {
+  width: 400px;
+  min-height: 100vh;
+  background: #fff;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+}

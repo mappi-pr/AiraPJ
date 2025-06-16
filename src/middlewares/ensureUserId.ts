@@ -12,5 +12,9 @@ export function ensureUserId(req: Request, res: Response, next: NextFunction) {
     if (!req.session.userId) {
         req.session.userId = uuidv4();
     }
+    // userIdがあればuserもセット（sessionChecker対策）
+    if (req.session.userId && !req.session.user) {
+        req.session.user = { id: req.session.userId };
+    }
     next();
 }

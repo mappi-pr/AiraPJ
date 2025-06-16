@@ -6,7 +6,7 @@ import Costume from './costume';
 class Favorite extends Model {
   public id!: number;
   public userId!: string;
-  public costumeId!: string;
+  public costumeId!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -24,7 +24,7 @@ Favorite.init(
       references: { model: User, key: 'id' },
     },
     costumeId: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: { model: Costume, key: 'id' },
     },

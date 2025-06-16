@@ -4,14 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <title>設定</title>
+  <link rel="stylesheet" href="/styles/title.css">
+  <link rel="stylesheet" href="/styles/common.css">
 </head>
 <body>
   <h1>設定</h1>
   <!-- 設定UIをここに実装 -->
+  <nav>
+    <a href="/title">タイトルへ戻る</a>
+  </nav>
   <!-- 管理者モード判定（サーバ側でadminフラグを渡す想定） -->
-  <!--
-  <% if (admin) { %>
-  -->
     <h2>画像アセットアップロード</h2>
     <form id="uploadForm" enctype="multipart/form-data">
       <label>アップロード種別:
@@ -58,10 +60,5 @@
         }
       });
     </script>
-  <!--
-  <% } else { %>
-    <p>管理者のみ利用可能です。</p>
-  <% } %>
-  -->
 </body>
 </html>

@@ -16,6 +16,7 @@ export const setRoutes = (app: import('express').Express) => {
     app.use('/background', sessionChecker, (req, res) => res.render('background'));
     app.use('/costume', sessionChecker, (req, res) => res.render('costume'));
     app.use('/photo', sessionChecker, (req, res) => res.render('photo'));
+    app.use('/history', sessionChecker, (req, res) => res.render('history'));
     app.use('/settings', (req, res) => res.render('settings'));
     app.use('/terms', (req, res) => res.render('terms'));
     app.use('/', sessionChecker, router);
