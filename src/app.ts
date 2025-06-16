@@ -16,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(sessionMiddleware);
 app.use(ensureUserId);
 app.use('/styles', express.static(path.join(__dirname, 'views', 'styles')));
+app.use('/assets', express.static(path.join(__dirname, '../assets')));
 
 setRoutes(app);
 

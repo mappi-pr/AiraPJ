@@ -8,11 +8,43 @@
 </head>
 <body>
   <h1>衣装選択</h1>
-  <!-- 衣装選択UIをここに実装 -->
+  <div class="select-container">
+    <% if (costumes && costumes.length > 0) { %>
+      <button id="prev-btn">←</button>
+      <div id="costume-info">
+        <img id="costume-img" src="<%= costumes[0].assetPath %>" alt="衣装画像" style="max-width:200px;max-height:200px;">
+        <div id="costume-name"><%= costumes[0].name %></div>
+      </div>
+      <button id="next-btn">→</button>
+    <% } else { %>
+      <div>未設定です</div>
+    <% } %>
+  </div>
+  <form action="/photo" method="get" id="next-form">
+    <button type="submit" id="next-btn-main">撮影モード</button>
+  </form>
   <nav>
-    <a href="/photo">フリー撮影モードへ</a> |
     <a href="/background">背景選択へ戻る</a> |
     <a href="/title">タイトルへ戻る</a>
   </nav>
+  <% if (costumes && costumes.length > 0) { %>
+    <% var costumesJson = JSON.stringify(costumes).replace(/'/g, "\\'"); %>
+    <script>
+      var costumes = JSON.parse('<%= costumesJson %>');
+      let idx = 0;
+      const img = document.getElementById('costume-img');
+      const name = document.getElementById('costume-name');
+      document.getElementById('prev-btn').onclick = function() {
+        idx = (idx - 1 + costumes.length) % costumes.length;
+        img.src = costumes[idx].assetPath;
+        name.textContent = costumes[idx].name;
+      };
+      document.getElementById('next-btn').onclick = function() {
+        idx = (idx + 1) % costumes.length;
+        img.src = costumes[idx].assetPath;
+        name.textContent = costumes[idx].name;
+      };
+    </script>
+  <% } %>
 </body>
 </html>

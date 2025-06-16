@@ -25,8 +25,17 @@ This project will be developed as a dress-up game where users can change a chara
      左上に歯車アイコン（設定画面へ遷移）  
    - Bottom-left: Small link to Terms & Credits  
      左下に小さく規約・クレジット画面へのリンク  
+   - Top-right: BGM/SE ON/OFF button  
+     右上にBGM/SEのON/OFFボタン
+   - 画面中央に全要素（タイトル、スタートボタン、おきにいり）を中央寄せで配置。
 
 2. **Character Select / キャラクター選択画面**  
+   - 選択画面系共通要件
+     DBから各種情報を取得し、No1から順次表示。
+     DBが空の場合は「未設定です」と表示し、エラーにならないようにする。
+     選択用の左右ボタンは共通UIとして実装。
+     次ページへのリンクは画面中央に【つぎへ】ボタンとして配置。
+
 3. **Background Select / 背景選択画面**  
 4. **Costume Select / 衣装選択画面**  
 5. **Free Photo Mode / フリー撮影モード画面**  
@@ -40,6 +49,12 @@ This project will be developed as a dress-up game where users can change a chara
    - 削除機能は今後実装予定（TBD）。
 
 8. **Terms & Credits / 規約・クレジット画面**  
+
+---
+
+#### 画面遷移ルール
+- 各ページからの遷移は、必ず本README記載のルールに従う。
+- GETリクエストで任意のページに直接ジャンプできるようなリンクやUIは設けない。
 
 ---
 
