@@ -129,6 +129,31 @@ To get started with this project, follow these steps:
 
 ---
 
+## Environment Variables / 環境変数の使い方
+
+- 機密情報や環境ごとの設定値は `.env` ファイルで管理します。
+- サンプルとして `.env.example` を同梱しています。必要に応じてコピーしてご利用ください。
+
+```bash
+cp .env.example .env
+```
+
+- `.env` には以下のような内容を記載します：
+
+```
+SESSION_SECRET=your-session-secret
+DB_NAME=your_database_name
+DB_USER=your_username
+DB_PASS=your_password
+DB_HOST=localhost
+DB_DIALECT=postgres
+```
+
+- `.env` ファイルは `.gitignore` で除外され、リポジトリには含まれません。
+- 各種設定値は `process.env.XXX` でアプリから参照されます。
+
+---
+
 ## License / ライセンス
 
 This project is licensed under the MIT License. See the LICENSE file for more details.  

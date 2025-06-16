@@ -4,19 +4,20 @@ node_modules/
 # Build output
 dist/
 
-# Environment variables/secrets
+# 環境変数/シークレット
 .env
 .env.*
+!.env.example
 
-# OS/Editor files
+# OS/エディターファイル
 .DS_Store
 Thumbs.db
 .vscode/
 
-# Log files
+# ログファイル
 *.log
 
-# Image assets (空ディレクトリ維持用に .gitkeep を推奨)
+# 画像アセット（空ディレクトリ維持用に.gitkeepを推奨）
 assets/img/chr/*
 assets/img/bg/*
 assets/img/csm/*

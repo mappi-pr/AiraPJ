@@ -1,10 +1,13 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { Sequelize } from 'sequelize';
 
-const database = 'your_database_name';
-const username = 'your_username';
-const password = 'your_password';
-const host = 'localhost';
-const dialect = 'postgres';
+const database = process.env.DB_NAME || 'your_database_name';
+const username = process.env.DB_USER || 'your_username';
+const password = process.env.DB_PASS || 'your_password';
+const host = process.env.DB_HOST || 'localhost';
+const dialect = process.env.DB_DIALECT as any || 'postgres';
 
 // DB本体自動作成
 const adminSequelize = new Sequelize('postgres', username, password, {
