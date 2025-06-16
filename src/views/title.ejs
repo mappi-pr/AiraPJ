@@ -1,0 +1,28 @@
+<!-- タイトル画面 / Title Screen -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>タイトル画面</title>
+  <link rel="stylesheet" href="/styles/title.css">
+</head>
+<body>
+  <header>
+    <a href="/settings" id="settings-icon" title="設定">
+      <img src="/assets/gear.svg" alt="設定" style="width:32px;height:32px;">
+    </a>
+  </header>
+  <main>
+    <h1>Aira PJ</h1>
+    <form action="/character" method="get">
+      <button type="submit" id="start-btn">ゲームをはじめる</button>
+    </form>
+    <div>
+      <a href="/history" id="favorites-menu">おきにいり</a>
+    </div>
+  </main>
+  <footer>
+    <a href="/terms" id="terms-link" style="font-size:small;">規約・クレジット</a>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# Node.js dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables/secrets
+.env
+.env.*
+
+# OS/Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Log files
+*.log
+
+# Image assets (空ディレクトリ維持用に .gitkeep を推奨)
+assets/img/chr/*
+assets/img/bg/*
+assets/img/csm/*
+!assets/img/chr/.gitkeep
+!assets/img/bg/.gitkeep
+!assets/img/csm/.gitkeep
