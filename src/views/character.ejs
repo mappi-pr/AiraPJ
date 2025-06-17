@@ -7,43 +7,45 @@
   <link rel="stylesheet" href="/styles/common.css">
 </head>
 <body>
-  <h1>キャラクター選択</h1>
-  <div class="select-container">
+  <div class="main-content">
+    <h1>キャラクター選択</h1>
+    <div class="select-container">
+      <% if (characters && characters.length > 0) { %>
+        <button id="prev-btn">←</button>
+        <div id="character-info">
+          <img id="character-img" src="<%= characters[0].assetPath %>" alt="キャラクター画像" style="max-width:200px;max-height:200px;">
+          <div id="character-name"><%= characters[0].name %></div>
+        </div>
+        <button id="next-btn">→</button>
+      <% } else { %>
+        <div>キャラクターが未設定です</div>
+      <% } %>
+    </div>
+    <form action="/background" method="get" id="next-form">
+      <button type="submit" id="next-btn-main">背景選択画面へ</button>
+    </form>
+    <nav>
+      <a href="/title">タイトルへ戻る</a>
+    </nav>
     <% if (characters && characters.length > 0) { %>
-      <button id="prev-btn">←</button>
-      <div id="character-info">
-        <img id="character-img" src="<%= characters[0].assetPath %>" alt="キャラクター画像" style="max-width:200px;max-height:200px;">
-        <div id="character-name"><%= characters[0].name %></div>
-      </div>
-      <button id="next-btn">→</button>
-    <% } else { %>
-      <div>未設定です</div>
+      <% var charactersJson = JSON.stringify(characters).replace(/'/g, "\\'"); %>
+      <script>
+        var characters = JSON.parse('<%= charactersJson %>');
+        let idx = 0;
+        const img = document.getElementById('character-img');
+        const name = document.getElementById('character-name');
+        document.getElementById('prev-btn').onclick = function() {
+          idx = (idx - 1 + characters.length) % characters.length;
+          img.src = characters[idx].assetPath;
+          name.textContent = characters[idx].name;
+        };
+        document.getElementById('next-btn').onclick = function() {
+          idx = (idx + 1) % characters.length;
+          img.src = characters[idx].assetPath;
+          name.textContent = characters[idx].name;
+        };
+      </script>
     <% } %>
   </div>
-  <form action="/background" method="get" id="next-form">
-    <button type="submit" id="next-btn-main">背景選択画面へ</button>
-  </form>
-  <nav>
-    <a href="/title">タイトルへ戻る</a>
-  </nav>
-  <% if (characters && characters.length > 0) { %>
-    <% var charactersJson = JSON.stringify(characters).replace(/'/g, "\\'"); %>
-    <script>
-      var characters = JSON.parse('<%= charactersJson %>');
-      let idx = 0;
-      const img = document.getElementById('character-img');
-      const name = document.getElementById('character-name');
-      document.getElementById('prev-btn').onclick = function() {
-        idx = (idx - 1 + characters.length) % characters.length;
-        img.src = characters[idx].assetPath;
-        name.textContent = characters[idx].name;
-      };
-      document.getElementById('next-btn').onclick = function() {
-        idx = (idx + 1) % characters.length;
-        img.src = characters[idx].assetPath;
-        name.textContent = characters[idx].name;
-      };
-    </script>
-  <% } %>
 </body>
 </html>

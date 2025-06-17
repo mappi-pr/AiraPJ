@@ -15,6 +15,9 @@ export const setRoutes = (app: import('express').Express) => {
     app.use('/title', (req: import('express').Request, res: import('express').Response) => {
         res.render('title');
     });
+    app.post('/character/upload', uploadCharacterAsset);
+    app.post('/background/upload', uploadBackgroundAsset);
+    app.post('/costume/upload', uploadCostumeAsset);
     app.use('/character', sessionChecker, characterSelectPage);
     app.use('/background', sessionChecker, backgroundSelectPage);
     app.use('/costume', sessionChecker, costumeSelectPage);
@@ -24,7 +27,4 @@ export const setRoutes = (app: import('express').Express) => {
     app.use('/terms', (req, res) => res.render('terms'));
     app.use('/', sessionChecker, router);
     router.get('/', indexController.getIndex.bind(indexController));
-    app.post('/character/upload', uploadCharacterAsset);
-    app.post('/background/upload', uploadBackgroundAsset);
-    app.post('/costume/upload', uploadCostumeAsset);
 };
