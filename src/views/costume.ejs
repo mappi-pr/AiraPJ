@@ -29,9 +29,8 @@
       <a href="/title">タイトルへ戻る</a>
     </nav>
     <% if (costumes && costumes.length > 0) { %>
-      <% var costumesJson = JSON.stringify(costumes).replace(/'/g, "\\'"); %>
       <script>
-        var costumes = JSON.parse('<%= costumesJson %>');
+        var costumes = <%- JSON.stringify(costumes) %>
         let idx = 0;
         const img = document.getElementById('costume-img');
         const name = document.getElementById('costume-name');

@@ -29,9 +29,8 @@
       <a href="/title">タイトルへ戻る</a>
     </nav>
     <% if (backgrounds && backgrounds.length > 0) { %>
-      <% var backgroundsJson = JSON.stringify(backgrounds).replace(/'/g, "\\'"); %>
       <script>
-        var backgrounds = JSON.parse('<%= backgroundsJson %>');
+        var backgrounds = <%- JSON.stringify(backgrounds) %>
         let idx = 0;
         const img = document.getElementById('background-img');
         const name = document.getElementById('background-name');

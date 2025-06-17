@@ -28,9 +28,8 @@
       <a href="/title">タイトルへ戻る</a>
     </nav>
     <% if (characters && characters.length > 0) { %>
-      <% var charactersJson = JSON.stringify(characters).replace(/'/g, "\\'"); %>
       <script>
-        var characters = JSON.parse('<%= charactersJson %>');
+        var characters = <%- JSON.stringify(characters) %>
         let idx = 0;
         const img = document.getElementById('character-img');
         const name = document.getElementById('character-name');
