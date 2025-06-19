@@ -1,31 +1,46 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
 # Node.js dependencies
 node_modules/
 
 # Build output
 dist/
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Thumbs.db
 
 # 環境変数/シークレット
 .env
 .env.*
 !.env.example
 
-# OS/エディターファイル
-.DS_Store
-Thumbs.db
-.vscode/
-
-# ログファイル
-*.log
-
 # 画像アセット（空ディレクトリ維持用に.gitkeepを推奨）
-assets/img/chr/*
-assets/img/bg/*
-assets/img/csm/*
-!assets/img/chr/.gitkeep
-!assets/img/bg/.gitkeep
-!assets/img/csm/.gitkeep
+src/assets/img/chr/*
+src/assets/img/bg/*
+src/assets/img/csm/*
+!src/assets/img/chr/.gitkeep
+!src/assets/img/bg/.gitkeep
+!src/assets/img/csm/.gitkeep
 
 #　音声アセット
-assets/sound/*
-!assets/sound/bgm/.gitkeep
-!assets/sound/se/.gitkeep
+src/assets/sound/*
+!src/assets/sound/bgm/.gitkeep
+!src/assets/sound/se/.gitkeep
