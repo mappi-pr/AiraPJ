@@ -10,15 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.10.0",
+    "pg": "^8.16.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.2"
+    "react-router-dom": "^7.6.2",
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@types/cors": "^2.8.19",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/sequelize": "^4.28.20",
     "@vitejs/plugin-react": "^4.4.1",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
