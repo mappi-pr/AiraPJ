@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import characterRouter from './routes/character';
@@ -32,7 +33,7 @@ app.use('/api/costume', costumeUploadRouter);
 app.use('/api/favorite', favoriteRouter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const PORT = process.env.API_PORT || 4000;
+const PORT = process.env.API_PORT;
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);
 });

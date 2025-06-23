@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -6,7 +7,11 @@ import { Costume } from '../models';
 const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads/csm'));
+    const dir = path.join(__dirname, '../uploads/csm');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);

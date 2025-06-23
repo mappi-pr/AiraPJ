@@ -2,26 +2,30 @@
   "name": "aira-api",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "dev": "ts-node-dev index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "build": "tsc",
+    "postbuild": "mkdir -p dist/uploads/chr dist/uploads/bg dist/uploads/csm && cp -r uploads/* dist/uploads/",
     "start": "node dist/index.js"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^4.18.2",
     "multer": "^2.0.1",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@types/connect": "^3.4.38",
     "@types/express": "^5.0.3",
     "@types/multer": "^1.4.13",
     "@types/node": "^24.0.3",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.0"
   }

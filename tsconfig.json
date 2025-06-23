@@ -1,4 +1,7 @@
 {
+  "compilerOptions": {
+    "types": ["node", "express", "connect"]
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
