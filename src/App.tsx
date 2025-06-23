@@ -3,7 +3,7 @@ import './App.css'
 import bgmpath from './assets/sound/bgm/main.mp3';
 import React, { useState, useRef } from 'react';
 import Title from './pages/Title';
-import CharacterSelect from './pages/CharacterSelect';
+import CharacterPartsSelect from './pages/CharacterPartsSelect';
 import BackgroundSelect from './pages/BackgroundSelect';
 import CostumeSelect from './pages/CostumeSelect';
 import Photo from './pages/Photo';
@@ -48,7 +48,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Title />} />
         <Route path="/title" element={<Title />} />
-        <Route path="/character" element={<CharacterSelect />} />
+        <Route path="/character" element={<CharacterPartsSelect />} />
         <Route path="/background" element={<BackgroundSelect />} />
         <Route path="/costume" element={<CostumeSelect />} />
         <Route path="/photo" element={<Photo />} />

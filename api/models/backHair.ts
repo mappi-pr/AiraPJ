@@ -1,0 +1,19 @@
+import { DataTypes, Model } from 'sequelize';
+import { sequelize } from './index';
+
+export class BackHair extends Model {
+  public id!: number;
+  public name!: string;
+  public assetPath!: string;
+}
+
+BackHair.init(
+  {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    name: { type: DataTypes.STRING, allowNull: false },
+    assetPath: { type: DataTypes.STRING, allowNull: false },
+  },
+  { sequelize, modelName: 'BackHair', tableName: 'back_hairs', timestamps: false }
+);
+
+export default BackHair;
