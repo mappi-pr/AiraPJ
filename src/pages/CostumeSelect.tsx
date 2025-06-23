@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 仮データ: 実際はAPIから取得
-const mockCostumes = [
-  { id: 1, name: '衣装1', assetPath: '/assets/img/csm/costume1.png' },
-  { id: 2, name: '衣装2', assetPath: '/assets/img/csm/costume2.png' },
-];
-
 const CostumeSelect: React.FC = () => {
+  const [costumes, setCostumes] = useState<any[]>([]);
   const [idx, setIdx] = useState(0);
   const navigate = useNavigate();
-  const costumes = mockCostumes; // TODO: API連携
+
+  useEffect(() => {
+    fetch('/api/costume')
+      .then(res => res.json())
+      .then(data => setCostumes(data));
+  }, []);
 
   const handlePrev = () => setIdx((idx - 1 + costumes.length) % costumes.length);
   const handleNext = () => setIdx((idx + 1) % costumes.length);

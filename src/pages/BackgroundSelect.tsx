@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 仮データ: 実際はAPIから取得
-const mockBackgrounds = [
-  { id: 1, name: '背景1', assetPath: '/assets/img/bg/bg1.png' },
-  { id: 2, name: '背景2', assetPath: '/assets/img/bg/bg2.png' },
-];
-
 const BackgroundSelect: React.FC = () => {
+  const [backgrounds, setBackgrounds] = useState<any[]>([]);
   const [idx, setIdx] = useState(0);
   const navigate = useNavigate();
-  const backgrounds = mockBackgrounds; // TODO: API連携
+
+  useEffect(() => {
+    fetch('/api/background')
+      .then(res => res.json())
+      .then(data => setBackgrounds(data));
+  }, []);
 
   const handlePrev = () => setIdx((idx - 1 + backgrounds.length) % backgrounds.length);
   const handleNext = () => setIdx((idx + 1) % backgrounds.length);

@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 仮データ: 実際はAPIから取得
-const mockCharacters = [
-  { id: 1, name: 'キャラ1', assetPath: '/assets/img/chr/char1.png' },
-  { id: 2, name: 'キャラ2', assetPath: '/assets/img/chr/char2.png' },
-];
-
 const CharacterSelect: React.FC = () => {
+  const [characters, setCharacters] = useState<any[]>([]);
   const [idx, setIdx] = useState(0);
   const navigate = useNavigate();
-  const characters = mockCharacters; // TODO: API連携
+
+  useEffect(() => {
+    fetch('/api/character')
+      .then(res => res.json())
+      .then(data => setCharacters(data));
+  }, []);
 
   const handlePrev = () => setIdx((idx - 1 + characters.length) % characters.length);
   const handleNext = () => setIdx((idx + 1) % characters.length);
@@ -18,9 +18,6 @@ const CharacterSelect: React.FC = () => {
     e.preventDefault();
     navigate('/background');
   };
-
-  // 例: API呼び出し時にuserIdを付与
-  // fetch('/api/character?userId=' + getUserId())
 
   return (
     <div className="main-container">

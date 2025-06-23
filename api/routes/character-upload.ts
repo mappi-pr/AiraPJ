@@ -21,15 +21,20 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // POST /api/character/upload
-router.post('/upload', upload.single('asset'), async (req, res): Promise<void> => {
-  if (!req.file) {
-    res.status(400).json({ error: 'No file uploaded' });
-    return;
+router.post('/upload', upload.single('asset'), async (req, res) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded' });
+      return;
+    }
+    const { name } = req.body;
+    const assetPath = `/uploads/chr/${req.file.filename}`;
+    const character = await Character.create({ name, assetPath });
+    res.json(character);
+  } catch (err) {
+    console.error('Character upload error:', err);
+    res.status(500).json({ error: 'Internal server error', details: String(err) });
   }
-  const { name } = req.body;
-  const assetPath = `/uploads/chr/${req.file.filename}`;
-  const character = await Character.create({ name, assetPath });
-  res.json(character);
 });
 
 export default router;

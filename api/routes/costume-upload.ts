@@ -22,11 +22,19 @@ const upload = multer({ storage });
 
 // POST /api/costume/upload
 router.post('/upload', upload.single('asset'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const { name } = req.body;
-  const assetPath = `/uploads/csm/${req.file.filename}`;
-  const costume = await Costume.create({ name, assetPath });
-  res.json(costume);
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded' });
+      return;
+    }
+    const { name } = req.body;
+    const assetPath = `/uploads/csm/${req.file.filename}`;
+    const costume = await Costume.create({ name, assetPath });
+    res.json(costume);
+  } catch (err) {
+    console.error('Costume upload error:', err);
+    res.status(500).json({ error: 'Internal server error', details: String(err) });
+  }
 });
 
 export default router;

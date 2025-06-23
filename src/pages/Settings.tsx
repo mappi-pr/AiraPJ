@@ -7,6 +7,8 @@ const Settings: React.FC = () => {
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     const type = assetTypeRef.current?.value;
@@ -26,10 +28,13 @@ const Settings: React.FC = () => {
     try {
       const res = await axios.post(url, formData);
       const data = res.data;
-      if (data.success) {
+      // successプロパティがなくてもid等があれば成功扱いにする
+      if (data && (data.id || data.character || data.background || data.costume)) {
+        const assetPath = data.assetPath || data.character?.assetPath || data.background?.assetPath || data.costume?.assetPath;
+        const imageUrl = assetPath?.startsWith('http') ? assetPath : API_BASE_URL + assetPath;
         setResult(
-          `アップロード成功！\nID: ${data.character?.id || data.background?.id || data.costume?.id}\n画像: ` +
-            `<img src="${data.character?.assetPath || data.background?.assetPath || data.costume?.assetPath}" width="100" />`
+          `アップロード成功！\nID: ${data.id || data.character?.id || data.background?.id || data.costume?.id}\n画像: ` +
+            `<img src="${imageUrl}" width="100" />`
         );
       } else {
         setResult(data.error || 'アップロード失敗');

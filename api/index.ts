@@ -21,7 +21,12 @@ app.get('/api/health', (req, res) => {
 });
 
 (async () => {
-  await sequelize.sync();
+  try {
+    await sequelize.sync();
+    console.log('DB sync complete');
+  } catch (err) {
+    console.error('DB sync error:', err);
+  }
 })();
 
 app.use('/api/character', characterRouter);

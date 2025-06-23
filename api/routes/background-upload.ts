@@ -21,15 +21,20 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // POST /api/background/upload
-router.post('/upload', upload.single('asset'), async (req, res): Promise<void> => {
-  if (!req.file) {
-    res.status(400).json({ error: 'No file uploaded' });
-    return;
+router.post('/upload', upload.single('asset'), async (req, res) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded' });
+      return;
+    }
+    const { name } = req.body;
+    const assetPath = `/uploads/bg/${req.file.filename}`;
+    const background = await Background.create({ name, assetPath });
+    res.json(background);
+  } catch (err) {
+    console.error('Background upload error:', err);
+    res.status(500).json({ error: 'Internal server error', details: String(err) });
   }
-  const { name } = req.body;
-  const assetPath = `/uploads/bg/${req.file.filename}`;
-  const background = await Background.create({ name, assetPath });
-  res.json(background);
 });
 
 export default router;
