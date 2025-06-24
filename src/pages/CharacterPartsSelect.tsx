@@ -36,18 +36,6 @@ const CharacterPartsSelect: React.FC = () => {
   return (
     <div className="main-container">
       <h1>キャラクターパーツ選択</h1>
-      <div style={{ position: 'relative', width: 240, height: 320, margin: '0 auto' }}>
-        {/* 後髪 → 顔 → 前髪 の順で重ねる */}
-        {backHairs[backIdx] && (
-          <img src={API_BASE_URL + backHairs[backIdx].assetPath} alt="後髪" style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
-        )}
-        {faces[faceIdx] && (
-          <img src={API_BASE_URL + faces[faceIdx].assetPath} alt="顔" style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
-        )}
-        {frontHairs[frontIdx] && (
-          <img src={API_BASE_URL + frontHairs[frontIdx].assetPath} alt="前髪" style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
-        )}
-      </div>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 24, margin: '24px 0' }}>
         {/* パーツごとに選択UI */}
         <div>
@@ -68,6 +56,18 @@ const CharacterPartsSelect: React.FC = () => {
           <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs.length === 0 ? '未登録です' : (backHairs[backIdx]?.name || '')}</span>
           <button onClick={() => handleNext('back')}>→</button>
         </div>
+      </div>
+      <div style={{ position: 'relative', width: 240, height: 320, margin: '0 auto' }}>
+        {/* 後髪 → 顔 → 前髪 の順で重ねる */}
+        {backHairs[backIdx] && (
+          <img src={API_BASE_URL + backHairs[backIdx].assetPath} alt="後髪" style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
+        )}
+        {faces[faceIdx] && (
+          <img src={API_BASE_URL + faces[faceIdx].assetPath} alt="顔" style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
+        )}
+        {frontHairs[frontIdx] && (
+          <img src={API_BASE_URL + frontHairs[frontIdx].assetPath} alt="前髪" style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
+        )}
       </div>
       <form onSubmit={handleNextPage}>
         <button type="submit">つぎへ</button>
