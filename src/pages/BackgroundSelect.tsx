@@ -33,7 +33,7 @@ const BackgroundSelect: React.FC = () => {
             <button onClick={handleNext}>→</button>
           </>
         ) : (
-          <div>未設定です</div>
+          <div>未登録です</div>
         )}
       </div>
       <form onSubmit={handleNextPage}>

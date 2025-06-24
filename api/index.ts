@@ -1,8 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import characterRouter from './routes/character';
-import characterUploadRouter from './routes/character-upload';
 import backgroundRouter from './routes/background';
 import backgroundUploadRouter from './routes/background-upload';
 import costumeRouter from './routes/costume';
@@ -35,8 +33,6 @@ app.get('/api/health', (req, res) => {
   }
 })();
 
-app.use('/api/character', characterRouter);
-app.use('/api/character', characterUploadRouter);
 app.use('/api/background', backgroundRouter);
 app.use('/api/background', backgroundUploadRouter);
 app.use('/api/costume', costumeRouter);

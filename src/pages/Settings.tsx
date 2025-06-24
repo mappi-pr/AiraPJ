@@ -9,6 +9,15 @@ const Settings: React.FC = () => {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
+  // アップロード種別ごとのエンドポイント
+  const uploadUrls: Record<string, string> = {
+    face: '/api/face/upload',
+    frontHair: '/api/front-hair/upload',
+    backHair: '/api/back-hair/upload',
+    background: '/api/background/upload',
+    costume: '/api/costume/upload',
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     const type = assetTypeRef.current?.value;
@@ -18,23 +27,24 @@ const Settings: React.FC = () => {
       setResult('PNG画像のみアップロード可能です。');
       return;
     }
+    if (!type || !uploadUrls[type]) {
+      setResult('種別を選択してください。');
+      return;
+    }
     const formData = new FormData();
     formData.append('name', name || '');
     formData.append('asset', file);
-    let url = '';
-    if (type === 'character') url = '/api/character/upload';
-    if (type === 'background') url = '/api/background/upload';
-    if (type === 'costume') url = '/api/costume/upload';
+    const url = uploadUrls[type];
     try {
       const res = await axios.post(url, formData);
       const data = res.data;
-      // successプロパティがなくてもid等があれば成功扱いにする
-      if (data && (data.id || data.character || data.background || data.costume)) {
-        const assetPath = data.assetPath || data.character?.assetPath || data.background?.assetPath || data.costume?.assetPath;
-        const imageUrl = assetPath?.startsWith('http') ? assetPath : API_BASE_URL + assetPath;
+      // パーツ・背景・衣装いずれかのレスポンスに対応
+      const assetPath = data.assetPath || data.face?.assetPath || data.frontHair?.assetPath || data.backHair?.assetPath || data.background?.assetPath || data.costume?.assetPath;
+      const id = data.id || data.face?.id || data.frontHair?.id || data.backHair?.id || data.background?.id || data.costume?.id;
+      if (assetPath && id) {
+        const imageUrl = assetPath.startsWith('http') ? assetPath : API_BASE_URL + assetPath;
         setResult(
-          `アップロード成功！\nID: ${data.id || data.character?.id || data.background?.id || data.costume?.id}\n画像: ` +
-            `<img src="${imageUrl}" width="100" />`
+          `アップロード成功！\nID: ${id}\n画像: <img src="${imageUrl}" width="100" />`
         );
       } else {
         setResult(data.error || 'アップロード失敗');
@@ -55,7 +65,9 @@ const Settings: React.FC = () => {
         <label>
           アップロード種別:
           <select name="type" ref={assetTypeRef}>
-            <option value="character">キャラクター</option>
+            <option value="face">顔パーツ</option>
+            <option value="frontHair">前髪パーツ</option>
+            <option value="backHair">後髪パーツ</option>
             <option value="background">背景</option>
             <option value="costume">衣装</option>
           </select>

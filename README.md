@@ -50,8 +50,11 @@ npm start
 - アップロード時、必要なサブディレクトリ（chr/bg/csm）は自動生成されます。
 
 ### 5. APIエンドポイント例
-- `/api/character/upload` など
-- DB登録・ファイル保存ともに正常動作します
+- `/api/face/upload` 顔パーツ画像アップロード
+- `/api/front-hair/upload` 前髪パーツ画像アップロード
+- `/api/back-hair/upload` 後髪パーツ画像アップロード
+- `/api/background/upload` 背景画像アップロード
+- `/api/costume/upload` 衣装画像アップロード
 
 ### 6. 注意点
 - Node.js v22系などではAPIサーバーは起動できません。必ずv20系で実行してください。

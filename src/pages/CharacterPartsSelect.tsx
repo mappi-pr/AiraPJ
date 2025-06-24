@@ -30,7 +30,6 @@ const CharacterPartsSelect: React.FC = () => {
   };
   const handleNextPage = (e: React.FormEvent) => {
     e.preventDefault();
-    // 選択したパーツ情報を次画面に渡す場合はここで保存
     navigate('/background');
   };
 
@@ -54,19 +53,19 @@ const CharacterPartsSelect: React.FC = () => {
         <div>
           <div>顔</div>
           <button onClick={() => handlePrev('face')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{faces[faceIdx]?.name || ''}</span>
+          <span style={{ minWidth: 60, display: 'inline-block' }}>{faces.length === 0 ? '未登録です' : (faces[faceIdx]?.name || '')}</span>
           <button onClick={() => handleNext('face')}>→</button>
         </div>
         <div>
           <div>前髪</div>
           <button onClick={() => handlePrev('front')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{frontHairs[frontIdx]?.name || ''}</span>
+          <span style={{ minWidth: 60, display: 'inline-block' }}>{frontHairs.length === 0 ? '未登録です' : (frontHairs[frontIdx]?.name || '')}</span>
           <button onClick={() => handleNext('front')}>→</button>
         </div>
         <div>
           <div>後髪</div>
           <button onClick={() => handlePrev('back')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs[backIdx]?.name || ''}</span>
+          <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs.length === 0 ? '未登録です' : (backHairs[backIdx]?.name || '')}</span>
           <button onClick={() => handleNext('back')}>→</button>
         </div>
       </div>

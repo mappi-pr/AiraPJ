@@ -12,20 +12,6 @@ const sequelize = new Sequelize(
   }
 );
 
-export class Character extends Model {
-  public id!: number;
-  public name!: string;
-  public assetPath!: string;
-}
-Character.init(
-  {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    name: { type: DataTypes.STRING, allowNull: false },
-    assetPath: { type: DataTypes.STRING, allowNull: false },
-  },
-  { sequelize, modelName: 'Character', tableName: 'characters', timestamps: false }
-);
-
 export class Background extends Model {
   public id!: number;
   public name!: string;
