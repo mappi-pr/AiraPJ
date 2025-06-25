@@ -1,17 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import texts from '../locales/ja.json';
+import { PartsContext } from '../context/PartsContextOnly';
+import type { PartInfo } from '../context/PartsContextOnly';
 
 const CostumeSelect: React.FC = () => {
-  const [costumes, setCostumes] = useState<any[]>([]);
+  const [costumes, setCostumes] = useState<PartInfo[]>([]);
   const [idx, setIdx] = useState(0);
   const navigate = useNavigate();
+  const partsContext = useContext(PartsContext);
 
   useEffect(() => {
     fetch('/api/costume')
       .then(res => res.json())
       .then(data => setCostumes(data));
   }, []);
+
+  // 衣装選択時にContextへ保存
+  useEffect(() => {
+    if (!partsContext) return;
+    partsContext.setSelectedParts(prev => ({
+      ...prev,
+      costume: costumes[idx] || null
+    }));
+    // eslint-disable-next-line
+  }, [idx, costumes]);
 
   const handlePrev = () => setIdx((idx - 1 + costumes.length) % costumes.length);
   const handleNext = () => setIdx((idx + 1) % costumes.length);

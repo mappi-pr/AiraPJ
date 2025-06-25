@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "axios": "^1.10.0",
+    "html2canvas": "^1.4.1",
     "pg": "^8.16.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@types/cors": "^2.8.19",
+    "@types/html2canvas": "^0.5.35",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@types/sequelize": "^4.28.20",

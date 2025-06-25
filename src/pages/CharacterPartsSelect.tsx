@@ -1,23 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import texts from '../locales/ja.json';
+import { PartsContext } from '../context/PartsContextOnly';
+import type { PartInfo } from '../context/PartsContextOnly';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
 const CharacterPartsSelect: React.FC = () => {
-  const [faces, setFaces] = useState<any[]>([]);
-  const [frontHairs, setFrontHairs] = useState<any[]>([]);
-  const [backHairs, setBackHairs] = useState<any[]>([]);
+  const [faces, setFaces] = useState<PartInfo[]>([]);
+  const [frontHairs, setFrontHairs] = useState<PartInfo[]>([]);
+  const [backHairs, setBackHairs] = useState<PartInfo[]>([]);
   const [faceIdx, setFaceIdx] = useState(0);
   const [frontIdx, setFrontIdx] = useState(0);
   const [backIdx, setBackIdx] = useState(0);
   const navigate = useNavigate();
+  const partsContext = useContext(PartsContext);
 
   useEffect(() => {
     fetch('/api/face').then(res => res.json()).then(setFaces);
     fetch('/api/front-hair').then(res => res.json()).then(setFrontHairs);
     fetch('/api/back-hair').then(res => res.json()).then(setBackHairs);
   }, []);
+
+  // 選択内容をContextに保存
+  useEffect(() => {
+    if (!partsContext) return;
+    partsContext.setSelectedParts(prev => ({
+      ...prev,
+      face: faces[faceIdx] || null,
+      frontHair: frontHairs[frontIdx] || null,
+      backHair: backHairs[backIdx] || null,
+    }));
+    // eslint-disable-next-line
+  }, [faceIdx, frontIdx, backIdx, faces, frontHairs, backHairs]);
 
   const handlePrev = (type: 'face' | 'front' | 'back') => {
     if (type === 'face') setFaceIdx((faceIdx - 1 + faces.length) % faces.length);
