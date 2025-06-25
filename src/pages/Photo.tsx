@@ -6,6 +6,41 @@ import html2canvas from 'html2canvas';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
 const Photo: React.FC = () => {
+  // ドラッグ用state
+  const [dragPos, setDragPos] = React.useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = React.useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+
+  // ドラッグ中のグローバルイベント監視
+  React.useEffect(() => {
+    if (!dragging) return;
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      let clientX, clientY;
+      if (e instanceof TouchEvent) {
+        clientX = e.touches[0]?.clientX ?? 0;
+        clientY = e.touches[0]?.clientY ?? 0;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      setDragPos({
+        x: clientX - dragOffset.current.x,
+        y: clientY - dragOffset.current.y,
+      });
+    };
+    const handleUp = () => setDragging(false);
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('mouseup', handleUp);
+    window.addEventListener('touchend', handleUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('mouseup', handleUp);
+      window.removeEventListener('touchend', handleUp);
+    };
+  }, [dragging]);
+
   const partsContext = useContext(PartsContext);
   const photoRef = useRef<HTMLDivElement>(null);
   if (!partsContext) return <div>パーツ情報が取得できません</div>;
@@ -23,6 +58,17 @@ const Photo: React.FC = () => {
       link.href = canvas.toDataURL();
       link.click();
     }
+  };
+
+  // ドラッグ開始
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    setDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    dragOffset.current = {
+      x: clientX - dragPos.x,
+      y: clientY - dragPos.y,
+    };
   };
 
   return (
@@ -50,6 +96,7 @@ const Photo: React.FC = () => {
           height: 320,
           background: '#eee',
           margin: '0 auto',
+          overflow: 'hidden', // 追加
         }}
       >
         {/* 背景（固定） */}
@@ -74,14 +121,18 @@ const Photo: React.FC = () => {
         <div
           style={{
             position: 'absolute',
-            left: 0,
-            top: 0,
+            left: dragPos.x,
+            top: dragPos.y,
             width: 240,
             height: 320,
             zIndex: 1,
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
+            cursor: dragging ? 'grabbing' : 'grab',
+            touchAction: 'none',
           }}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
         >
           {selectedParts.backHair && (
             <div
@@ -148,6 +199,7 @@ const Photo: React.FC = () => {
         </div>
       </div>
       <button onClick={handleDownload}>PNGで保存</button>
+      <button onClick={() => setDragPos({ x: 0, y: 0 })}>位置リセット</button>
       <nav>
         <a href="/title">{texts.common.backToTitle}</a>
       </nav>
