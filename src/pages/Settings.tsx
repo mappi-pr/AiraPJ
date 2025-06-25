@@ -25,11 +25,11 @@ const Settings: React.FC = () => {
     const name = assetNameRef.current?.value;
     const file = assetFileRef.current?.files?.[0];
     if (!file || file.type !== 'image/png') {
-      setResult('PNG画像のみアップロード可能です。');
+      setResult(texts.settings.pngOnly);
       return;
     }
     if (!type || !uploadUrls[type]) {
-      setResult('種別を選択してください。');
+      setResult(texts.settings.selectType);
       return;
     }
     const formData = new FormData();
@@ -45,13 +45,13 @@ const Settings: React.FC = () => {
       if (assetPath && id) {
         const imageUrl = assetPath.startsWith('http') ? assetPath : API_BASE_URL + assetPath;
         setResult(
-          `アップロード成功！\nID: ${id}\n画像: <img src="${imageUrl}" width="100" />`
+          `${texts.settings.resultSuccess}\nID: ${id}\n画像: <img src="${imageUrl}" width="100" />`
         );
       } else {
-        setResult(data.error || 'アップロード失敗');
+        setResult(data.error || texts.settings.resultFail);
       }
     } catch {
-      setResult('アップロード失敗');
+      setResult(texts.settings.resultFail);
     }
   };
 
