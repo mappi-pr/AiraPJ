@@ -1,0 +1,48 @@
+{
+  "common": {
+    "noData": "未登録です",
+    "next": "つぎへ",
+    "backToTitle": "タイトルへ戻る"
+  },
+  "title": {
+    "mainTitle": "Aira PJ",
+    "startBtn": "ゲームをはじめる",
+    "favorites": "おきにいり",
+    "settings": "設定",
+    "terms": "規約・クレジット"
+  },
+  "characterPartsSelect": {
+    "title": "キャラクターパーツ選択",
+    "face": "顔",
+    "frontHair": "前髪",
+    "backHair": "後髪"
+  },
+  "backgroundSelect": {
+    "title": "背景選択",
+    "backToCharacter": "キャラクター選択へ戻る"
+  },
+  "costumeSelect": {
+    "title": "衣装選択",
+    "backToBackground": "背景選択へ戻る"
+  },
+  "photo": {
+    "title": "フリー撮影モード"
+  },
+  "history": {
+    "title": "履歴管理"
+  },
+  "settings": {
+    "title": "設定",
+    "uploadTitle": "画像アセットアップロード",
+    "typeLabel": "アップロード種別:",
+    "nameLabel": "名前:",
+    "uploadBtn": "アップロード",
+    "resultSuccess": "アップロード成功！",
+    "resultFail": "アップロード失敗",
+    "pngOnly": "PNG画像のみアップロード可能です。",
+    "selectType": "種別を選択してください。"
+  },
+  "terms": {
+    "title": "規約・クレジット"
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import texts from '../locales/ja.json';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
@@ -35,45 +36,44 @@ const CharacterPartsSelect: React.FC = () => {
 
   return (
     <div className="main-container">
-      <h1>キャラクターパーツ選択</h1>
+      <h1>{texts.characterPartsSelect.title}</h1>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 24, margin: '24px 0' }}>
-        {/* パーツごとに選択UI */}
         <div>
-          <div>顔</div>
+          <div>{texts.characterPartsSelect.face}</div>
           <button onClick={() => handlePrev('face')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{faces.length === 0 ? '未登録です' : (faces[faceIdx]?.name || '')}</span>
+          <span style={{ minWidth: 60, display: 'inline-block' }}>{faces.length === 0 ? texts.common.noData : (faces[faceIdx]?.name || '')}</span>
           <button onClick={() => handleNext('face')}>→</button>
         </div>
         <div>
-          <div>前髪</div>
+          <div>{texts.characterPartsSelect.frontHair}</div>
           <button onClick={() => handlePrev('front')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{frontHairs.length === 0 ? '未登録です' : (frontHairs[frontIdx]?.name || '')}</span>
+          <span style={{ minWidth: 60, display: 'inline-block' }}>{frontHairs.length === 0 ? texts.common.noData : (frontHairs[frontIdx]?.name || '')}</span>
           <button onClick={() => handleNext('front')}>→</button>
         </div>
         <div>
-          <div>後髪</div>
+          <div>{texts.characterPartsSelect.backHair}</div>
           <button onClick={() => handlePrev('back')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs.length === 0 ? '未登録です' : (backHairs[backIdx]?.name || '')}</span>
+          <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs.length === 0 ? texts.common.noData : (backHairs[backIdx]?.name || '')}</span>
           <button onClick={() => handleNext('back')}>→</button>
         </div>
       </div>
       <div style={{ position: 'relative', width: 240, height: 320, margin: '0 auto' }}>
         {/* 後髪 → 顔 → 前髪 の順で重ねる */}
         {backHairs[backIdx] && (
-          <img src={API_BASE_URL + backHairs[backIdx].assetPath} alt="後髪" style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
+          <img src={API_BASE_URL + backHairs[backIdx].assetPath} alt={texts.characterPartsSelect.backHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
         )}
         {faces[faceIdx] && (
-          <img src={API_BASE_URL + faces[faceIdx].assetPath} alt="顔" style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
+          <img src={API_BASE_URL + faces[faceIdx].assetPath} alt={texts.characterPartsSelect.face} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
         )}
         {frontHairs[frontIdx] && (
-          <img src={API_BASE_URL + frontHairs[frontIdx].assetPath} alt="前髪" style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
+          <img src={API_BASE_URL + frontHairs[frontIdx].assetPath} alt={texts.characterPartsSelect.frontHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
         )}
       </div>
       <form onSubmit={handleNextPage}>
-        <button type="submit">つぎへ</button>
+        <button type="submit">{texts.common.next}</button>
       </form>
       <nav>
-        <a href="/title">タイトルへ戻る</a>
+        <a href="/title">{texts.common.backToTitle}</a>
       </nav>
     </div>
   );

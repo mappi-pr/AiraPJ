@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import texts from '../locales/ja.json';
 
 const CostumeSelect: React.FC = () => {
   const [costumes, setCostumes] = useState<any[]>([]);
@@ -21,7 +22,7 @@ const CostumeSelect: React.FC = () => {
 
   return (
     <div className="main-container">
-      <h1>衣装選択</h1>
+      <h1>{texts.costumeSelect.title}</h1>
       <div className="select-container">
         {costumes.length > 0 ? (
           <>
@@ -33,15 +34,15 @@ const CostumeSelect: React.FC = () => {
             <button onClick={handleNext}>→</button>
           </>
         ) : (
-          <div>未登録です</div>
+          <div>{texts.common.noData}</div>
         )}
       </div>
       <form onSubmit={handleNextPage}>
-        <button type="submit">つぎへ</button>
+        <button type="submit">{texts.common.next}</button>
       </form>
       <nav>
-        <a href="/background">背景選択へ戻る</a> |
-        <a href="/title">タイトルへ戻る</a>
+        <a href="/background">{texts.costumeSelect.backToBackground}</a> |
+        <a href="/title">{texts.common.backToTitle}</a>
       </nav>
     </div>
   );

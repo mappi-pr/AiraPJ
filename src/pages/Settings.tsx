@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import axios from 'axios';
+import texts from '../locales/ja.json';
 
 const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
@@ -56,14 +57,14 @@ const Settings: React.FC = () => {
 
   return (
     <div className="main-container">
-      <h1>設定</h1>
+      <h1>{texts.settings.title}</h1>
       <nav>
-        <a href="/title">タイトルへ戻る</a>
+        <a href="/title">{texts.common.backToTitle}</a>
       </nav>
-      <h2>画像アセットアップロード</h2>
+      <h2>{texts.settings.uploadTitle}</h2>
       <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
         <label>
-          アップロード種別:
+          {texts.settings.typeLabel}
           <select name="type" ref={assetTypeRef}>
             <option value="face">顔パーツ</option>
             <option value="frontHair">前髪パーツ</option>
@@ -74,12 +75,12 @@ const Settings: React.FC = () => {
         </label>
         <br />
         <label>
-          名前: <input type="text" name="name" ref={assetNameRef} required />
+          {texts.settings.nameLabel} <input type="text" name="name" ref={assetNameRef} required />
         </label>
         <br />
         <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
         <br />
-        <button type="submit">アップロード</button>
+        <button type="submit">{texts.settings.uploadBtn}</button>
       </form>
       <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
     </div>

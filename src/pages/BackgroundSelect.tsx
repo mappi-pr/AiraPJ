@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import texts from '../locales/ja.json';
 
 const BackgroundSelect: React.FC = () => {
   const [backgrounds, setBackgrounds] = useState<any[]>([]);
@@ -21,7 +22,7 @@ const BackgroundSelect: React.FC = () => {
 
   return (
     <div className="main-container">
-      <h1>背景選択</h1>
+      <h1>{texts.backgroundSelect.title}</h1>
       <div className="select-container">
         {backgrounds.length > 0 ? (
           <>
@@ -33,15 +34,15 @@ const BackgroundSelect: React.FC = () => {
             <button onClick={handleNext}>→</button>
           </>
         ) : (
-          <div>未登録です</div>
+          <div>{texts.common.noData}</div>
         )}
       </div>
       <form onSubmit={handleNextPage}>
-        <button type="submit">つぎへ</button>
+        <button type="submit">{texts.common.next}</button>
       </form>
       <nav>
-        <a href="/character">キャラクター選択へ戻る</a> |
-        <a href="/title">タイトルへ戻る</a>
+        <a href="/character">{texts.backgroundSelect.backToCharacter}</a> |
+        <a href="/title">{texts.common.backToTitle}</a>
       </nav>
     </div>
   );

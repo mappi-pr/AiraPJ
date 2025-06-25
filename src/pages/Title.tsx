@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useRef } from 'react';
 import gearpath from '../assets/gear.png';
 import sepath from '../assets/sound/se/main.mp3';
+import texts from '../locales/ja.json';
 
 const Title: React.FC = () => {
   const [overlay, setOverlay] = useState(false);    
@@ -32,21 +33,21 @@ const Title: React.FC = () => {
     <div className="main-container" style={{ position: 'relative' }}>
       <audio ref={seRef} src={sepath} />
       <header>
-        <a href="/settings" id="settings-icon" title="設定" style={{ position: 'absolute', left: 16, top: 16, zIndex: 2 }}>
-          <img src={gearpath} alt="設定" style={{ width: 32, height: 32 }} />
+        <a href="/settings" id="settings-icon" title={texts.title.settings} style={{ position: 'absolute', left: 16, top: 16, zIndex: 2 }}>
+          <img src={gearpath} alt={texts.title.settings} style={{ width: 32, height: 32 }} />
         </a>
       </header>
       <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <h1 style={{ textAlign: 'center' }}>Aira PJ</h1>
+        <h1 style={{ textAlign: 'center' }}>{texts.title.mainTitle}</h1>
         <form onSubmit={handleStart} style={{ margin: '16px 0' }}>
-          <button type="submit" id="start-btn" disabled={overlay}>ゲームをはじめる</button>
+          <button type="submit" id="start-btn" disabled={overlay}>{texts.title.startBtn}</button>
         </form>
         <div style={{ marginBottom: 16 }}>
-          <a href="/history" id="favorites-menu">おきにいり</a>
+          <a href="/history" id="favorites-menu">{texts.title.favorites}</a>
         </div>
       </main>
       <footer>
-        <a href="/terms" id="terms-link" style={{ fontSize: 'small', position: 'absolute', left: 16, bottom: 16 }}>規約・クレジット</a>
+        <a href="/terms" id="terms-link" style={{ fontSize: 'small', position: 'absolute', left: 16, bottom: 16 }}>{texts.title.terms}</a>
       </footer>
       {overlay && (
         <div style={{ position: 'fixed', zIndex: 9999, top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', transition: 'opacity 0.5s' }} />
