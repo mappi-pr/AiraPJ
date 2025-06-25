@@ -1,9 +1,19 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
 import texts from '../locales/ja.json';
 
+const assetTypes = [
+  { key: 'face', label: texts.settings.faceLabel },
+  { key: 'frontHair', label: texts.settings.frontHairLabel },
+  { key: 'backHair', label: texts.settings.backHairLabel },
+  { key: 'background', label: texts.settings.backgroundLabel },
+  { key: 'costume', label: texts.settings.costumeLabel },
+];
+
 const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
+  const [assets, setAssets] = useState<Record<string, any[]>>({});
+  const [loading, setLoading] = useState(false);
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
@@ -19,6 +29,28 @@ const Settings: React.FC = () => {
     costume: '/api/costume/upload',
   };
 
+  // 一覧取得
+  const fetchAssets = async () => {
+    setLoading(true);
+    const newAssets: Record<string, any[]> = {};
+    for (const type of assetTypes) {
+      try {
+        const res = await axios.get(`${uploadUrls[type.key].replace('/upload', '')}`);
+        newAssets[type.key] = res.data || [];
+      } catch {
+        newAssets[type.key] = [];
+      }
+    }
+    setAssets(newAssets);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAssets();
+    // eslint-disable-next-line
+  }, []);
+
+  // アップロード
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     const type = assetTypeRef.current?.value;
@@ -55,6 +87,18 @@ const Settings: React.FC = () => {
     }
   };
 
+  // 削除
+  const handleDelete = async (type: string, id: number) => {
+    if (!window.confirm(texts.settings.deleteConfirm)) return;
+    try {
+      await axios.delete(`${uploadUrls[type].replace('/upload', '')}/${id}`);
+      fetchAssets();
+      setResult(texts.settings.deleteSuccess);
+    } catch {
+      setResult(texts.settings.deleteFail);
+    }
+  };
+
   return (
     <div className="main-container">
       <h1>{texts.settings.title}</h1>
@@ -83,6 +127,30 @@ const Settings: React.FC = () => {
         <button type="submit">{texts.settings.uploadBtn}</button>
       </form>
       <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
+
+      <h2>{texts.settings.assetListTitle}</h2>
+      {loading ? (
+        <div>{texts.common.loading}</div>
+      ) : (
+        assetTypes.map(({ key, label }) => (
+          <section key={key}>
+            <h3>{label}</h3>
+            {assets[key]?.length ? (
+              <ul className="asset-list">
+                {assets[key].map((item: any) => (
+                  <li key={item.id} style={{ marginBottom: 8 }}>
+                    <img src={item.assetPath?.startsWith('http') ? item.assetPath : API_BASE_URL + item.assetPath} alt={item.name} width={60} style={{ verticalAlign: 'middle' }} />
+                    <span style={{ margin: '0 8px' }}>{item.name}</span>
+                    <button onClick={() => handleDelete(key, item.id)}>{texts.settings.deleteBtn}</button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div>{texts.settings.noAsset}</div>
+            )}
+          </section>
+        ))
+      )}
     </div>
   );
 };

@@ -2,7 +2,8 @@
   "common": {
     "noData": "未登録です",
     "next": "つぎへ",
-    "backToTitle": "タイトルへ戻る"
+    "backToTitle": "タイトルへ戻る",
+    "loading": "読み込み中..."
   },
   "title": {
     "mainTitle": "Aira PJ",
@@ -40,7 +41,18 @@
     "resultSuccess": "アップロード成功！",
     "resultFail": "アップロード失敗",
     "pngOnly": "PNG画像のみアップロード可能です。",
-    "selectType": "種別を選択してください。"
+    "selectType": "種別を選択してください。",
+    "assetListTitle": "アセット一覧・削除",
+    "faceLabel": "顔パーツ",
+    "frontHairLabel": "前髪パーツ",
+    "backHairLabel": "後髪パーツ",
+    "backgroundLabel": "背景",
+    "costumeLabel": "衣装",
+    "deleteBtn": "削除",
+    "deleteConfirm": "本当に削除しますか？（画像は物理削除・DBは論理削除されます）",
+    "deleteSuccess": "削除しました",
+    "deleteFail": "削除に失敗しました",
+    "noAsset": "アセットがありません"
   },
   "terms": {
     "title": "規約・クレジット"

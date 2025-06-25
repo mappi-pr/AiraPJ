@@ -62,6 +62,25 @@ npm start
 - フロントエンドのAPIリクエストは `/api/xxx` の相対パスで記述してください。
 - CORSエラーが出る場合はAPIサーバー側のCORS設定を見直してください。
 
+## 型エラー対策（Express/TypeScript）
+- `express`はv4.x、`@types/express`もv4.17.21に固定してください。
+- v5系型が混在するとAPIルートで型エラーが発生します。
+- 例: `npm install --save-dev @types/express@4.17.21`
+
+## アセット削除仕様
+- 各アセット（顔・前髪・後髪・背景・衣装）は物理削除＋データベースは論理削除（deleted, deletedAt）対応。
+- GET APIは論理削除されていないもののみ返却。
+- DELETE APIは画像ファイルを物理削除し、DBレコードは論理削除。
+
+## DBマイグレーション
+- `.env` のDB接続情報を `config/config.js` で自動参照します（`config.json`は不要です）。
+- マイグレーション例: `npx sequelize-cli db:migrate`
+
+## セットアップ注意
+- Node.js 18以上推奨
+- APIサーバ起動: `npm run dev` または `npm run build && npm start`
+- フロントのAPI_BASE_URLは`.env`の`VITE_API_BASE_URL`で一元管理
+
 ## ディレクトリ構成（例）
 ```
 AiraSPA/

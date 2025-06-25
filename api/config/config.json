@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "myuser",
+    "password": "mypassword",
+    "database": "airapj",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "myuser",
+    "password": "mypassword",
+    "database": "airapj_test",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "myuser",
+    "password": "mypassword",
+    "database": "airapj",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  }
+}
