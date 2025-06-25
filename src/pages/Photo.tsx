@@ -54,9 +54,7 @@ const Photo: React.FC = () => {
       >
         {/* 背景（固定） */}
         {selectedParts.background ? (
-          <img
-            src={API_BASE_URL + selectedParts.background.assetPath}
-            alt="背景"
+          <div
             style={{
               position: 'absolute',
               left: 0,
@@ -64,12 +62,15 @@ const Photo: React.FC = () => {
               width: 240,
               height: 320,
               zIndex: 0,
+              backgroundImage: `url(${API_BASE_URL + selectedParts.background.assetPath})`,
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
             }}
           />
         ) : (
           <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>背景未選択</div>
         )}
-        {/* 衣装＋顔系パーツ（拡縮グループ） */}
+        {/* パーツ重ね順: 後髪→衣装→顔→前髪 */}
         <div
           style={{
             position: 'absolute',
@@ -82,34 +83,66 @@ const Photo: React.FC = () => {
             transformOrigin: 'center center',
           }}
         >
+          {selectedParts.backHair && (
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: 240,
+                height: 320,
+                zIndex: 1,
+                backgroundImage: `url(${API_BASE_URL + selectedParts.backHair.assetPath})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
+          )}
           {selectedParts.costume ? (
-            <img
-              src={API_BASE_URL + selectedParts.costume.assetPath}
-              alt="衣装"
-              style={{ position: 'absolute', left: 0, top: 0, width: 240, height: 320, zIndex: 1 }}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: 240,
+                height: 320,
+                zIndex: 2,
+                backgroundImage: `url(${API_BASE_URL + selectedParts.costume.assetPath})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+              }}
             />
           ) : (
-            <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:1,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>衣装未選択</div>
-          )}
-          {selectedParts.backHair && (
-            <img
-              src={API_BASE_URL + selectedParts.backHair.assetPath}
-              alt="後髪"
-              style={{ position: 'absolute', left: 0, top: 0, width: 240, height: 320, zIndex: 2 }}
-            />
+            <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>衣装未選択</div>
           )}
           {selectedParts.face && (
-            <img
-              src={API_BASE_URL + selectedParts.face.assetPath}
-              alt="顔"
-              style={{ position: 'absolute', left: 0, top: 0, width: 240, height: 320, zIndex: 3 }}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: 240,
+                height: 320,
+                zIndex: 3,
+                backgroundImage: `url(${API_BASE_URL + selectedParts.face.assetPath})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+              }}
             />
           )}
           {selectedParts.frontHair && (
-            <img
-              src={API_BASE_URL + selectedParts.frontHair.assetPath}
-              alt="前髪"
-              style={{ position: 'absolute', left: 0, top: 0, width: 240, height: 320, zIndex: 4 }}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: 240,
+                height: 320,
+                zIndex: 4,
+                backgroundImage: `url(${API_BASE_URL + selectedParts.frontHair.assetPath})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+              }}
             />
           )}
         </div>
