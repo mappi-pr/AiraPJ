@@ -25,7 +25,7 @@ npm install
   DB_PASS=yourpassword
   DB_HOST=localhost
   DB_PORT=5432
-  API_PORT=4000
+  VITE_API_BASE_URL=http://localhost:4000
   ```
 
 ### 4. サーバーの起動
@@ -35,7 +35,7 @@ npm install
 npm run dev
 ```
 - デフォルト: http://localhost:5173
-- Viteの `vite.config.ts` で `/api` へのリクエストは http://localhost:4000 へプロキシされます。
+- Viteの `vite.config.ts` で `/api` へのリクエストは `.env` の `VITE_API_BASE_URL` へプロキシされます。
 
 #### APIサーバー（Express）
 ```sh
@@ -44,7 +44,7 @@ nvm use   # .nvmrcがある場合
 npm run build
 npm start
 ```
-- デフォルト: http://localhost:4000
+- デフォルト: http://localhost:4000（`.env` の `VITE_API_BASE_URL` で変更可）
 - アップロード画像は `api/dist/uploads/` 配下に保存されます。
 - ビルド時に `uploads` ディレクトリが `dist/uploads` へ自動コピーされます。
 - アップロード時、必要なサブディレクトリ（chr/bg/csm）は自動生成されます。
@@ -58,7 +58,7 @@ npm start
 
 ### 6. 注意点
 - Node.js v22系などではAPIサーバーは起動できません。必ずv20系で実行してください。
-- DB接続情報・APIサーバーポートは `.env` で管理します。
+- DB接続情報・APIサーバーポート・ViteのAPIプロキシ先は `.env` の `VITE_API_BASE_URL` で一元管理します。
 - フロントエンドのAPIリクエストは `/api/xxx` の相対パスで記述してください。
 - CORSエラーが出る場合はAPIサーバー側のCORS設定を見直してください。
 

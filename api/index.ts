@@ -46,7 +46,8 @@ app.use('/api/back-hair', backHairRouter);
 app.use('/api/back-hair', backHairUploadRouter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const PORT = process.env.API_PORT;
+const url = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const PORT = Number(url.split(':').pop());
 app.listen(PORT, () => {
-  console.log(`API server running on http://localhost:${PORT}`);
+  console.log(`API server running on ${url}`);
 });
