@@ -9,6 +9,9 @@ import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 
 const Photo: React.FC = () => {
+  const partsContext = useContext(PartsContext);
+  const photoRef = useRef<HTMLDivElement>(null);
+  
   // ドラッグ用state
   const [dragPos, setDragPos] = React.useState({ x: 0, y: 0 });
   const [dragging, setDragging] = React.useState(false);
@@ -94,8 +97,6 @@ const Photo: React.FC = () => {
       .catch(err => console.error('Failed to fetch stickers:', err));
   }, []);
 
-  const partsContext = useContext(PartsContext);
-  const photoRef = useRef<HTMLDivElement>(null);
   if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
   const { selectedParts, scale, setScale } = partsContext;
 
