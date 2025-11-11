@@ -4,12 +4,20 @@ export type PartInfo = {
   assetPath: string;
 };
 
+export type StickerInstance = {
+  sticker: PartInfo;
+  x: number;
+  y: number;
+  scale: number;
+};
+
 export type SelectedParts = {
   background: PartInfo | null;
   costume: PartInfo | null;
   backHair: PartInfo | null;
   face: PartInfo | null;
   frontHair: PartInfo | null;
+  stickers: StickerInstance[];
 };
 
 export type PartsContextType = {

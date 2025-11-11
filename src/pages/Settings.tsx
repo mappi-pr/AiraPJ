@@ -8,6 +8,7 @@ const assetTypes = [
   { key: 'backHair', label: texts.settings.backHairLabel },
   { key: 'background', label: texts.settings.backgroundLabel },
   { key: 'costume', label: texts.settings.costumeLabel },
+  { key: 'sticker', label: 'ステッカー' },
 ];
 
 const Settings: React.FC = () => {
@@ -27,6 +28,7 @@ const Settings: React.FC = () => {
     backHair: '/api/back-hair/upload',
     background: '/api/background/upload',
     costume: '/api/costume/upload',
+    sticker: '/api/sticker/upload',
   };
 
   // 一覧取得
@@ -71,9 +73,9 @@ const Settings: React.FC = () => {
     try {
       const res = await axios.post(url, formData);
       const data = res.data;
-      // パーツ・背景・衣装いずれかのレスポンスに対応
-      const assetPath = data.assetPath || data.face?.assetPath || data.frontHair?.assetPath || data.backHair?.assetPath || data.background?.assetPath || data.costume?.assetPath;
-      const id = data.id || data.face?.id || data.frontHair?.id || data.backHair?.id || data.background?.id || data.costume?.id;
+      // パーツ・背景・衣装・ステッカーいずれかのレスポンスに対応
+      const assetPath = data.assetPath || data.face?.assetPath || data.frontHair?.assetPath || data.backHair?.assetPath || data.background?.assetPath || data.costume?.assetPath || data.sticker?.assetPath;
+      const id = data.id || data.face?.id || data.frontHair?.id || data.backHair?.id || data.background?.id || data.costume?.id || data.sticker?.id;
       if (assetPath && id) {
         const imageUrl = assetPath.startsWith('http') ? assetPath : API_BASE_URL + assetPath;
         setResult(
@@ -115,6 +117,7 @@ const Settings: React.FC = () => {
             <option value="backHair">後髪パーツ</option>
             <option value="background">背景</option>
             <option value="costume">衣装</option>
+            <option value="sticker">ステッカー</option>
           </select>
         </label>
         <br />

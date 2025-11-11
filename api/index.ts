@@ -12,6 +12,8 @@ import frontHairRouter from './routes/frontHair';
 import frontHairUploadRouter from './routes/frontHair-upload';
 import backHairRouter from './routes/backHair';
 import backHairUploadRouter from './routes/backHair-upload';
+import stickerRouter from './routes/sticker';
+import stickerUploadRouter from './routes/sticker-upload';
 import { sequelize } from './models';
 import path from 'path';
 
@@ -44,6 +46,8 @@ app.use('/api/front-hair', frontHairRouter);
 app.use('/api/front-hair', frontHairUploadRouter);
 app.use('/api/back-hair', backHairRouter);
 app.use('/api/back-hair', backHairUploadRouter);
+app.use('/api/sticker', stickerRouter);
+app.use('/api/sticker', stickerUploadRouter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const url = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
