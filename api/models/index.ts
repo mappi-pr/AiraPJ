@@ -18,6 +18,7 @@ export class Background extends Model {
   public assetPath!: string;
   public deleted!: boolean;
   public deletedAt!: Date | null;
+  public sortOrder!: number;
 }
 Background.init(
   {
@@ -26,6 +27,7 @@ Background.init(
     assetPath: { type: DataTypes.STRING, allowNull: false },
     deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deletedAt: { type: DataTypes.DATE, allowNull: true },
+    sortOrder: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
   },
   { sequelize, modelName: 'Background', tableName: 'backgrounds', timestamps: false }
 );
@@ -36,6 +38,7 @@ export class Costume extends Model {
   public assetPath!: string;
   public deleted!: boolean;
   public deletedAt!: Date | null;
+  public sortOrder!: number;
 }
 Costume.init(
   {
@@ -44,6 +47,7 @@ Costume.init(
     assetPath: { type: DataTypes.STRING, allowNull: false },
     deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deletedAt: { type: DataTypes.DATE, allowNull: true },
+    sortOrder: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
   },
   { sequelize, modelName: 'Costume', tableName: 'costumes', timestamps: false }
 );

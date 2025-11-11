@@ -62,7 +62,11 @@
     "deleteConfirm": "本当に削除しますか？（画像は物理削除・DBは論理削除されます）",
     "deleteSuccess": "削除しました",
     "deleteFail": "削除に失敗しました",
-    "noAsset": "アセットがありません"
+    "noAsset": "アセットがありません",
+    "moveUpBtn": "↑",
+    "moveDownBtn": "↓",
+    "sortOrderUpdateSuccess": "並び順を更新しました",
+    "sortOrderUpdateFail": "並び順の更新に失敗しました"
   },
   "terms": {
     "title": "規約・クレジット"
