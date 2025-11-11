@@ -29,7 +29,13 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     }
     const { name } = req.body;
     const assetPath = `/uploads/bg/${req.file.filename}`;
-    const background = await Background.create({ name, assetPath });
+    
+    const maxOrderItem = await Background.findOne({ 
+      order: [['sortOrder', 'DESC']] 
+    });
+    const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
+    
+    const background = await Background.create({ name, assetPath, sortOrder });
     res.json(background);
   } catch (err) {
     console.error('Background upload error:', err);

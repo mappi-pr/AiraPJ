@@ -99,6 +99,17 @@ const Settings: React.FC = () => {
     }
   };
 
+  // 並び替え
+  const handleReorder = async (type: string, id: number, direction: 'up' | 'down') => {
+    try {
+      await axios.put(`${uploadUrls[type].replace('/upload', '')}/${id}/order`, { direction });
+      await fetchAssets();
+      setResult(texts.settings.sortOrderUpdateSuccess);
+    } catch {
+      setResult(texts.settings.sortOrderUpdateFail);
+    }
+  };
+
   return (
     <div className="main-container">
       <h1>{texts.settings.title}</h1>
@@ -137,10 +148,12 @@ const Settings: React.FC = () => {
             <h3>{label}</h3>
             {assets[key]?.length ? (
               <ul className="asset-list">
-                {assets[key].map((item: any) => (
+                {assets[key].map((item: any, index: number) => (
                   <li key={item.id} style={{ marginBottom: 8 }}>
                     <img src={item.assetPath?.startsWith('http') ? item.assetPath : API_BASE_URL + item.assetPath} alt={item.name} width={60} style={{ verticalAlign: 'middle' }} />
                     <span style={{ margin: '0 8px' }}>{item.name}</span>
+                    <button onClick={() => handleReorder(key, item.id, 'up')} disabled={index === 0}>{texts.settings.moveUpBtn}</button>
+                    <button onClick={() => handleReorder(key, item.id, 'down')} disabled={index === assets[key].length - 1}>{texts.settings.moveDownBtn}</button>
                     <button onClick={() => handleDelete(key, item.id)}>{texts.settings.deleteBtn}</button>
                   </li>
                 ))}
