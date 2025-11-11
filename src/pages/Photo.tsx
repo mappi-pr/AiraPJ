@@ -56,7 +56,11 @@ const Photo: React.FC = () => {
   const handleDownload = async () => {
     playSuccess();
     if (photoRef.current) {
-      const canvas = await html2canvas(photoRef.current, { useCORS: true, background: undefined });
+      const canvas = await html2canvas(photoRef.current, { 
+        useCORS: true, 
+        background: undefined,
+        scale: window.devicePixelRatio * 2
+      });
       const link = document.createElement('a');
       link.download = 'my_character.png';
       link.href = canvas.toDataURL();
