@@ -6,7 +6,14 @@ import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 
-const ITEMS_PER_PAGE = 12;
+const assetTypes = [
+  { key: 'face', label: texts.settings.faceLabel },
+  { key: 'frontHair', label: texts.settings.frontHairLabel },
+  { key: 'backHair', label: texts.settings.backHairLabel },
+  { key: 'background', label: texts.settings.backgroundLabel },
+  { key: 'costume', label: texts.settings.costumeLabel },
+  { key: 'sticker', label: 'ステッカー' },
+];
 
 const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
@@ -30,6 +37,7 @@ const Settings: React.FC = () => {
     backHair: '/api/back-hair/upload',
     background: '/api/background/upload',
     costume: '/api/costume/upload',
+    sticker: '/api/sticker/upload',
   };
 
   // useMemoで最適化：tが変わったときのみ再計算
@@ -92,9 +100,9 @@ const Settings: React.FC = () => {
     try {
       const res = await axios.post(url, formData);
       const data = res.data;
-      // パーツ・背景・衣装いずれかのレスポンスに対応
-      const assetPath = data.assetPath || data.face?.assetPath || data.frontHair?.assetPath || data.backHair?.assetPath || data.background?.assetPath || data.costume?.assetPath;
-      const id = data.id || data.face?.id || data.frontHair?.id || data.backHair?.id || data.background?.id || data.costume?.id;
+      // パーツ・背景・衣装・ステッカーいずれかのレスポンスに対応
+      const assetPath = data.assetPath || data.face?.assetPath || data.frontHair?.assetPath || data.backHair?.assetPath || data.background?.assetPath || data.costume?.assetPath || data.sticker?.assetPath;
+      const id = data.id || data.face?.id || data.frontHair?.id || data.backHair?.id || data.background?.id || data.costume?.id || data.sticker?.id;
       if (assetPath && id) {
         playSuccess();
         setResult(
@@ -209,7 +217,6 @@ const Settings: React.FC = () => {
           </button>
         </form>
         <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
-
         <h2>{t.settings.assetListTitle}</h2>
       <div className="asset-sections">
         {assetTypes.map(({ key, label }) => {
