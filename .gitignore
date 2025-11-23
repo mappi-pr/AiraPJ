@@ -44,3 +44,8 @@ src/assets/img/csm/*
 src/assets/sound/*
 !src/assets/sound/bgm/.gitkeep
 !src/assets/sound/se/.gitkeep
+
+# Ignore runtime uploaded files and their distribution copies
+uploads/
+api/uploads/
+dist/uploads/
