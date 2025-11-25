@@ -3,8 +3,6 @@ import texts from '../locales/ja.json';
 import { PartsContext } from '../context/PartsContextOnly';
 import html2canvas from 'html2canvas';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
-
 const Photo: React.FC = () => {
   // ドラッグ用state
   const [dragPos, setDragPos] = React.useState({ x: 0, y: 0 });
@@ -109,7 +107,7 @@ const Photo: React.FC = () => {
               width: 240,
               height: 320,
               zIndex: 0,
-              backgroundImage: `url(${API_BASE_URL + selectedParts.background.assetPath})`,
+              backgroundImage: `url(${selectedParts.background.assetPath})`,
               backgroundSize: 'cover',
               backgroundRepeat: 'no-repeat',
             }}
@@ -143,7 +141,7 @@ const Photo: React.FC = () => {
                 width: 240,
                 height: 320,
                 zIndex: 1,
-                backgroundImage: `url(${API_BASE_URL + selectedParts.backHair.assetPath})`,
+                backgroundImage: `url(${selectedParts.backHair.assetPath})`,
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
               }}
@@ -158,7 +156,7 @@ const Photo: React.FC = () => {
                 width: 240,
                 height: 320,
                 zIndex: 2,
-                backgroundImage: `url(${API_BASE_URL + selectedParts.costume.assetPath})`,
+                backgroundImage: `url(${selectedParts.costume.assetPath})`,
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
               }}
@@ -175,7 +173,7 @@ const Photo: React.FC = () => {
                 width: 240,
                 height: 320,
                 zIndex: 3,
-                backgroundImage: `url(${API_BASE_URL + selectedParts.face.assetPath})`,
+                backgroundImage: `url(${selectedParts.face.assetPath})`,
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
               }}
@@ -190,7 +188,7 @@ const Photo: React.FC = () => {
                 width: 240,
                 height: 320,
                 zIndex: 4,
-                backgroundImage: `url(${API_BASE_URL + selectedParts.frontHair.assetPath})`,
+                backgroundImage: `url(${selectedParts.frontHair.assetPath})`,
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
               }}

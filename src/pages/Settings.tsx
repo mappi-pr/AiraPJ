@@ -18,8 +18,6 @@ const Settings: React.FC = () => {
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
-
   // アップロード種別ごとのエンドポイント
   const uploadUrls: Record<string, string> = {
     face: '/api/face/upload',
@@ -75,9 +73,8 @@ const Settings: React.FC = () => {
       const assetPath = data.assetPath || data.face?.assetPath || data.frontHair?.assetPath || data.backHair?.assetPath || data.background?.assetPath || data.costume?.assetPath;
       const id = data.id || data.face?.id || data.frontHair?.id || data.backHair?.id || data.background?.id || data.costume?.id;
       if (assetPath && id) {
-        const imageUrl = assetPath.startsWith('http') ? assetPath : API_BASE_URL + assetPath;
         setResult(
-          `${texts.settings.resultSuccess}\nID: ${id}\n画像: <img src="${imageUrl}" width="100" />`
+          `${texts.settings.resultSuccess}\nID: ${id}\n画像: <img src="${assetPath}" width="100" />`
         );
       } else {
         setResult(data.error || texts.settings.resultFail);
@@ -139,7 +136,7 @@ const Settings: React.FC = () => {
               <ul className="asset-list">
                 {assets[key].map((item: any) => (
                   <li key={item.id} style={{ marginBottom: 8 }}>
-                    <img src={item.assetPath?.startsWith('http') ? item.assetPath : API_BASE_URL + item.assetPath} alt={item.name} width={60} style={{ verticalAlign: 'middle' }} />
+                    <img src={item.assetPath} alt={item.name} width={60} style={{ verticalAlign: 'middle' }} />
                     <span style={{ margin: '0 8px' }}>{item.name}</span>
                     <button onClick={() => handleDelete(key, item.id)}>{texts.settings.deleteBtn}</button>
                   </li>

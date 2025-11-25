@@ -4,8 +4,6 @@ import texts from '../locales/ja.json';
 import { PartsContext } from '../context/PartsContextOnly';
 import type { PartInfo } from '../context/PartsContextOnly';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
-
 const CharacterPartsSelect: React.FC = () => {
   const [faces, setFaces] = useState<PartInfo[]>([]);
   const [frontHairs, setFrontHairs] = useState<PartInfo[]>([]);
@@ -75,13 +73,13 @@ const CharacterPartsSelect: React.FC = () => {
       <div style={{ position: 'relative', width: 240, height: 320, margin: '0 auto' }}>
         {/* 後髪 → 顔 → 前髪 の順で重ねる */}
         {backHairs[backIdx] && (
-          <img src={API_BASE_URL + backHairs[backIdx].assetPath} alt={texts.characterPartsSelect.backHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
+          <img src={backHairs[backIdx].assetPath} alt={texts.characterPartsSelect.backHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
         )}
         {faces[faceIdx] && (
-          <img src={API_BASE_URL + faces[faceIdx].assetPath} alt={texts.characterPartsSelect.face} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
+          <img src={faces[faceIdx].assetPath} alt={texts.characterPartsSelect.face} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
         )}
         {frontHairs[frontIdx] && (
-          <img src={API_BASE_URL + frontHairs[frontIdx].assetPath} alt={texts.characterPartsSelect.frontHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
+          <img src={frontHairs[frontIdx].assetPath} alt={texts.characterPartsSelect.frontHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
         )}
       </div>
       <form onSubmit={handleNextPage}>
