@@ -1,97 +1,146 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import texts from '../locales/ja.json';
-import { PartsContext } from '../context/PartsContextOnly';
-import type { PartInfo } from '../context/PartsContextOnly';
+import CharacterPartsPanel from '../components/CharacterPartsPanel';
+import type { PartInfo as PanelPartInfo } from '../components/CharacterPartsPanel';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
 const CharacterPartsSelect: React.FC = () => {
-  const [faces, setFaces] = useState<PartInfo[]>([]);
-  const [frontHairs, setFrontHairs] = useState<PartInfo[]>([]);
-  const [backHairs, setBackHairs] = useState<PartInfo[]>([]);
+  const [faces, setFaces] = useState<PanelPartInfo[]>([]);
+  const [frontHairs, setFrontHairs] = useState<PanelPartInfo[]>([]);
+  const [backHairs, setBackHairs] = useState<PanelPartInfo[]>([]);
   const [faceIdx, setFaceIdx] = useState(0);
   const [frontIdx, setFrontIdx] = useState(0);
   const [backIdx, setBackIdx] = useState(0);
-  const navigate = useNavigate();
-  const partsContext = useContext(PartsContext);
-
+  const [currentTab, setTab] = useState<'face' | 'frontHair' | 'backHair'>('face');
+  const [trimmedPreviewUrl, setTrimmedPreviewUrl] = useState<string>('');
+  const selectedFace = faces[faceIdx] || null;
+  const selectedFrontHair = frontHairs[frontIdx] || null;
+  const selectedBackHair = backHairs[backIdx] || null;
   useEffect(() => {
-    fetch('/api/face').then(res => res.json()).then(setFaces);
-    fetch('/api/front-hair').then(res => res.json()).then(setFrontHairs);
-    fetch('/api/back-hair').then(res => res.json()).then(setBackHairs);
+    fetch(`${API_BASE_URL}/api/face`).then(res => res.json()).then(data => setFaces(data));
+    fetch(`${API_BASE_URL}/api/front-hair`).then(res => res.json()).then(data => setFrontHairs(data));
+    fetch(`${API_BASE_URL}/api/back-hair`).then(res => res.json()).then(data => setBackHairs(data));
   }, []);
 
-  // 選択内容をContextに保存
-  useEffect(() => {
-    if (!partsContext) return;
-    partsContext.setSelectedParts(prev => ({
-      ...prev,
-      face: faces[faceIdx] || null,
-      frontHair: frontHairs[frontIdx] || null,
-      backHair: backHairs[backIdx] || null,
-    }));
-    // eslint-disable-next-line
-  }, [faceIdx, frontIdx, backIdx, faces, frontHairs, backHairs]);
-
-  const handlePrev = (type: 'face' | 'front' | 'back') => {
-    if (type === 'face') setFaceIdx((faceIdx - 1 + faces.length) % faces.length);
-    if (type === 'front') setFrontIdx((frontIdx - 1 + frontHairs.length) % frontHairs.length);
-    if (type === 'back') setBackIdx((backIdx - 1 + backHairs.length) % backHairs.length);
-  };
-  const handleNext = (type: 'face' | 'front' | 'back') => {
-    if (type === 'face') setFaceIdx((faceIdx + 1) % faces.length);
-    if (type === 'front') setFrontIdx((frontIdx + 1) % frontHairs.length);
-    if (type === 'back') setBackIdx((backIdx + 1) % backHairs.length);
-  };
-  const handleNextPage = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate('/background');
-  };
-
-  return (
-    <div className="main-container">
-      <h1>{texts.characterPartsSelect.title}</h1>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 24, margin: '24px 0' }}>
-        <div>
-          <div>{texts.characterPartsSelect.face}</div>
-          <button onClick={() => handlePrev('face')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{faces.length === 0 ? texts.common.noData : (faces[faceIdx]?.name || '')}</span>
-          <button onClick={() => handleNext('face')}>→</button>
-        </div>
-        <div>
-          <div>{texts.characterPartsSelect.frontHair}</div>
-          <button onClick={() => handlePrev('front')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{frontHairs.length === 0 ? texts.common.noData : (frontHairs[frontIdx]?.name || '')}</span>
-          <button onClick={() => handleNext('front')}>→</button>
-        </div>
-        <div>
-          <div>{texts.characterPartsSelect.backHair}</div>
-          <button onClick={() => handlePrev('back')}>←</button>
-          <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs.length === 0 ? texts.common.noData : (backHairs[backIdx]?.name || '')}</span>
-          <button onClick={() => handleNext('back')}>→</button>
-        </div>
+    useEffect(() => {
+      if (!selectedFace && !selectedFrontHair && !selectedBackHair) {
+        setTrimmedPreviewUrl('');
+        return;
+      }
+      const images: string[] = [];
+      if (selectedBackHair) images.push(selectedBackHair.imageUrl || selectedBackHair.assetPath || selectedBackHair.thumbUrl);
+      if (selectedFace) images.push(selectedFace.imageUrl || selectedFace.assetPath || selectedFace.thumbUrl);
+      if (selectedFrontHair) images.push(selectedFrontHair.imageUrl || selectedFrontHair.assetPath || selectedFrontHair.thumbUrl);
+      if (images.length === 0 || images.some(url => !url)) {
+        setTrimmedPreviewUrl('');
+        return;
+      }
+      const canvas = document.createElement('canvas');
+      const size = 80;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      Promise.all(images.map(url => {
+        return new Promise<HTMLImageElement>((resolve) => {
+          const img = new window.Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(img);
+          img.src = url.startsWith('http') ? url : (API_BASE_URL + url);
+        });
+      })).then(imgs => {
+        imgs.forEach(img => {
+          ctx.drawImage(img, 0, 0, size, size);
+        });
+        const dataUrl = canvas.toDataURL();
+        // TrimmedLayerは空ファイルなのでトリミングは省略
+        setTrimmedPreviewUrl(dataUrl);
+      });
+    }, [selectedFace, selectedFrontHair, selectedBackHair]);
+  
+    const handleSelectFace = (part: PanelPartInfo) => {
+      const idx = faces.findIndex(f => f.id === part.id);
+      if (idx >= 0) setFaceIdx(idx);
+    };
+    const handleSelectFrontHair = (part: PanelPartInfo) => {
+      const idx = frontHairs.findIndex(f => f.id === part.id);
+      if (idx >= 0) setFrontIdx(idx);
+    };
+    const handleSelectBackHair = (part: PanelPartInfo) => {
+      const idx = backHairs.findIndex(f => f.id === part.id);
+      if (idx >= 0) setBackIdx(idx);
+    };
+  
+    const handleNextPage = (e: React.FormEvent) => {
+      e.preventDefault();
+      window.location.href = '/background';
+    };
+  
+    return (
+      <div className="main-container">
+        <h1>{texts.characterPartsSelect.title}</h1>
+        {(faces.length === 0 || frontHairs.length === 0 || backHairs.length === 0) ? (
+          <div style={{ textAlign: 'center', margin: '32px 0', fontSize: 18, color: '#888' }}>読み込み中...</div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
+              <div style={{ position: 'relative', width: 80, height: 80 }}>
+                {trimmedPreviewUrl ? (
+                  <img src={trimmedPreviewUrl} alt="合成プレビュー" style={{ width: 80, height: 80, borderRadius: 16 }} />
+                ) : (
+                  <div style={{ width: 80, height: 80, background: '#eee', borderRadius: 16 }} />
+                )}
+              </div>
+            </div>
+            <div style={{ margin: '24px 0', textAlign: 'center' }}>
+              <div className="tab-bar">
+                {(['face', 'frontHair', 'backHair'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    className={"tab-btn" + (tab === currentTab ? " active" : "")}
+                    onClick={() => setTab(tab)}
+                    type="button"
+                  >
+                    {tab === 'face' ? texts.characterPartsSelect.face : tab === 'frontHair' ? texts.characterPartsSelect.frontHair : texts.characterPartsSelect.backHair}
+                  </button>
+                ))}
+              </div>
+              <div style={{ marginTop: 16 }}>
+                {currentTab === 'face' && (
+                  <CharacterPartsPanel
+                    partType="face"
+                    selectedId={selectedFace?.id ?? null}
+                    onSelect={handleSelectFace}
+                  />
+                )}
+                {currentTab === 'frontHair' && (
+                  <CharacterPartsPanel
+                    partType="frontHair"
+                    selectedId={selectedFrontHair?.id ?? null}
+                    onSelect={handleSelectFrontHair}
+                  />
+                )}
+                {currentTab === 'backHair' && (
+                  <CharacterPartsPanel
+                    partType="backHair"
+                    selectedId={selectedBackHair?.id ?? null}
+                    onSelect={handleSelectBackHair}
+                  />
+                )}
+              </div>
+            </div>
+            <form onSubmit={handleNextPage}>
+              <button type="submit">{texts.common.next}</button>
+            </form>
+            <nav>
+              <a href="/title">{texts.common.backToTitle}</a>
+            </nav>
+          </>
+        )}
       </div>
-      <div style={{ position: 'relative', width: 240, height: 320, margin: '0 auto' }}>
-        {/* 後髪 → 顔 → 前髪 の順で重ねる */}
-        {backHairs[backIdx] && (
-          <img src={API_BASE_URL + backHairs[backIdx].assetPath} alt={texts.characterPartsSelect.backHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
-        )}
-        {faces[faceIdx] && (
-          <img src={API_BASE_URL + faces[faceIdx].assetPath} alt={texts.characterPartsSelect.face} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
-        )}
-        {frontHairs[frontIdx] && (
-          <img src={API_BASE_URL + frontHairs[frontIdx].assetPath} alt={texts.characterPartsSelect.frontHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
-        )}
-      </div>
-      <form onSubmit={handleNextPage}>
-        <button type="submit">{texts.common.next}</button>
-      </form>
-      <nav>
-        <a href="/title">{texts.common.backToTitle}</a>
-      </nav>
-    </div>
-  );
-};
-
-export default CharacterPartsSelect;
+    );
+  };
+  
+  export default CharacterPartsSelect;
