@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from '../hooks/useTranslation';
-import { PartsContext } from '../context/PartsContextOnly';
+
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
@@ -26,9 +26,6 @@ const convertToContextPartInfo = (part: PanelPartInfo | null) => {
 
 const CharacterPartsSelect: React.FC = () => {
   const navigate = useNavigate();
-  const [faces, setFaces] = useState<PanelPartInfo[]>([]);
-  const [frontHairs, setFrontHairs] = useState<PanelPartInfo[]>([]);
-  const [backHairs, setBackHairs] = useState<PanelPartInfo[]>([]);
   const [faceIdx, setFaceIdx] = useState(0);
   const [frontIdx, setFrontIdx] = useState(0);
   const [backIdx, setBackIdx] = useState(0);
@@ -41,7 +38,13 @@ const CharacterPartsSelect: React.FC = () => {
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
 
+  const [currentTab, setTab] = useState<'face' | 'frontHair' | 'backHair'>('face');
+  const [trimmedPreviewUrl, setTrimmedPreviewUrl] = useState<string>('');
+  const selectedFace = faces[faceIdx] || null;
+  const selectedFrontHair = frontHairs[frontIdx] || null;
+  const selectedBackHair = backHairs[backIdx] || null;
   useEffect(() => {
+    const loadParts = async () => {
     const loadParts = async () => {
       try {
         const faceRes = await fetch(`${API_BASE_URL}/api/face`);
@@ -69,8 +72,7 @@ const CharacterPartsSelect: React.FC = () => {
       }
     };
 
-    void loadParts();
-  }, []);
+    void loadParts();  }, []);
 
   // 選択内容をContextに保存
   useEffect(() => {
@@ -151,8 +153,7 @@ const CharacterPartsSelect: React.FC = () => {
 
   return (
     <PageTransition>
-      <SparkleEffect />
-      <div className="main-container">
+      <SparkleEffect />      <div className="main-container">
         <h1>{t.characterPartsSelect.title}</h1>
         {(faces.length === 0 || frontHairs.length === 0 || backHairs.length === 0) ? (
           <div style={{ textAlign: 'center', margin: '32px 0', fontSize: 18, color: '#888' }}>{t.common.loading}</div>
@@ -211,10 +212,8 @@ const CharacterPartsSelect: React.FC = () => {
               <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
             </nav>
           </>
-        )}
-      </div>
-    </PageTransition>
-  );
-};
-
-export default CharacterPartsSelect;
+        )}      </div>
+    );
+  };
+  
+  export default CharacterPartsSelect;
