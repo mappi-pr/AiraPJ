@@ -13,7 +13,7 @@ import frontHairUploadRouter from './routes/frontHair-upload';
 import backHairRouter from './routes/backHair';
 import backHairUploadRouter from './routes/backHair-upload';
 import { sequelize } from './models';
-import path from 'path';
+import { getUploadsBasePath } from './config/uploads';
 
 const app = express();
 app.use(cors());
@@ -44,7 +44,11 @@ app.use('/api/front-hair', frontHairRouter);
 app.use('/api/front-hair', frontHairUploadRouter);
 app.use('/api/back-hair', backHairRouter);
 app.use('/api/back-hair', backHairUploadRouter);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// アップロードされたファイルを静的に配信
+// 本番環境では UPLOADS_DIR 環境変数でパスを指定可能
+const uploadsDir = getUploadsBasePath();
+app.use('/uploads', express.static(uploadsDir));
 
 const url = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
 const PORT = Number(url.split(':').pop());
