@@ -48,7 +48,10 @@ app.use('/api/back-hair', backHairUploadRouter);
 // アップロードされたファイルを静的に配信
 // 本番環境では UPLOADS_DIR 環境変数でパスを指定可能
 const uploadsDir = getUploadsBasePath();
-app.use('/uploads', express.static(uploadsDir));
+console.log(`Serving uploads from: ${uploadsDir}`);
+
+// 静的ファイル配信にもCORSを適用
+app.use('/uploads', cors(), express.static(uploadsDir));
 
 const PORT = Number(process.env.PORT) || 4000;
 app.listen(PORT, () => {
