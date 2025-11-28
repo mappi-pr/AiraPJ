@@ -29,7 +29,7 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
       return;
     }
     const { name } = req.body;
-    const assetPath = `/uploads/csm/${req.file.filename}`;
+    const assetPath = `/api/uploads/csm/${req.file.filename}`;
     const costume = await Costume.create({ name, assetPath });
     res.json(costume);
   } catch (err) {

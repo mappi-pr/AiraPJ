@@ -29,7 +29,7 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
       return;
     }
     const { name } = req.body;
-    const assetPath = `/uploads/face/${req.file.filename}`;
+    const assetPath = `/api/uploads/face/${req.file.filename}`;
     const face = await Face.create({ name, assetPath });
     res.json(face);
   } catch (err) {

@@ -51,7 +51,9 @@ const uploadsDir = getUploadsBasePath();
 console.log(`Serving uploads from: ${uploadsDir}`);
 
 // 静的ファイル配信にもCORSを適用
+// /uploads と /api/uploads 両方でアクセス可能にする（互換性のため）
 app.use('/uploads', cors(), express.static(uploadsDir));
+app.use('/api/uploads', cors(), express.static(uploadsDir));
 
 const PORT = Number(process.env.PORT) || 4000;
 app.listen(PORT, () => {
