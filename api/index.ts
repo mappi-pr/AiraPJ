@@ -50,8 +50,7 @@ app.use('/api/back-hair', backHairUploadRouter);
 const uploadsDir = getUploadsBasePath();
 app.use('/uploads', express.static(uploadsDir));
 
-const url = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
-const PORT = Number(url.split(':').pop());
+const PORT = Number(process.env.PORT) || 4000;
 app.listen(PORT, () => {
-  console.log(`API server running on ${url}`);
+  console.log(`API server running on port ${PORT}`);
 });
