@@ -29,7 +29,7 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
       return;
     }
     const { name } = req.body;
-    const assetPath = `/api/uploads/bg/${req.file.filename}`;
+    const assetPath = `/uploads/bg/${req.file.filename}`;
     const background = await Background.create({ name, assetPath });
     res.json(background);
   } catch (err) {

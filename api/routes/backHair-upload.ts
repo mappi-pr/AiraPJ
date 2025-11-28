@@ -29,7 +29,7 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
       return;
     }
     const { name } = req.body;
-    const assetPath = `/api/uploads/backHair/${req.file.filename}`;
+    const assetPath = `/uploads/backHair/${req.file.filename}`;
     const backHair = await BackHair.create({ name, assetPath });
     res.json(backHair);
   } catch (err) {
