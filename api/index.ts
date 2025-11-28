@@ -50,6 +50,12 @@ app.use('/api/back-hair', backHairUploadRouter);
 const uploadsDir = getUploadsBasePath();
 console.log(`Serving uploads from: ${uploadsDir}`);
 
+// デバッグ用: 実際にファイルが存在するか確認するミドルウェア
+app.use('/api/uploads', (req, res, next) => {
+  console.log(`Upload request: ${req.method} ${req.path}`);
+  next();
+});
+
 // 静的ファイル配信にもCORSを適用
 // /uploads と /api/uploads 両方でアクセス可能にする（互換性のため）
 app.use('/uploads', cors(), express.static(uploadsDir));
