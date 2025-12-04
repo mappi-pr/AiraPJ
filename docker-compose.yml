@@ -1,0 +1,58 @@
+services:
+  # PostgreSQL データベース
+  db:
+    image: postgres:16-alpine
+    container_name: airapj-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-airapj}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-airapj}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API サーバー (Express)
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: airapj-api
+    restart: unless-stopped
+    environment:
+      DB_NAME: ${DB_NAME:-airapj}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASS: ${DB_PASS:-postgres}
+      DB_HOST: db
+      DB_PORT: 5432
+      PORT: 4000
+      UPLOADS_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # フロントエンド (nginx + Vite ビルド)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: airapj-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  uploads_data:

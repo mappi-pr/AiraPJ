@@ -31,6 +31,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+!api/.env.example
 
 # 画像アセット（空ディレクトリ維持用に.gitkeepを推奨）
 src/assets/img/chr/*

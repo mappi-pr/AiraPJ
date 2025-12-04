@@ -3,7 +3,45 @@
 このプロジェクトはReact + Vite + TypeScriptによるSPA（シングルページアプリケーション）です。
 Express APIサーバーと連携し、キャラクター・背景・衣装の着せ替えやBGM/SEの継続再生、リッチな画面遷移演出を実現します。
 
-## セットアップ手順
+## Docker によるセットアップ（推奨）
+
+Docker を使用することで、フロントエンド（nginx）、APIサーバー（Express）、データベース（PostgreSQL）を簡単にセットアップできます。
+
+### 1. 環境変数ファイルの作成
+```sh
+cp .env.example .env
+```
+必要に応じて `.env` ファイルを編集してください。
+
+### 2. Docker Compose で起動
+```sh
+docker compose up -d
+```
+
+### 3. アクセス
+- フロントエンド: http://localhost (デフォルトポート80)
+- API: http://localhost/api/health
+
+### 4. ログ確認
+```sh
+docker compose logs -f
+```
+
+### 5. 停止
+```sh
+docker compose down
+```
+
+### 6. データのリセット（注意: DBデータも削除されます）
+```sh
+docker compose down -v
+```
+
+---
+
+## ローカル開発環境のセットアップ
+
+Docker を使用せずにローカルで開発する場合は以下の手順を参照してください。
 
 ### 1. Node.jsバージョンの統一
 - プロジェクトルートに `.nvmrc`（例: `20`）があり、`nvm use` でNode.js v20系を自動選択できます。
