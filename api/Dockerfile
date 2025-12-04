@@ -16,9 +16,6 @@ COPY . .
 # TypeScript のビルド
 RUN npm run build
 
-# アップロードディレクトリの作成
-RUN mkdir -p /app/uploads/face /app/uploads/frontHair /app/uploads/backHair /app/uploads/bg /app/uploads/csm
-
 EXPOSE 4000
 
 CMD ["npm", "start"]
