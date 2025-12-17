@@ -123,6 +123,22 @@
   color: #888;
 }
 
+/* Settings icon styling */
+#settings-icon {
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+#settings-icon img {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+}
+
+#settings-icon:hover img {
+  filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.6)) brightness(1.2);
+  transform: rotate(90deg) scale(1.1);
+}
+
 /* Sound toggle buttons styling */
 #sound-toggle button {
   font-size: 0.9em;
