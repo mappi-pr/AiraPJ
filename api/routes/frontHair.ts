@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { FrontHair } from '../models/frontHair';
+import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
@@ -11,8 +12,8 @@ router.get('/', async (req, res) => {
   res.json(frontHairs);
 });
 
-// DELETE /api/front-hair/:id
-router.delete('/:id', async (req, res) => {
+// DELETE /api/front-hair/:id (管理者専用)
+router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
   try {
     const frontHair = await FrontHair.findByPk(req.params.id);
     if (!frontHair || frontHair.deleted) return res.status(404).json({ error: 'Not found' });

@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import authRouter from './routes/auth';
 import backgroundRouter from './routes/background';
 import backgroundUploadRouter from './routes/background-upload';
 import costumeRouter from './routes/costume';
@@ -14,6 +15,7 @@ import backHairRouter from './routes/backHair';
 import backHairUploadRouter from './routes/backHair-upload';
 import { sequelize } from './models';
 import { getUploadsBasePath } from './config/uploads';
+import { authenticate, requireAdmin } from './middleware/auth';
 
 const app = express();
 app.use(cors());
@@ -33,17 +35,23 @@ app.get('/api/health', (req, res) => {
   }
 })();
 
+// 認証ルート
+app.use('/api/auth', authRouter);
+
+// 公開API（認証不要）
 app.use('/api/background', backgroundRouter);
-app.use('/api/background', backgroundUploadRouter);
 app.use('/api/costume', costumeRouter);
-app.use('/api/costume', costumeUploadRouter);
 app.use('/api/favorite', favoriteRouter);
 app.use('/api/face', faceRouter);
-app.use('/api/face', faceUploadRouter);
 app.use('/api/front-hair', frontHairRouter);
-app.use('/api/front-hair', frontHairUploadRouter);
 app.use('/api/back-hair', backHairRouter);
-app.use('/api/back-hair', backHairUploadRouter);
+
+// 管理者専用API（認証＋管理者権限必要）
+app.use('/api/background', authenticate, requireAdmin, backgroundUploadRouter);
+app.use('/api/costume', authenticate, requireAdmin, costumeUploadRouter);
+app.use('/api/face', authenticate, requireAdmin, faceUploadRouter);
+app.use('/api/front-hair', authenticate, requireAdmin, frontHairUploadRouter);
+app.use('/api/back-hair', authenticate, requireAdmin, backHairUploadRouter);
 
 // アップロードされたファイルを静的に配信
 // 本番環境では UPLOADS_DIR 環境変数でパスを指定可能

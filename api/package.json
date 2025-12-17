@@ -5,15 +5,16 @@
   "type": "commonjs",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
-  "build": "tsc",
-  "postbuild": "mkdir -p dist/uploads/face dist/uploads/frontHair dist/uploads/backHair dist/uploads/bg dist/uploads/csm",
-  "start": "node dist/index.js"
+    "build": "tsc",
+    "postbuild": "mkdir -p dist/uploads/face dist/uploads/frontHair dist/uploads/backHair dist/uploads/bg dist/uploads/csm",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^4.18.2",
+    "google-auth-library": "^10.5.0",
     "multer": "^2.0.1",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7"

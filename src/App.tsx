@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css'
 import bgmpath from './assets/sound/bgm/main.mp3';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Title from './pages/Title';
 import CharacterPartsSelect from './pages/CharacterPartsSelect';
 import BackgroundSelect from './pages/BackgroundSelect';
@@ -11,11 +11,19 @@ import History from './pages/History';
 import Settings from './pages/Settings';
 import Terms from './pages/Terms';
 import { PartsProvider } from './context/PartsContext';
+import { AuthProvider } from './context/AuthContext';
+import { setupAxiosInterceptors } from './utils/axiosConfig';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);
   const [bgmOn, setBgmOn] = useState(localStorage.getItem('bgmOn') === '1');
   const [seOn, setSeOn] = useState(localStorage.getItem('seOn') === '1');
+
+  // Axiosインターセプターのセットアップ
+  useEffect(() => {
+    setupAxiosInterceptors();
+  }, []);
 
   // BGM自動再生
   React.useEffect(() => {
@@ -40,26 +48,32 @@ function App() {
   };
 
   return (
-    <PartsProvider>
-      <BrowserRouter>
-        <audio ref={bgmRef} src={bgmpath} loop />
-        <div id="sound-toggle" style={{ position: 'absolute', right: 16, top: 16, zIndex: 2, display: 'flex', gap: 8 }}>
-          <button type="button" onClick={toggleBgm}>BGM: {bgmOn ? 'ON' : 'OFF'}</button>
-          <button type="button" onClick={toggleSe}>SE: {seOn ? 'ON' : 'OFF'}</button>
-        </div>
-        <Routes>
-          <Route path="/" element={<Title />} />
-          <Route path="/title" element={<Title />} />
-          <Route path="/character" element={<CharacterPartsSelect />} />
-          <Route path="/background" element={<BackgroundSelect />} />
-          <Route path="/costume" element={<CostumeSelect />} />
-          <Route path="/photo" element={<Photo />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/terms" element={<Terms />} />
-        </Routes>
-      </BrowserRouter>
-    </PartsProvider>
+    <AuthProvider>
+      <PartsProvider>
+        <BrowserRouter>
+          <audio ref={bgmRef} src={bgmpath} loop />
+          <div id="sound-toggle" style={{ position: 'absolute', right: 16, top: 16, zIndex: 2, display: 'flex', gap: 8 }}>
+            <button type="button" onClick={toggleBgm}>BGM: {bgmOn ? 'ON' : 'OFF'}</button>
+            <button type="button" onClick={toggleSe}>SE: {seOn ? 'ON' : 'OFF'}</button>
+          </div>
+          <Routes>
+            <Route path="/" element={<Title />} />
+            <Route path="/title" element={<Title />} />
+            <Route path="/character" element={<CharacterPartsSelect />} />
+            <Route path="/background" element={<BackgroundSelect />} />
+            <Route path="/costume" element={<CostumeSelect />} />
+            <Route path="/photo" element={<Photo />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/settings" element={
+              <ProtectedRoute requireAdmin={true}>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/terms" element={<Terms />} />
+          </Routes>
+        </BrowserRouter>
+      </PartsProvider>
+    </AuthProvider>
   )
 }
 
