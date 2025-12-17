@@ -14,7 +14,7 @@ import { PartsProvider } from './context/PartsContext';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);
-  const [bgmOn, setBgmOn] = useState(localStorage.getItem('bgmOn') === '1');
+  const [bgmOn, setBgmOn] = useState(localStorage.getItem('bgmOn') !== '0');
   const [seOn, setSeOn] = useState(localStorage.getItem('seOn') === '1');
 
   // BGM自動再生
