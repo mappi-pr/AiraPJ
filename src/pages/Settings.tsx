@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import axios from 'axios';
 import texts from '../locales/ja.json';
 
@@ -10,10 +10,16 @@ const assetTypes = [
   { key: 'costume', label: texts.settings.costumeLabel },
 ];
 
+const ITEMS_PER_PAGE = 12;
+
 const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [assets, setAssets] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [currentPages, setCurrentPages] = useState<Record<string, number>>({});
+  const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
@@ -27,26 +33,29 @@ const Settings: React.FC = () => {
     costume: '/api/costume/upload',
   };
 
-  // 一覧取得
-  const fetchAssets = async () => {
+  // セクション展開時のみアセットを取得
+  const fetchAssetsForType = async (type: string) => {
+    if (assets[type]) return; // 既にロード済み
+    
     setLoading(true);
-    const newAssets: Record<string, any[]> = {};
-    for (const type of assetTypes) {
-      try {
-        const res = await axios.get(`${uploadUrls[type.key].replace('/upload', '')}`);
-        newAssets[type.key] = res.data || [];
-      } catch {
-        newAssets[type.key] = [];
-      }
+    try {
+      const res = await axios.get(`${uploadUrls[type].replace('/upload', '')}`);
+      setAssets((prev) => ({ ...prev, [type]: res.data || [] }));
+    } catch {
+      setAssets((prev) => ({ ...prev, [type]: [] }));
     }
-    setAssets(newAssets);
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchAssets();
-    // eslint-disable-next-line
-  }, []);
+  // セクションの展開/折りたたみ
+  const toggleSection = async (type: string) => {
+    const isExpanding = !expandedSections[type];
+    setExpandedSections((prev) => ({ ...prev, [type]: isExpanding }));
+    
+    if (isExpanding) {
+      await fetchAssetsForType(type);
+    }
+  };
 
   // アップロード
   const handleUpload = async (e: React.FormEvent) => {
@@ -76,6 +85,11 @@ const Settings: React.FC = () => {
         setResult(
           `${texts.settings.resultSuccess}\nID: ${id}\n画像: <img src="${assetPath}" width="100" />`
         );
+        // アップロード後、該当タイプのアセットリストを再取得
+        if (type) {
+          setAssets((prev) => ({ ...prev, [type]: [] }));
+          await fetchAssetsForType(type);
+        }
       } else {
         setResult(data.error || texts.settings.resultFail);
       }
@@ -89,11 +103,52 @@ const Settings: React.FC = () => {
     if (!window.confirm(texts.settings.deleteConfirm)) return;
     try {
       await axios.delete(`${uploadUrls[type].replace('/upload', '')}/${id}`);
-      fetchAssets();
+      // 削除後、該当タイプのアセットリストを再取得
+      setAssets((prev) => ({ ...prev, [type]: [] }));
+      await fetchAssetsForType(type);
       setResult(texts.settings.deleteSuccess);
     } catch {
       setResult(texts.settings.deleteFail);
     }
+  };
+
+  // フィルタリングされたアセット取得
+  const getFilteredAssets = (type: string) => {
+    const assetList = assets[type] || [];
+    const searchTerm = searchTerms[type]?.toLowerCase() || '';
+    
+    if (!searchTerm) return assetList;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return assetList.filter((item: any) =>
+      item.name?.toLowerCase().includes(searchTerm)
+    );
+  };
+
+  // ページネーション情報取得
+  const getPaginatedAssets = (type: string) => {
+    const filtered = getFilteredAssets(type);
+    const currentPage = currentPages[type] || 1;
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    
+    return {
+      items: filtered.slice(startIndex, endIndex),
+      totalPages: Math.ceil(filtered.length / ITEMS_PER_PAGE),
+      currentPage,
+      totalItems: filtered.length,
+    };
+  };
+
+  // ページ変更
+  const handlePageChange = (type: string, page: number) => {
+    setCurrentPages((prev) => ({ ...prev, [type]: page }));
+  };
+
+  // 検索変更
+  const handleSearchChange = (type: string, value: string) => {
+    setSearchTerms((prev) => ({ ...prev, [type]: value }));
+    setCurrentPages((prev) => ({ ...prev, [type]: 1 })); // 検索時は1ページ目に戻る
   };
 
   return (
@@ -126,28 +181,203 @@ const Settings: React.FC = () => {
       <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
 
       <h2>{texts.settings.assetListTitle}</h2>
-      {loading ? (
-        <div>{texts.common.loading}</div>
-      ) : (
-        assetTypes.map(({ key, label }) => (
-          <section key={key}>
-            <h3>{label}</h3>
-            {assets[key]?.length ? (
-              <ul className="asset-list">
-                {assets[key].map((item: any) => (
-                  <li key={item.id} style={{ marginBottom: 8 }}>
-                    <img src={item.assetPath} alt={item.name} width={60} style={{ verticalAlign: 'middle' }} />
-                    <span style={{ margin: '0 8px' }}>{item.name}</span>
-                    <button onClick={() => handleDelete(key, item.id)}>{texts.settings.deleteBtn}</button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div>{texts.settings.noAsset}</div>
-            )}
-          </section>
-        ))
-      )}
+      <div className="asset-sections">
+        {assetTypes.map(({ key, label }) => {
+          const isExpanded = expandedSections[key];
+          const pagination = isExpanded ? getPaginatedAssets(key) : null;
+          
+          return (
+            <section key={key} className="asset-section">
+              <div 
+                className="section-header"
+                onClick={() => toggleSection(key)}
+                style={{ 
+                  cursor: 'pointer',
+                  padding: '12px 16px',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '4px',
+                  marginBottom: isExpanded ? '12px' : '8px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  userSelect: 'none',
+                }}
+              >
+                <h3 style={{ margin: 0 }}>
+                  {isExpanded ? '▼' : '▶'} {label}
+                  {assets[key] && ` (${assets[key].length}件)`}
+                </h3>
+              </div>
+              
+              {isExpanded && (
+                <div className="section-content">
+                  {loading && !assets[key] ? (
+                    <div style={{ padding: '20px', textAlign: 'center' }}>
+                      {texts.common.loading}
+                    </div>
+                  ) : pagination && pagination.totalItems > 0 ? (
+                    <>
+                      {/* 検索バー */}
+                      <div style={{ marginBottom: '12px' }}>
+                        <input
+                          type="text"
+                          placeholder="名前で検索..."
+                          value={searchTerms[key] || ''}
+                          onChange={(e) => handleSearchChange(key, e.target.value)}
+                          style={{
+                            padding: '8px 12px',
+                            width: '100%',
+                            maxWidth: '300px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                          }}
+                        />
+                        <span style={{ marginLeft: '12px', color: '#666' }}>
+                          {pagination.totalItems}件中 {Math.min((pagination.currentPage - 1) * ITEMS_PER_PAGE + 1, pagination.totalItems)}-
+                          {Math.min(pagination.currentPage * ITEMS_PER_PAGE, pagination.totalItems)}件を表示
+                        </span>
+                      </div>
+
+                      {/* アセットリスト */}
+                      <ul className="asset-list" style={{ 
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                        gap: '16px',
+                        listStyle: 'none',
+                        padding: 0,
+                      }}>
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {pagination.items.map((item: any) => (
+                          <li key={item.id} style={{
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            padding: '12px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '8px',
+                          }}>
+                            <img 
+                              src={item.assetPath} 
+                              alt={item.name} 
+                              loading="lazy"
+                              style={{ 
+                                width: '100%',
+                                height: '120px',
+                                objectFit: 'contain',
+                                backgroundColor: '#f9f9f9',
+                                borderRadius: '4px',
+                              }} 
+                            />
+                            <span style={{ 
+                              fontSize: '14px',
+                              fontWeight: 'bold',
+                              textAlign: 'center',
+                              wordBreak: 'break-word',
+                            }}>
+                              {item.name}
+                            </span>
+                            <button 
+                              onClick={() => handleDelete(key, item.id)}
+                              style={{
+                                padding: '6px 12px',
+                                backgroundColor: '#ff4444',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '13px',
+                              }}
+                            >
+                              {texts.settings.deleteBtn}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* ページネーション */}
+                      {pagination.totalPages > 1 && (
+                        <div style={{ 
+                          marginTop: '20px',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          flexWrap: 'wrap',
+                        }}>
+                          <button
+                            onClick={() => handlePageChange(key, pagination.currentPage - 1)}
+                            disabled={pagination.currentPage === 1}
+                            style={{
+                              padding: '8px 12px',
+                              border: '1px solid #ddd',
+                              borderRadius: '4px',
+                              backgroundColor: pagination.currentPage === 1 ? '#f5f5f5' : 'white',
+                              cursor: pagination.currentPage === 1 ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            ← 前へ
+                          </button>
+                          
+                          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                            .filter(page => {
+                              // 現在のページ周辺のみ表示（最初、最後、現在ページ±2）
+                              return page === 1 || 
+                                     page === pagination.totalPages || 
+                                     Math.abs(page - pagination.currentPage) <= 2;
+                            })
+                            .map((page, idx, arr) => {
+                              // ページ番号の間に省略記号を挿入
+                              const prevPage = arr[idx - 1];
+                              const showEllipsis = prevPage && page - prevPage > 1;
+                              
+                              return (
+                                <React.Fragment key={page}>
+                                  {showEllipsis && <span style={{ padding: '8px 4px' }}>...</span>}
+                                  <button
+                                    onClick={() => handlePageChange(key, page)}
+                                    style={{
+                                      padding: '8px 12px',
+                                      border: '1px solid #ddd',
+                                      borderRadius: '4px',
+                                      backgroundColor: pagination.currentPage === page ? '#007bff' : 'white',
+                                      color: pagination.currentPage === page ? 'white' : 'black',
+                                      cursor: 'pointer',
+                                      fontWeight: pagination.currentPage === page ? 'bold' : 'normal',
+                                    }}
+                                  >
+                                    {page}
+                                  </button>
+                                </React.Fragment>
+                              );
+                            })}
+                          
+                          <button
+                            onClick={() => handlePageChange(key, pagination.currentPage + 1)}
+                            disabled={pagination.currentPage === pagination.totalPages}
+                            style={{
+                              padding: '8px 12px',
+                              border: '1px solid #ddd',
+                              borderRadius: '4px',
+                              backgroundColor: pagination.currentPage === pagination.totalPages ? '#f5f5f5' : 'white',
+                              cursor: pagination.currentPage === pagination.totalPages ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            次へ →
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                      {texts.settings.noAsset}
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+          );
+        })}
+      </div>
     </div>
   );
 };
