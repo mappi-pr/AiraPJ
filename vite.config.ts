@@ -6,6 +6,8 @@ const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: '0.0.0.0', // すべてのネットワークインターフェースでリッスン（スマホ実機アクセス用）
+    port: 5173,
     proxy: {
       '/api': API_BASE_URL,
       '/uploads': API_BASE_URL,

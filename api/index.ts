@@ -60,6 +60,6 @@ app.use('/uploads', (req, res, next) => {
 app.use('/uploads', cors(), express.static(uploadsDir));
 
 const PORT = Number(process.env.PORT) || 4000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`API server running on port ${PORT}`);
 });

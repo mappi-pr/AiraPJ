@@ -1,0 +1,379 @@
+# 開発ガイド - スマートフォン実機からのアクセス手順
+
+このドキュメントでは、Windows + WSL2環境で開発する際に、スマートフォン実機から開発サーバーにアクセスする手順を説明します。
+
+## 目次
+- [概要](#概要)
+- [前提条件](#前提条件)
+- [Windows + WSL2環境でのセットアップ](#windows--wsl2環境でのセットアップ)
+- [Mac/Linux環境でのセットアップ](#maclinux環境でのセットアップ)
+- [トラブルシューティング](#トラブルシューティング)
+
+## 概要
+
+AiraPJプロジェクトでは以下の2つのサーバーが起動します：
+- **Viteフロントエンド開発サーバー**: ポート `5173`
+- **Express APIサーバー**: ポート `4000`
+
+スマートフォン実機からこれらのサーバーにアクセスするには、開発環境のネットワーク設定を調整する必要があります。
+
+## 前提条件
+
+- スマートフォンと開発PCが同じネットワーク（Wi-Fi）に接続されていること
+- 開発PCのファイアウォール設定を変更する権限があること
+
+## Windows + WSL2環境でのセットアップ
+
+### 1. Viteの設定変更
+
+`vite.config.ts` を編集し、すべてのネットワークインターフェースでリッスンするように設定します：
+
+```typescript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: '0.0.0.0', // すべてのネットワークインターフェースでリッスン
+    port: 5173,
+    proxy: {
+      '/api': API_BASE_URL,
+      '/uploads': API_BASE_URL,
+    },
+  },
+})
+```
+
+### 2. APIサーバーの設定確認
+
+`api/index.ts` で、APIサーバーがすべてのインターフェースでリッスンしていることを確認します：
+
+```typescript
+const PORT = Number(process.env.PORT) || 4000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API server running on port ${PORT}`);
+});
+```
+
+### 3. WSL2のIPアドレスを確認
+
+WSL2ターミナルで以下のコマンドを実行し、WSL2のIPアドレスを確認します：
+
+```bash
+ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1
+```
+
+または：
+
+```bash
+hostname -I | awk '{print $1}'
+```
+
+このIPアドレス（例: `172.x.x.x`）をメモしておきます。
+
+### 4. Windowsホストマシンのポートフォワーディング設定
+
+**PowerShell（管理者権限）** で以下のコマンドを実行し、WSL2のポートをWindowsホストに転送します：
+
+#### Vite（ポート5173）のポートフォワーディング
+
+```powershell
+# WSL2のIPアドレスを確認（自動取得）
+$wsl_ip = (wsl hostname -I).trim()
+Write-Host "WSL IP: $wsl_ip"
+
+# ポート5173のフォワーディング設定
+netsh interface portproxy add v4tov4 listenport=5173 listenaddress=0.0.0.0 connectport=5173 connectaddress=$wsl_ip
+
+# 設定確認
+netsh interface portproxy show v4tov4
+```
+
+#### API（ポート4000）のポートフォワーディング
+
+```powershell
+# ポート4000のフォワーディング設定
+netsh interface portproxy add v4tov4 listenport=4000 listenaddress=0.0.0.0 connectport=4000 connectaddress=$wsl_ip
+
+# 設定確認
+netsh interface portproxy show v4tov4
+```
+
+#### ポートフォワーディングの削除（不要になった場合）
+
+```powershell
+# ポート5173のフォワーディング削除
+netsh interface portproxy delete v4tov4 listenport=5173 listenaddress=0.0.0.0
+
+# ポート4000のフォワーディング削除
+netsh interface portproxy delete v4tov4 listenport=4000 listenaddress=0.0.0.0
+```
+
+### 5. Windowsファイアウォールの設定
+
+**Windows Defender ファイアウォール** で、ポート5173と4000への受信接続を許可します：
+
+#### GUIで設定する場合
+
+1. 「Windows セキュリティ」→「ファイアウォールとネットワーク保護」→「詳細設定」を開く
+2. 「受信の規則」→「新しい規則」をクリック
+3. 「ポート」を選択し、「次へ」
+4. 「TCP」を選択し、「特定のローカルポート」に `5173` を入力
+5. 「接続を許可する」を選択
+6. すべてのプロファイル（ドメイン、プライベート、パブリック）にチェック
+7. 名前を「Vite Dev Server」などに設定
+8. **ポート4000についても同様の手順を繰り返す**（名前は「Express API Server」など）
+
+#### PowerShell（管理者権限）で設定する場合
+
+```powershell
+# Viteポート5173のファイアウォール許可
+New-NetFirewallRule -DisplayName "Vite Dev Server" -Direction Inbound -LocalPort 5173 -Protocol TCP -Action Allow
+
+# APIポート4000のファイアウォール許可
+New-NetFirewallRule -DisplayName "Express API Server" -Direction Inbound -LocalPort 4000 -Protocol TCP -Action Allow
+```
+
+### 6. WindowsホストマシンのIPアドレスを確認
+
+**コマンドプロンプト** または **PowerShell** で以下のコマンドを実行：
+
+```powershell
+ipconfig
+```
+
+「ワイヤレス LAN アダプター Wi-Fi」セクションの「IPv4 アドレス」を確認します（例: `192.168.1.100`）。
+
+### 7. スマートフォンからアクセス
+
+スマートフォンのブラウザで以下のURLにアクセスします（`192.168.1.100` は実際のWindowsホストIPに置き換えてください）：
+
+- **フロントエンド**: `http://192.168.1.100:5173`
+- **API直接**: `http://192.168.1.100:4000/api/health`
+
+### 8. 環境変数の設定（任意）
+
+異なるIPアドレスやポートを使用する場合は、`api/.env` ファイルでAPIサーバーのURLを設定できます：
+
+```env
+VITE_API_BASE_URL=http://192.168.1.100:4000
+```
+
+### 9. 自動化スクリプト（WSL2再起動時に便利）
+
+WSL2を再起動するとIPアドレスが変わる可能性があるため、PowerShellスクリプトを作成すると便利です：
+
+`setup-wsl-port-forwarding.ps1`：
+
+```powershell
+# 管理者権限で実行すること
+$wsl_ip = (wsl hostname -I).trim()
+Write-Host "WSL IP: $wsl_ip"
+
+# 既存のフォワーディング削除
+netsh interface portproxy delete v4tov4 listenport=5173 listenaddress=0.0.0.0 2>$null
+netsh interface portproxy delete v4tov4 listenport=4000 listenaddress=0.0.0.0 2>$null
+
+# 新しいフォワーディング設定
+netsh interface portproxy add v4tov4 listenport=5173 listenaddress=0.0.0.0 connectport=5173 connectaddress=$wsl_ip
+netsh interface portproxy add v4tov4 listenport=4000 listenaddress=0.0.0.0 connectport=4000 connectaddress=$wsl_ip
+
+# 設定確認
+Write-Host "`nPort forwarding configured:"
+netsh interface portproxy show v4tov4
+
+# ファイアウォール規則の確認・追加
+$viteRule = Get-NetFirewallRule -DisplayName "Vite Dev Server" -ErrorAction SilentlyContinue
+if (-not $viteRule) {
+    New-NetFirewallRule -DisplayName "Vite Dev Server" -Direction Inbound -LocalPort 5173 -Protocol TCP -Action Allow
+    Write-Host "`nFirewall rule added for Vite (port 5173)"
+} else {
+    Write-Host "`nFirewall rule for Vite already exists"
+}
+
+$apiRule = Get-NetFirewallRule -DisplayName "Express API Server" -ErrorAction SilentlyContinue
+if (-not $apiRule) {
+    New-NetFirewallRule -DisplayName "Express API Server" -Direction Inbound -LocalPort 4000 -Protocol TCP -Action Allow
+    Write-Host "Firewall rule added for API (port 4000)"
+} else {
+    Write-Host "Firewall rule for API already exists"
+}
+
+Write-Host "`nSetup complete! You can access:"
+Write-Host "  Frontend: http://$(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Wi-Fi*' | Select-Object -First 1 -ExpandProperty IPAddress):5173"
+Write-Host "  API: http://$(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Wi-Fi*' | Select-Object -First 1 -ExpandProperty IPAddress):4000"
+```
+
+実行方法（PowerShellを管理者権限で開く）：
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+.\setup-wsl-port-forwarding.ps1
+```
+
+## Mac/Linux環境でのセットアップ
+
+Mac/Linuxではポートフォワーディングの設定が不要です。
+
+### 1. Viteの設定変更
+
+`vite.config.ts` を編集し、すべてのネットワークインターフェースでリッスンするように設定します：
+
+```typescript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    proxy: {
+      '/api': API_BASE_URL,
+      '/uploads': API_BASE_URL,
+    },
+  },
+})
+```
+
+### 2. APIサーバーの設定確認
+
+`api/index.ts` で、APIサーバーがすべてのインターフェースでリッスンしていることを確認します：
+
+```typescript
+const PORT = Number(process.env.PORT) || 4000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API server running on port ${PORT}`);
+});
+```
+
+### 3. IPアドレスを確認
+
+ターミナルで以下のコマンドを実行：
+
+**Mac**:
+```bash
+ipconfig getifaddr en0
+```
+
+**Linux**:
+```bash
+hostname -I | awk '{print $1}'
+```
+
+### 4. ファイアウォール設定（必要に応じて）
+
+**Mac**:
+通常、開発用途では特別な設定は不要です。必要に応じてシステム環境設定でファイアウォールを確認してください。
+
+**Linux（Ubuntu等）**:
+```bash
+sudo ufw allow 5173/tcp
+sudo ufw allow 4000/tcp
+```
+
+### 5. スマートフォンからアクセス
+
+スマートフォンのブラウザで以下のURLにアクセスします（IPアドレスは実際のものに置き換えてください）：
+
+- **フロントエンド**: `http://192.168.1.100:5173`
+- **API直接**: `http://192.168.1.100:4000/api/health`
+
+## トラブルシューティング
+
+### アクセスできない場合
+
+1. **ファイアウォールの確認**
+   - Windowsファイアウォールでポート5173と4000が許可されているか確認
+   - セキュリティソフトがブロックしていないか確認
+
+2. **ポートフォワーディングの確認（WSL2のみ）**
+   ```powershell
+   netsh interface portproxy show v4tov4
+   ```
+
+3. **サーバーの起動確認**
+   - ViteとAPIサーバーが両方起動しているか確認
+   - WSL2内で `curl http://localhost:5173` が応答するか確認
+
+4. **ネットワーク接続の確認**
+   - スマートフォンと開発PCが同じWi-Fiネットワークに接続されているか確認
+   - 企業ネットワークなどでクライアント間通信が制限されていないか確認
+
+5. **IPアドレスの確認**
+   - WSL2のIPアドレスが変わっていないか確認（再起動後など）
+   - WindowsホストのIPアドレスが正しいか確認
+
+### WSL2のIPアドレスが変わる問題
+
+WSL2を再起動するとIPアドレスが変わることがあります。この場合は、上記の「自動化スクリプト」を使用して再設定してください。
+
+### "Cannot access before initialization" エラー
+
+環境変数 `VITE_API_BASE_URL` が正しく設定されているか確認してください：
+
+```bash
+# WSL2内で確認
+echo $VITE_API_BASE_URL
+```
+
+設定されていない場合は、`.env` ファイルを作成するか、起動時に指定：
+
+```bash
+VITE_API_BASE_URL=http://localhost:4000 npm run dev
+```
+
+### CORSエラーが発生する場合
+
+APIサーバーの `api/index.ts` でCORS設定が有効になっているか確認：
+
+```typescript
+import cors from 'cors';
+app.use(cors());
+```
+
+### HTTPSでアクセスしたい場合
+
+一部のWebAPI（カメラアクセスなど）はHTTPSが必要です。その場合は、Viteのhttps設定を有効にしてください：
+
+```typescript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import fs from 'fs'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    https: {
+      key: fs.readFileSync('path/to/key.pem'),
+      cert: fs.readFileSync('path/to/cert.pem'),
+    },
+    proxy: {
+      '/api': process.env.VITE_API_BASE_URL || 'http://localhost:4000',
+      '/uploads': process.env.VITE_API_BASE_URL || 'http://localhost:4000',
+    },
+  },
+})
+```
+
+自己署名証明書の作成：
+
+```bash
+# WSL2/Linux/Mac
+openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
+  -keyout localhost-key.pem -out localhost-cert.pem
+```
+
+## まとめ
+
+- **Windows + WSL2**: ポートフォワーディング + ファイアウォール設定が必要
+- **Mac/Linux**: `host: '0.0.0.0'` の設定のみで基本的にOK
+- 同じWi-Fiネットワークに接続していることが前提
+- 開発用途では自己署名証明書でも動作可能
+
+これらの設定により、スマートフォン実機でUI/UXを確認しながら開発できます。
