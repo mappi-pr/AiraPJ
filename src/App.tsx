@@ -14,6 +14,11 @@ import { PartsProvider } from './context/PartsContext';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);
+  const interactionHandlersRef = useRef<{
+    click?: () => void;
+    keydown?: () => void;
+  }>({});
+  
   // BGM: Default to ON on first visit (auto-play background music)
   const [bgmOn, setBgmOn] = useState(localStorage.getItem('bgmOn') !== '0');
   // SE: Default to OFF on first visit (opt-in for sound effects)
@@ -21,35 +26,56 @@ function App() {
 
   // BGM自動再生
   React.useEffect(() => {
+    // クリーンアップ：前回のイベントリスナーを削除
+    const cleanup = () => {
+      if (interactionHandlersRef.current.click) {
+        document.removeEventListener('click', interactionHandlersRef.current.click);
+        interactionHandlersRef.current.click = undefined;
+      }
+      if (interactionHandlersRef.current.keydown) {
+        document.removeEventListener('keydown', interactionHandlersRef.current.keydown);
+        interactionHandlersRef.current.keydown = undefined;
+      }
+    };
+    
     if (bgmOn && bgmRef.current) {
-      const playBgm = () => {
+      const playBgm = async () => {
         if (bgmRef.current) {
-          bgmRef.current.play().catch(err => {
+          try {
+            await bgmRef.current.play();
+            return true;
+          } catch (err) {
             console.log('BGM auto-play prevented by browser:', err);
-          });
+            return false;
+          }
         }
+        return false;
       };
       
       // 即座に再生を試みる
-      playBgm();
+      playBgm().then(success => {
+        if (!success) {
+          // ブラウザのautoplay制限対策：最初のユーザーインタラクションで再生
+          const handleFirstInteraction = async () => {
+            const played = await playBgm();
+            if (played) {
+              cleanup();
+            }
+          };
+          
+          interactionHandlersRef.current.click = handleFirstInteraction;
+          interactionHandlersRef.current.keydown = handleFirstInteraction;
+          
+          document.addEventListener('click', handleFirstInteraction);
+          document.addEventListener('keydown', handleFirstInteraction);
+        }
+      });
       
-      // ブラウザのautoplay制限対策：最初のユーザーインタラクションで再生
-      const handleFirstInteraction = () => {
-        playBgm();
-        document.removeEventListener('click', handleFirstInteraction);
-        document.removeEventListener('keydown', handleFirstInteraction);
-      };
-      
-      document.addEventListener('click', handleFirstInteraction);
-      document.addEventListener('keydown', handleFirstInteraction);
-      
-      return () => {
-        document.removeEventListener('click', handleFirstInteraction);
-        document.removeEventListener('keydown', handleFirstInteraction);
-      };
+      return cleanup;
     } else if (bgmRef.current) {
       bgmRef.current.pause();
       bgmRef.current.currentTime = 0;
+      cleanup();
     }
   }, [bgmOn]);
 
