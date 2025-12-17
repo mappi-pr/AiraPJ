@@ -40,6 +40,10 @@ function App() {
     
     if (bgmOn && bgmRef.current) {
       const playBgm = async () => {
+        if (bgmRef.current && !bgmRef.current.paused) {
+          // 既に再生中なら何もしない
+          return true;
+        }
         if (bgmRef.current) {
           try {
             await bgmRef.current.play();
@@ -57,9 +61,13 @@ function App() {
         if (!success) {
           // ブラウザのautoplay制限対策：最初のユーザーインタラクションで再生
           const handleFirstInteraction = async () => {
-            const played = await playBgm();
-            if (played) {
-              cleanup();
+            // イベントリスナー実行時にオーディオがpausedでない場合はスキップ
+            // （既に再生中か、ユーザーがBGMをOFFにした）
+            if (bgmRef.current && bgmRef.current.paused) {
+              const played = await playBgm();
+              if (played) {
+                cleanup();
+              }
             }
           };
           
@@ -70,13 +78,14 @@ function App() {
           document.addEventListener('keydown', handleFirstInteraction);
         }
       });
-      
-      return cleanup;
     } else if (bgmRef.current) {
       bgmRef.current.pause();
       bgmRef.current.currentTime = 0;
       cleanup();
     }
+    
+    // 常にクリーンアップ関数を返して、イベントリスナーを確実に削除
+    return cleanup;
   }, [bgmOn]);
 
   // ON/OFF切替
