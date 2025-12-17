@@ -22,8 +22,8 @@ export function setupAxiosInterceptors() {
         // 認証エラーの場合はローカルストレージをクリア
         localStorage.removeItem('authToken');
         localStorage.removeItem('authUser');
-        // タイトル画面にリダイレクト
-        window.location.href = '/title';
+        // カスタムイベントを発火してAuthContextに通知
+        window.dispatchEvent(new Event('auth:logout'));
       }
       return Promise.reject(error);
     }

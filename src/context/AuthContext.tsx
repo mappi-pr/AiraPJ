@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 
 interface User {
   email: string;
@@ -31,13 +30,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
     }
+
+    // 認証エラーイベントをリッスン
+    const handleAuthLogout = () => {
+      setUser(null);
+      setToken(null);
+    };
+
+    window.addEventListener('auth:logout', handleAuthLogout);
+    return () => window.removeEventListener('auth:logout', handleAuthLogout);
   }, []);
 
   const login = async (credential: string) => {
     try {
-      // Google IDトークンをバックエンドで検証
-      const response = await axios.post('/api/auth/verify', { token: credential });
-      const userData = response.data;
+      // Google IDトークンをバックエンドで検証（fetchを使用してインターセプターを回避）
+      const response = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: credential }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Authentication failed');
+      }
+
+      const userData = await response.json();
 
       setUser(userData);
       setToken(credential);
