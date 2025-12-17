@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import React, { useState, useRef } from 'react';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import gearpath from '../assets/gear.png';
@@ -10,7 +10,7 @@ const Title: React.FC = () => {
   const [overlay, setOverlay] = useState(false);    
   const navigate = useNavigate();
   const seRef = useRef<HTMLAudioElement>(null);
-  const seOn = useState(localStorage.getItem('seOn') === '1');
+  const [seOn] = useState(localStorage.getItem('seOn') === '1');
   const { user, login, logout, isAdmin } = useAuth();
 
   // スタートボタン押下時
@@ -56,9 +56,9 @@ const Title: React.FC = () => {
       <header>
         {/* 管理画面アイコンは管理者のみ表示 */}
         {isAdmin && (
-          <a href="/settings" id="settings-icon" title={texts.title.settings} style={{ position: 'absolute', left: 16, top: 16, zIndex: 2 }}>
+          <Link to="/settings" id="settings-icon" title={texts.title.settings} style={{ position: 'absolute', left: 16, top: 16, zIndex: 2 }}>
             <img src={gearpath} alt={texts.title.settings} style={{ width: 32, height: 32 }} />
-          </a>
+          </Link>
         )}
       </header>
       <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
@@ -89,11 +89,11 @@ const Title: React.FC = () => {
           <button type="submit" id="start-btn" disabled={overlay}>{texts.title.startBtn}</button>
         </form>
         <div style={{ marginBottom: 16 }}>
-          <a href="/history" id="favorites-menu">{texts.title.favorites}</a>
+          <Link to="/history" id="favorites-menu">{texts.title.favorites}</Link>
         </div>
       </main>
       <footer>
-        <a href="/terms" id="terms-link" style={{ fontSize: 'small', position: 'absolute', left: 16, bottom: 16 }}>{texts.title.terms}</a>
+        <Link to="/terms" id="terms-link" style={{ fontSize: 'small', position: 'absolute', left: 16, bottom: 16 }}>{texts.title.terms}</Link>
       </footer>
       {overlay && (
         <div style={{ position: 'fixed', zIndex: 9999, top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', transition: 'opacity 0.5s' }} />

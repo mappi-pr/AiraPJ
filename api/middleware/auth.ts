@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+
+if (!GOOGLE_CLIENT_ID) {
+  console.warn('WARNING: GOOGLE_CLIENT_ID environment variable is not set. Authentication will fail.');
+}
+
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // 管理者メールアドレスのホワイトリスト
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
