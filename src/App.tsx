@@ -22,7 +22,31 @@ function App() {
   // BGM自動再生
   React.useEffect(() => {
     if (bgmOn && bgmRef.current) {
-      bgmRef.current.play();
+      const playBgm = () => {
+        if (bgmRef.current) {
+          bgmRef.current.play().catch(err => {
+            console.log('BGM auto-play prevented by browser:', err);
+          });
+        }
+      };
+      
+      // 即座に再生を試みる
+      playBgm();
+      
+      // ブラウザのautoplay制限対策：最初のユーザーインタラクションで再生
+      const handleFirstInteraction = () => {
+        playBgm();
+        document.removeEventListener('click', handleFirstInteraction);
+        document.removeEventListener('keydown', handleFirstInteraction);
+      };
+      
+      document.addEventListener('click', handleFirstInteraction);
+      document.addEventListener('keydown', handleFirstInteraction);
+      
+      return () => {
+        document.removeEventListener('click', handleFirstInteraction);
+        document.removeEventListener('keydown', handleFirstInteraction);
+      };
     } else if (bgmRef.current) {
       bgmRef.current.pause();
       bgmRef.current.currentTime = 0;
