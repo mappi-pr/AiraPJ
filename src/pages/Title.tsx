@@ -40,8 +40,8 @@ const Title: React.FC = () => {
             <Link to="/history" id="favorites-menu" onClick={playClick}>{texts.title.favorites}</Link>
           </div>
         </main>
-        <footer>
-          <Link to="/terms" id="terms-link" style={{ fontSize: 'small', position: 'absolute', left: 16, bottom: 16 }} onClick={playClick}>{texts.title.terms}</Link>
+        <footer style={{ position: 'absolute', bottom: 16, width: '100%', textAlign: 'center' }}>
+          <Link to="/terms" id="terms-link" style={{ fontSize: 'small' }} onClick={playClick}>{texts.title.terms}</Link>
         </footer>
         {overlay && (
           <div style={{ position: 'fixed', zIndex: 9999, top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', transition: 'opacity 0.5s', opacity: 1, backdropFilter: 'blur(5px)' }} />
