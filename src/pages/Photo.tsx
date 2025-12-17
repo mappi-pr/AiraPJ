@@ -117,7 +117,10 @@ const Photo: React.FC = () => {
         >
           {/* 背景（固定） */}
           {selectedParts.background ? (
-            <div
+            <img
+              src={selectedParts.background.assetPath}
+              alt="background"
+              crossOrigin="anonymous"
               style={{
                 position: 'absolute',
                 left: 0,
@@ -125,9 +128,7 @@ const Photo: React.FC = () => {
                 width: 240,
                 height: 320,
                 zIndex: 0,
-                backgroundImage: `url(${selectedParts.background.assetPath})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
+                objectFit: 'cover',
               }}
             />
           ) : (
@@ -151,7 +152,10 @@ const Photo: React.FC = () => {
             onTouchStart={handleDragStart}
           >
             {selectedParts.backHair && (
-              <div
+              <img
+                src={selectedParts.backHair.assetPath}
+                alt="back hair"
+                crossOrigin="anonymous"
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -159,14 +163,15 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 1,
-                  backgroundImage: `url(${selectedParts.backHair.assetPath})`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
+                  objectFit: 'cover',
                 }}
               />
             )}
             {selectedParts.costume ? (
-              <div
+              <img
+                src={selectedParts.costume.assetPath}
+                alt="costume"
+                crossOrigin="anonymous"
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -174,16 +179,17 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 2,
-                  backgroundImage: `url(${selectedParts.costume.assetPath})`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
+                  objectFit: 'cover',
                 }}
               />
             ) : (
               <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>衣装未選択</div>
             )}
             {selectedParts.face && (
-              <div
+              <img
+                src={selectedParts.face.assetPath}
+                alt="face"
+                crossOrigin="anonymous"
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -191,14 +197,15 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 3,
-                  backgroundImage: `url(${selectedParts.face.assetPath})`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
+                  objectFit: 'cover',
                 }}
               />
             )}
             {selectedParts.frontHair && (
-              <div
+              <img
+                src={selectedParts.frontHair.assetPath}
+                alt="front hair"
+                crossOrigin="anonymous"
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -206,9 +213,7 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 4,
-                  backgroundImage: `url(${selectedParts.frontHair.assetPath})`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
+                  objectFit: 'cover',
                 }}
               />
             )}
