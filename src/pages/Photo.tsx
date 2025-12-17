@@ -7,7 +7,6 @@ import axios from 'axios';
 
 const Photo: React.FC = () => {
   // ドラッグ用state
-  const [dragPos, setDragPos] = React.useState({ x: 0, y: 0 });
   const [dragging, setDragging] = React.useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
 
@@ -23,10 +22,12 @@ const Photo: React.FC = () => {
         clientX = e.clientX;
         clientY = e.clientY;
       }
-      setDragPos({
-        x: clientX - dragOffset.current.x,
-        y: clientY - dragOffset.current.y,
-      });
+      if (partsContext) {
+        partsContext.setDragPos({
+          x: clientX - dragOffset.current.x,
+          y: clientY - dragOffset.current.y,
+        });
+      }
     };
     const handleUp = () => setDragging(false);
     window.addEventListener('mousemove', handleMove);
@@ -44,7 +45,7 @@ const Photo: React.FC = () => {
   const partsContext = useContext(PartsContext);
   const photoRef = useRef<HTMLDivElement>(null);
   if (!partsContext) return <div>パーツ情報が取得できません</div>;
-  const { selectedParts, scale, setScale } = partsContext;
+  const { selectedParts, scale, setScale, dragPos, setDragPos } = partsContext;
 
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
