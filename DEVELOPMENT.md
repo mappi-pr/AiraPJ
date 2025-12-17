@@ -173,7 +173,43 @@ ipconfig
     Select-Object -First 1).IPAddress
 ```
 
-### 7. スマートフォンからアクセス
+### 7. サーバーの起動（WSL2ターミナルで実行）
+
+**重要**: ViteとAPIサーバーの両方をWSL2ターミナルで起動する必要があります。
+
+#### APIサーバーの起動
+
+```bash
+cd /path/to/AiraPJ/api
+HOST=0.0.0.0 PORT=4000 npm run dev
+```
+
+起動後、以下のようなログが表示されることを確認：
+```
+API server running on 0.0.0.0:4000
+```
+
+#### Viteサーバーの起動（別のWSL2ターミナル）
+
+```bash
+cd /path/to/AiraPJ
+npm run dev
+```
+
+起動後、以下のようなログが表示されることを確認：
+```
+  VITE v6.x.x  ready in xxx ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://172.x.x.x:5173/
+  ➜  Network: http://192.168.x.x:5173/
+```
+
+**注意**: 
+- ViteがAPIサーバーにプロキシする際、WSL2内部では `localhost:4000` で通信します
+- 外部からのアクセス（Windows PCやスマホ）は、WindowsホストIPを経由してWSL2に転送されます
+
+### 8. スマートフォンからアクセス
 
 スマートフォンのブラウザで以下のURLにアクセスします（`192.168.1.100` は実際のWindowsホストIPに置き換えてください）：
 
@@ -182,10 +218,22 @@ ipconfig
 
 ### 8. 環境変数の設定（任意）
 
-異なるIPアドレスやポートを使用する場合は、`api/.env` ファイルでAPIサーバーのURLを設定できます：
+異なるIPアドレスやポートを使用する場合は、環境変数でAPIサーバーのURLを設定できます：
+
+**プロジェクトルートに `.env` ファイルを作成**（Vite用）：
 
 ```env
-VITE_API_BASE_URL=http://192.168.1.100:4000
+# フロントエンド（Vite）用の環境変数
+# WSL2環境では通常不要（デフォルトのlocalhostで動作）
+# VITE_API_BASE_URL=http://localhost:4000
+```
+
+**api/.env ファイル**（APIサーバー用）：
+
+```env
+# APIサーバー用の環境変数
+HOST=0.0.0.0
+PORT=4000
 ```
 
 ### 9. 自動化スクリプト（WSL2再起動時に便利）
@@ -329,6 +377,112 @@ sudo ufw allow 4000/tcp
 - **API直接**: `http://192.168.1.100:4000/api/health`
 
 ## トラブルシューティング
+
+### 問題1: ViteがAPIサーバーにポート4000ではなく5173でアクセスしてしまう
+
+**原因**: Viteのプロキシ設定が正しく機能していない可能性があります。
+
+**解決方法**:
+
+1. **両方のサーバーがWSL2で起動していることを確認**
+   ```bash
+   # WSL2ターミナルで確認
+   ps aux | grep node
+   ```
+   ViteとAPIサーバーの両方のプロセスが表示されるはずです。
+
+2. **APIサーバーがポート4000で起動していることを確認**
+   ```bash
+   # WSL2ターミナルで確認
+   curl http://localhost:4000/api/health
+   ```
+   `{"status":"ok"}` が返ってくることを確認してください。
+
+3. **Viteのプロキシ設定を確認**
+   `vite.config.ts` で以下のように設定されているか確認：
+   ```typescript
+   proxy: {
+     '/api': 'http://localhost:4000',
+     '/uploads': 'http://localhost:4000',
+   },
+   ```
+
+4. **環境変数が設定されていないことを確認**
+   ```bash
+   # プロジェクトルートの .env ファイルに VITE_API_BASE_URL が
+   # 誤った値で設定されていないことを確認
+   cat .env
+   ```
+   もし `VITE_API_BASE_URL=http://localhost:5173` などと設定されていたら削除してください。
+
+5. **Viteサーバーを再起動**
+   ```bash
+   # Ctrl+C でViteを停止してから再起動
+   npm run dev
+   ```
+
+### 問題2: スマートフォンから端末IP:5173に到達できない
+
+**原因**: WSL2のポートフォワーディングまたはWindowsファイアウォールの設定が不完全です。
+
+**解決方法**:
+
+1. **自動化スクリプトを管理者権限で実行**
+   ```powershell
+   # PowerShellを管理者権限で開いて実行
+   .\setup-wsl-port-forwarding.ps1
+   ```
+
+2. **ポートフォワーディングが設定されているか確認**
+   ```powershell
+   # PowerShellで確認
+   netsh interface portproxy show v4tov4
+   ```
+   
+   以下のような出力が表示されるはずです：
+   ```
+   Listen on ipv4:             Connect to ipv4:
+   Address         Port        Address         Port
+   --------------- ----------  --------------- ----------
+   0.0.0.0         5173        172.x.x.x       5173
+   0.0.0.0         4000        172.x.x.x       4000
+   ```
+
+3. **Windowsファイアウォール規則を確認**
+   ```powershell
+   # PowerShellで確認
+   Get-NetFirewallRule -DisplayName "Vite Dev Server"
+   Get-NetFirewallRule -DisplayName "Express API Server"
+   ```
+   
+   両方の規則が存在し、Enabled=True になっているか確認してください。
+
+4. **WSL2のIPアドレスを確認**
+   ```powershell
+   # PowerShellで確認
+   wsl hostname -I
+   ```
+   
+   表示されたIPアドレスが、ポートフォワーディング設定の「Connect to ipv4」と一致しているか確認してください。
+
+5. **WindowsホストのIPアドレスを確認**
+   ```powershell
+   # PowerShellで確認
+   ipconfig
+   ```
+   
+   Wi-FiアダプターのIPv4アドレス（例: 192.168.1.100）をメモしてください。
+
+6. **スマートフォンから接続テスト**
+   - スマートフォンのブラウザで `http://192.168.1.100:5173` にアクセス
+   - もしアクセスできない場合は、Windowsでブラウザを開いて同じURLでアクセスできるか確認
+
+7. **サーバーが0.0.0.0でリッスンしていることを確認**
+   ```bash
+   # WSL2ターミナルで確認
+   # APIサーバーのログに "API server running on 0.0.0.0:4000" と表示されているか
+   # Viteのログに "Network: http://172.x.x.x:5173/" が表示されているか確認
+   ```
 
 ### アクセスできない場合
 

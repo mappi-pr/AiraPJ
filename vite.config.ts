@@ -9,8 +9,16 @@ export default defineConfig({
     host: '0.0.0.0', // すべてのネットワークインターフェースでリッスン（スマホ実機アクセス用）
     port: 5173,
     proxy: {
-      '/api': API_BASE_URL,
-      '/uploads': API_BASE_URL,
+      '/api': {
+        target: API_BASE_URL,
+        changeOrigin: true,
+        secure: false,
+      },
+      '/uploads': {
+        target: API_BASE_URL,
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })
