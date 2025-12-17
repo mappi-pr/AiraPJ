@@ -60,7 +60,7 @@ const Photo: React.FC = () => {
         useCORS: true, 
         background: undefined,
         scale: window.devicePixelRatio * 2
-      });
+      } as any );
       const link = document.createElement('a');
       link.download = 'my_character.png';
       link.href = canvas.toDataURL();
