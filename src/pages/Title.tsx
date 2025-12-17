@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
-import React, { useState } from 'react';
+import React from 'react';
 import gearpath from '../assets/gear.png';
 import texts from '../locales/ja.json';
 import { useSound } from '../utils/useSound';
@@ -7,7 +7,6 @@ import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 
 const Title: React.FC = () => {
-  const [overlay, setOverlay] = useState(false);    
   const navigate = useNavigate();
   const { playClick, playSuccess } = useSound();
 
@@ -15,11 +14,7 @@ const Title: React.FC = () => {
   const handleStart = (e: React.FormEvent) => {
     e.preventDefault();
     playSuccess();
-    setOverlay(true);
-    setTimeout(() => {
-      setOverlay(false);
-      navigate('/character');
-    }, 300);
+    navigate('/character');
   };
 
   return (
@@ -34,7 +29,7 @@ const Title: React.FC = () => {
         <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
           <h1 style={{ textAlign: 'center' }}>{texts.title.mainTitle}</h1>
           <form onSubmit={handleStart} style={{ margin: '16px 0' }}>
-            <button type="submit" id="start-btn" disabled={overlay}>{texts.title.startBtn}</button>
+            <button type="submit" id="start-btn">{texts.title.startBtn}</button>
           </form>
           <div style={{ marginBottom: 16 }}>
             <Link to="/history" id="favorites-menu" onClick={playClick}>{texts.title.favorites}</Link>
@@ -43,9 +38,6 @@ const Title: React.FC = () => {
         <footer style={{ position: 'absolute', bottom: 16, width: '100%', textAlign: 'center' }}>
           <Link to="/terms" id="terms-link" style={{ fontSize: 'small' }} onClick={playClick}>{texts.title.terms}</Link>
         </footer>
-        {overlay && (
-          <div style={{ position: 'fixed', zIndex: 9999, top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', transition: 'opacity 0.5s' }} />
-        )}
       </div>
     </PageTransition>
   );
