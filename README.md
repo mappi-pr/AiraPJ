@@ -3,6 +3,14 @@
 このプロジェクトはReact + Vite + TypeScriptによるSPA（シングルページアプリケーション）です。
 Express APIサーバーと連携し、キャラクター・背景・衣装の着せ替えやBGM/SEの継続再生、リッチな画面遷移演出を実現します。
 
+## 新機能: Google認証と管理者権限
+
+- **Google OAuth認証**: Googleアカウントでログイン可能
+- **管理者専用画面**: 設定画面（アセット管理）は管理者のみアクセス可能
+- **セーブデータ管理**: 将来的にユーザーごとのデータ管理に活用予定
+
+詳細は [GOOGLE_AUTH_SETUP.md](./GOOGLE_AUTH_SETUP.md) を参照してください。
+
 ## セットアップ手順
 
 ### 1. Node.jsバージョンの統一
@@ -17,15 +25,22 @@ npm install
 ```
 
 ### 3. 環境変数ファイルの作成
-- `api/.env.example` を参考に `api/.env` を作成し、DBやAPIサーバーの設定を記入します。
+- `.env.example` を参考に `.env` を作成（Google OAuth Client ID必須）
+- `api/.env.example` を参考に `api/.env` を作成し、DBやAPIサーバー、管理者メールアドレスの設定を記入します。
 - 例:
   ```
+  # フロントエンド (.env)
+  VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+  VITE_API_BASE_URL=http://localhost:4000
+  
+  # バックエンド (api/.env)
   DB_NAME=airapj
   DB_USER=youruser
   DB_PASS=yourpassword
   DB_HOST=localhost
   DB_PORT=5432
-  VITE_API_BASE_URL=http://localhost:4000
+  GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+  ADMIN_EMAILS=admin@example.com,boss@example.com
   ```
 
 ### 4. サーバーの起動
