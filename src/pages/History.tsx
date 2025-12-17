@@ -75,6 +75,7 @@ const History: React.FC = () => {
         frontHair: frontHairs?.data || null,
       });
       partsContext.setScale(history.scale);
+      partsContext.setDragPos({ x: history.dragX, y: history.dragY });
 
       // Navigate to photo page
       navigate('/photo');
