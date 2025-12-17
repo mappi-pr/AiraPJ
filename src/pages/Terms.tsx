@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import texts from '../locales/ja.json';
 
 const Terms: React.FC = () => {
@@ -7,7 +8,7 @@ const Terms: React.FC = () => {
       <h1>{texts.terms.title}</h1>
       {/* 規約・クレジット内容をここに記載 */}
       <nav>
-        <a href="/title">{texts.common.backToTitle}</a>
+        <Link to="/title">{texts.common.backToTitle}</Link>
       </nav>
     </div>
   );

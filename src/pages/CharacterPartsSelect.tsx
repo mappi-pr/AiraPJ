@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import texts from '../locales/ja.json';
 import { PartsContext } from '../context/PartsContextOnly';
 import type { PartInfo } from '../context/PartsContextOnly';
@@ -86,7 +86,7 @@ const CharacterPartsSelect: React.FC = () => {
         <button type="submit">{texts.common.next}</button>
       </form>
       <nav>
-        <a href="/title">{texts.common.backToTitle}</a>
+        <Link to="/title">{texts.common.backToTitle}</Link>
       </nav>
     </div>
   );
