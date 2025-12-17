@@ -56,7 +56,11 @@ const Photo: React.FC = () => {
   const handleDownload = async () => {
     playSuccess();
     if (photoRef.current) {
-      const canvas = await html2canvas(photoRef.current, { useCORS: true, background: undefined });
+      const canvas = await html2canvas(photoRef.current, { 
+        useCORS: true, 
+        background: undefined,
+        scale: window.devicePixelRatio * 2
+      });
       const link = document.createElement('a');
       link.download = 'my_character.png';
       link.href = canvas.toDataURL();
@@ -113,7 +117,11 @@ const Photo: React.FC = () => {
         >
           {/* 背景（固定） */}
           {selectedParts.background ? (
-            <div
+            <img
+              src={selectedParts.background.assetPath}
+              alt="background"
+              crossOrigin="anonymous"
+              draggable={false}
               style={{
                 position: 'absolute',
                 left: 0,
@@ -121,9 +129,9 @@ const Photo: React.FC = () => {
                 width: 240,
                 height: 320,
                 zIndex: 0,
-                backgroundImage: `url(${selectedParts.background.assetPath})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
+                objectFit: 'cover',
+                pointerEvents: 'none',
+                userSelect: 'none',
               }}
             />
           ) : (
@@ -147,7 +155,11 @@ const Photo: React.FC = () => {
             onTouchStart={handleDragStart}
           >
             {selectedParts.backHair && (
-              <div
+              <img
+                src={selectedParts.backHair.assetPath}
+                alt="back hair"
+                crossOrigin="anonymous"
+                draggable={false}
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -155,14 +167,18 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 1,
-                  backgroundImage: `url(${selectedParts.backHair.assetPath})`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
+                  objectFit: 'cover',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 }}
               />
             )}
             {selectedParts.costume ? (
-              <div
+              <img
+                src={selectedParts.costume.assetPath}
+                alt="costume"
+                crossOrigin="anonymous"
+                draggable={false}
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -170,16 +186,20 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 2,
-                  backgroundImage: `url(${selectedParts.costume.assetPath})`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
+                  objectFit: 'cover',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 }}
               />
             ) : (
               <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>衣装未選択</div>
             )}
             {selectedParts.face && (
-              <div
+              <img
+                src={selectedParts.face.assetPath}
+                alt="face"
+                crossOrigin="anonymous"
+                draggable={false}
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -187,14 +207,18 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 3,
-                  backgroundImage: `url(${selectedParts.face.assetPath})`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
+                  objectFit: 'cover',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 }}
               />
             )}
             {selectedParts.frontHair && (
-              <div
+              <img
+                src={selectedParts.frontHair.assetPath}
+                alt="front hair"
+                crossOrigin="anonymous"
+                draggable={false}
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -202,9 +226,9 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 4,
-                  backgroundImage: `url(${selectedParts.frontHair.assetPath})`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
+                  objectFit: 'cover',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 }}
               />
             )}
