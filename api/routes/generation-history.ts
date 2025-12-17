@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
     if (!userId) return res.status(400).json({ error: 'userId required' });
 
     // Ensure user exists
-    const [user] = await User.findOrCreate({
+    await User.findOrCreate({
       where: { id: userId as string },
       defaults: { id: userId as string },
     });
