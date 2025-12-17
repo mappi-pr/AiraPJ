@@ -44,7 +44,7 @@ const Title: React.FC = () => {
           <Link to="/terms" id="terms-link" style={{ fontSize: 'small' }} onClick={playClick}>{texts.title.terms}</Link>
         </footer>
         {overlay && (
-          <div style={{ position: 'fixed', zIndex: 9999, top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', transition: 'opacity 0.5s', opacity: 1, backdropFilter: 'blur(5px)' }} />
+          <div style={{ position: 'fixed', zIndex: 9999, top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', transition: 'opacity 0.5s' }} />
         )}
       </div>
     </PageTransition>
