@@ -7,16 +7,21 @@ import { useRef } from 'react';
 export const useSound = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  const playClick = () => {
-    const seOn = localStorage.getItem('seOn') === '1';
-    if (!seOn) return;
+  // Check if sound effects are enabled
+  const isSoundEnabled = () => localStorage.getItem('seOn') === '1';
 
-    // Initialize AudioContext if not already created
+  // Initialize AudioContext if needed
+  const getAudioContext = () => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
+    return audioContextRef.current;
+  };
 
-    const ctx = audioContextRef.current;
+  const playClick = () => {
+    if (!isSoundEnabled()) return;
+
+    const ctx = getAudioContext();
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
@@ -35,14 +40,9 @@ export const useSound = () => {
   };
 
   const playSuccess = () => {
-    const seOn = localStorage.getItem('seOn') === '1';
-    if (!seOn) return;
+    if (!isSoundEnabled()) return;
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-
-    const ctx = audioContextRef.current;
+    const ctx = getAudioContext();
     
     // Play a two-note success sound
     [523, 659].forEach((freq, i) => {

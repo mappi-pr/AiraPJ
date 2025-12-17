@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css'
-// import bgmpath from './assets/sound/bgm/main.mp3'; // Placeholder - create actual file if needed
 import React, { useState, useRef } from 'react';
 import Title from './pages/Title';
 import CharacterPartsSelect from './pages/CharacterPartsSelect';
@@ -42,7 +41,6 @@ function App() {
   return (
     <PartsProvider>
       <BrowserRouter>
-        {/* <audio ref={bgmRef} src={bgmpath} loop /> */}
         <div id="sound-toggle" style={{ position: 'absolute', right: 16, top: 16, zIndex: 2, display: 'flex', gap: 8 }}>
           <button type="button" onClick={toggleBgm}>BGM: {bgmOn ? 'ON' : 'OFF'}</button>
           <button type="button" onClick={toggleSe}>SE: {seOn ? 'ON' : 'OFF'}</button>

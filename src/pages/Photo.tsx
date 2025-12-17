@@ -63,6 +63,12 @@ const Photo: React.FC = () => {
     }
   };
 
+  // 位置リセット
+  const handleReset = () => {
+    playClick();
+    setDragPos({ x: 0, y: 0 });
+  };
+
   // ドラッグ開始
   const handleDragStart = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     setDragging(true);
@@ -204,7 +210,7 @@ const Photo: React.FC = () => {
           </div>
         </div>
         <button onClick={handleDownload}>PNGで保存</button>
-        <button onClick={() => { playClick(); setDragPos({ x: 0, y: 0 }); }}>位置リセット</button>
+        <button onClick={handleReset}>位置リセット</button>
         <nav>
           <a href="/title" onClick={playClick}>{texts.common.backToTitle}</a>
         </nav>
