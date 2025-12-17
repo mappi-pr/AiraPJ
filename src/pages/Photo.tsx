@@ -121,6 +121,7 @@ const Photo: React.FC = () => {
               src={selectedParts.background.assetPath}
               alt="background"
               crossOrigin="anonymous"
+              draggable={false}
               style={{
                 position: 'absolute',
                 left: 0,
@@ -129,6 +130,8 @@ const Photo: React.FC = () => {
                 height: 320,
                 zIndex: 0,
                 objectFit: 'cover',
+                pointerEvents: 'none',
+                userSelect: 'none',
               }}
             />
           ) : (
@@ -156,6 +159,7 @@ const Photo: React.FC = () => {
                 src={selectedParts.backHair.assetPath}
                 alt="back hair"
                 crossOrigin="anonymous"
+                draggable={false}
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -164,6 +168,8 @@ const Photo: React.FC = () => {
                   height: 320,
                   zIndex: 1,
                   objectFit: 'cover',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 }}
               />
             )}
@@ -172,6 +178,7 @@ const Photo: React.FC = () => {
                 src={selectedParts.costume.assetPath}
                 alt="costume"
                 crossOrigin="anonymous"
+                draggable={false}
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -180,6 +187,8 @@ const Photo: React.FC = () => {
                   height: 320,
                   zIndex: 2,
                   objectFit: 'cover',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 }}
               />
             ) : (
@@ -190,6 +199,7 @@ const Photo: React.FC = () => {
                 src={selectedParts.face.assetPath}
                 alt="face"
                 crossOrigin="anonymous"
+                draggable={false}
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -198,6 +208,8 @@ const Photo: React.FC = () => {
                   height: 320,
                   zIndex: 3,
                   objectFit: 'cover',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 }}
               />
             )}
@@ -206,6 +218,7 @@ const Photo: React.FC = () => {
                 src={selectedParts.frontHair.assetPath}
                 alt="front hair"
                 crossOrigin="anonymous"
+                draggable={false}
                 style={{
                   position: 'absolute',
                   left: 0,
@@ -214,6 +227,8 @@ const Photo: React.FC = () => {
                   height: 320,
                   zIndex: 4,
                   objectFit: 'cover',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 }}
               />
             )}
