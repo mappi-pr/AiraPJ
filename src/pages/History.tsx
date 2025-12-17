@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import texts from '../locales/ja.json';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
@@ -13,7 +14,7 @@ const History: React.FC = () => {
         <h1>{texts.history.title}</h1>
         {/* 履歴表示UIをここに実装 */}
         <nav>
-          <a href="/title" onClick={playClick}>{texts.common.backToTitle}</a>
+          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
         </nav>
       </div>
     </PageTransition>

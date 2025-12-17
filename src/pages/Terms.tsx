@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import texts from '../locales/ja.json';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
@@ -13,7 +14,7 @@ const Terms: React.FC = () => {
         <h1>{texts.terms.title}</h1>
         {/* 規約・クレジット内容をここに記載 */}
         <nav>
-          <a href="/title" onClick={playClick}>{texts.common.backToTitle}</a>
+          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
         </nav>
       </div>
     </PageTransition>

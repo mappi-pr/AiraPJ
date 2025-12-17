@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import texts from '../locales/ja.json';
 import { useSound } from '../utils/useSound';
@@ -108,7 +109,7 @@ const Settings: React.FC = () => {
       <div className="main-container">
         <h1>{texts.settings.title}</h1>
         <nav>
-          <a href="/title" onClick={playClick}>{texts.common.backToTitle}</a>
+          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
         </nav>
         <h2>{texts.settings.uploadTitle}</h2>
         <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">

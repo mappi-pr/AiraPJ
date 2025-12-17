@@ -1,4 +1,5 @@
 import React, { useContext, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import texts from '../locales/ja.json';
 import { PartsContext } from '../context/PartsContextOnly';
 import html2canvas from 'html2canvas';
@@ -212,7 +213,7 @@ const Photo: React.FC = () => {
         <button onClick={handleDownload}>PNGで保存</button>
         <button onClick={handleReset}>位置リセット</button>
         <nav>
-          <a href="/title" onClick={playClick}>{texts.common.backToTitle}</a>
+          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
         </nav>
       </div>
     </PageTransition>
