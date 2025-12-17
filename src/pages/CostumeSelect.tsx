@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import texts from '../locales/ja.json';
 import { PartsContext } from '../context/PartsContextOnly';
 import type { PartInfo } from '../context/PartsContextOnly';
+import { useSound } from '../utils/useSound';
+import { PageTransition } from '../utils/PageTransition';
+import { SparkleEffect } from '../utils/SparkleEffect';
 
 const CostumeSelect: React.FC = () => {
   const [costumes, setCostumes] = useState<PartInfo[]>([]);
   const [idx, setIdx] = useState(0);
   const navigate = useNavigate();
   const partsContext = useContext(PartsContext);
+  const { playClick, playSuccess } = useSound();
 
   useEffect(() => {
     fetch('/api/costume')
@@ -26,38 +30,48 @@ const CostumeSelect: React.FC = () => {
     // eslint-disable-next-line
   }, [idx, costumes]);
 
-  const handlePrev = () => setIdx((idx - 1 + costumes.length) % costumes.length);
-  const handleNext = () => setIdx((idx + 1) % costumes.length);
+  const handlePrev = () => {
+    playClick();
+    setIdx((idx - 1 + costumes.length) % costumes.length);
+  };
+  const handleNext = () => {
+    playClick();
+    setIdx((idx + 1) % costumes.length);
+  };
   const handleNextPage = (e: React.FormEvent) => {
     e.preventDefault();
+    playSuccess();
     navigate('/photo');
   };
 
   return (
-    <div className="main-container">
-      <h1>{texts.costumeSelect.title}</h1>
-      <div className="select-container">
-        {costumes.length > 0 ? (
-          <>
-            <button onClick={handlePrev}>←</button>
-            <div id="costume-info">
-              <img src={costumes[idx].assetPath} alt="衣装画像" style={{ maxWidth: 200, maxHeight: 200 }} />
-              <div>{costumes[idx].name}</div>
-            </div>
-            <button onClick={handleNext}>→</button>
-          </>
-        ) : (
-          <div>{texts.common.noData}</div>
-        )}
+    <PageTransition>
+      <SparkleEffect />
+      <div className="main-container">
+        <h1>{texts.costumeSelect.title}</h1>
+        <div className="select-container">
+          {costumes.length > 0 ? (
+            <>
+              <button onClick={handlePrev}>←</button>
+              <div id="costume-info">
+                <img src={costumes[idx].assetPath} alt="衣装画像" style={{ maxWidth: 200, maxHeight: 200 }} />
+                <div>{costumes[idx].name}</div>
+              </div>
+              <button onClick={handleNext}>→</button>
+            </>
+          ) : (
+            <div>{texts.common.noData}</div>
+          )}
+        </div>
+        <form onSubmit={handleNextPage}>
+          <button type="submit">{texts.common.next}</button>
+        </form>
+        <nav>
+          <a href="/background" onClick={playClick}>{texts.costumeSelect.backToBackground}</a> |
+          <a href="/title" onClick={playClick}>{texts.common.backToTitle}</a>
+        </nav>
       </div>
-      <form onSubmit={handleNextPage}>
-        <button type="submit">{texts.common.next}</button>
-      </form>
-      <nav>
-        <a href="/background">{texts.costumeSelect.backToBackground}</a> |
-        <a href="/title">{texts.common.backToTitle}</a>
-      </nav>
-    </div>
+    </PageTransition>
   );
 };
 
