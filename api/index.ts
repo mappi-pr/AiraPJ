@@ -60,6 +60,10 @@ app.use('/uploads', (req, res, next) => {
 app.use('/uploads', cors(), express.static(uploadsDir));
 
 const PORT = Number(process.env.PORT) || 4000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API server running on port ${PORT}`);
+// 本番環境ではセキュリティのため HOST 環境変数で制御可能
+// 開発環境: '0.0.0.0' でスマホ実機からアクセス可能
+// 本番環境: 未指定(localhost)またはリバースプロキシ経由での利用を推奨
+const HOST = process.env.HOST || 'localhost';
+app.listen(PORT, HOST, () => {
+  console.log(`API server running on ${HOST}:${PORT}`);
 });
