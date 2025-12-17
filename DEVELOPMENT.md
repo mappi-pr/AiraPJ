@@ -32,15 +32,14 @@ AiraPJプロジェクトでは以下の2つのサーバーが起動します：
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
 export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0', // すべてのネットワークインターフェースでリッスン
     port: 5173,
     proxy: {
-      '/api': API_BASE_URL,
-      '/uploads': API_BASE_URL,
+      '/api': 'http://localhost:4000',
+      '/uploads': 'http://localhost:4000',
     },
   },
 })
@@ -216,17 +215,7 @@ npm run dev
 - **フロントエンド**: `http://192.168.1.100:5173`
 - **API直接**: `http://192.168.1.100:4000/api/health`
 
-### 8. 環境変数の設定（任意）
-
-異なるIPアドレスやポートを使用する場合は、環境変数でAPIサーバーのURLを設定できます：
-
-**プロジェクトルートに `.env` ファイルを作成**（Vite用）：
-
-```env
-# フロントエンド（Vite）用の環境変数
-# WSL2環境では通常不要（デフォルトのlocalhostで動作）
-# VITE_API_BASE_URL=http://localhost:4000
-```
+### 8. 環境変数の設定
 
 **api/.env ファイル**（APIサーバー用）：
 
@@ -235,6 +224,11 @@ npm run dev
 HOST=0.0.0.0
 PORT=4000
 ```
+
+**重要**: 
+- プロジェクトルート（Vite用）には `.env` ファイルは不要です
+- ViteのプロキシはWSL2内部で `localhost:4000` を使用して動作します
+- 外部からのアクセス（Windows PCやスマホ）のみWindowsホストIP経由になります
 
 ### 9. 自動化スクリプト（WSL2再起動時に便利）
 
@@ -300,15 +294,14 @@ Mac/Linuxではポートフォワーディングの設定が不要です。
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:4000';
 export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
     port: 5173,
     proxy: {
-      '/api': API_BASE_URL,
-      '/uploads': API_BASE_URL,
+      '/api': 'http://localhost:4000',
+      '/uploads': 'http://localhost:4000',
     },
   },
 })
@@ -407,15 +400,7 @@ sudo ufw allow 4000/tcp
    },
    ```
 
-4. **環境変数が設定されていないことを確認**
-   ```bash
-   # プロジェクトルートの .env ファイルに VITE_API_BASE_URL が
-   # 誤った値で設定されていないことを確認
-   cat .env
-   ```
-   もし `VITE_API_BASE_URL=http://localhost:5173` などと設定されていたら削除してください。
-
-5. **Viteサーバーを再起動**
+4. **Viteサーバーを再起動**
    ```bash
    # Ctrl+C でViteを停止してから再起動
    npm run dev
@@ -511,21 +496,6 @@ sudo ufw allow 4000/tcp
 
 WSL2を再起動するとIPアドレスが変わることがあります。この場合は、上記の「自動化スクリプト」を使用して再設定してください。
 
-### "Cannot access before initialization" エラー
-
-環境変数 `VITE_API_BASE_URL` が正しく設定されているか確認してください：
-
-```bash
-# WSL2内で確認
-echo $VITE_API_BASE_URL
-```
-
-設定されていない場合は、`.env` ファイルを作成するか、起動時に指定：
-
-```bash
-VITE_API_BASE_URL=http://localhost:4000 npm run dev
-```
-
 ### CORSエラーが発生する場合
 
 APIサーバーの `api/index.ts` でCORS設定が有効になっているか確認：
@@ -554,8 +524,8 @@ export default defineConfig({
       cert: fs.readFileSync('path/to/cert.pem'),
     },
     proxy: {
-      '/api': process.env.VITE_API_BASE_URL || 'http://localhost:4000',
-      '/uploads': process.env.VITE_API_BASE_URL || 'http://localhost:4000',
+      '/api': 'http://localhost:4000',
+      '/uploads': 'http://localhost:4000',
     },
   },
 })
