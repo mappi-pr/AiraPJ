@@ -38,15 +38,15 @@ if (-not $apiRule) {
     Write-Host "Firewall rule for API already exists" -ForegroundColor Cyan
 }
 
-# ホストマシンのIPアドレスを取得
-$hostIP = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Wi-Fi*' -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty IPAddress)
+# ホストマシンのIPアドレスを取得（接続済みのインターフェースから取得）
+$hostIP = (Get-NetIPAddress -AddressFamily IPv4 -PrefixOrigin Dhcp,Manual -ErrorAction SilentlyContinue | 
+    Where-Object { $_.IPAddress -match '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)' } | 
+    Select-Object -First 1 -ExpandProperty IPAddress)
 if (-not $hostIP) {
-    # Wi-Fiインターフェースが見つからない場合は、イーサネットを試す
-    $hostIP = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'イーサネット*' -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty IPAddress)
-}
-if (-not $hostIP) {
-    # それでも見つからない場合は、すべてのインターフェースから最初のプライベートIPを取得
-    $hostIP = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -match '^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)' } | Select-Object -First 1 -ExpandProperty IPAddress)
+    # DHCPまたは手動設定のIPが見つからない場合、すべてのインターフェースから検索
+    $hostIP = (Get-NetIPAddress -AddressFamily IPv4 | 
+        Where-Object { $_.IPAddress -match '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)' } | 
+        Select-Object -First 1 -ExpandProperty IPAddress)
 }
 
 Write-Host "`n========================================" -ForegroundColor Green

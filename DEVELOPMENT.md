@@ -138,13 +138,20 @@ New-NetFirewallRule -DisplayName "Express API Server" -Direction Inbound -LocalP
 
 ### 6. WindowsホストマシンのIPアドレスを確認
 
-**コマンドプロンプト** または **PowerShell** で以下のコマンドを実行：
-
+**PowerShell**:
 ```powershell
 ipconfig
 ```
 
-「ワイヤレス LAN アダプター Wi-Fi」セクションの「IPv4 アドレス」を確認します（例: `192.168.1.100`）。
+接続済みのネットワークアダプター（Wi-Fi または イーサネット）の「IPv4 アドレス」を確認します（例: `192.168.1.100`）。
+
+または、PowerShellで自動取得：
+```powershell
+# プライベートIPアドレスを自動取得
+(Get-NetIPAddress -AddressFamily IPv4 -PrefixOrigin Dhcp,Manual | 
+    Where-Object { $_.IPAddress -match '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)' } | 
+    Select-Object -First 1).IPAddress
+```
 
 ### 7. スマートフォンからアクセス
 
@@ -361,13 +368,19 @@ export default defineConfig({
 })
 ```
 
-自己署名証明書の作成：
+自己署名証明書の作成（ホストのIPアドレスを指定）：
 
 ```bash
 # WSL2/Linux/Mac
-openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
-  -keyout localhost-key.pem -out localhost-cert.pem
+# YOUR_IP_ADDRESSを実際のIPアドレスに置き換えてください（例: 192.168.1.100）
+YOUR_IP_ADDRESS="192.168.1.100"
+openssl req -x509 -newkey rsa:2048 -nodes -sha256 \
+  -subj "/CN=${YOUR_IP_ADDRESS}" \
+  -addext "subjectAltName=IP:${YOUR_IP_ADDRESS},IP:127.0.0.1,DNS:localhost" \
+  -keyout localhost-key.pem -out localhost-cert.pem -days 365
 ```
+
+注意: スマートフォンでHTTPSアクセスする場合、自己署名証明書では警告が表示されます。開発用途では警告を無視して進めるか、証明書をスマートフォンにインストールする必要があります。
 
 ## まとめ
 
