@@ -35,7 +35,7 @@ const Settings: React.FC = () => {
 
   // セクション展開時のみアセットを取得
   const fetchAssetsForType = async (type: string) => {
-    if (assets[type]) return; // 既にロード済み
+    if (assets[type] && assets[type].length > 0) return; // 既にロード済み
     
     setLoading(true);
     try {
@@ -45,6 +45,16 @@ const Settings: React.FC = () => {
       setAssets((prev) => ({ ...prev, [type]: [] }));
     }
     setLoading(false);
+  };
+
+  // アセットリストの再取得
+  const refreshAssetsForType = async (type: string) => {
+    setAssets((prev) => {
+      const newAssets = { ...prev };
+      delete newAssets[type];
+      return newAssets;
+    });
+    await fetchAssetsForType(type);
   };
 
   // セクションの展開/折りたたみ
@@ -87,8 +97,7 @@ const Settings: React.FC = () => {
         );
         // アップロード後、該当タイプのアセットリストを再取得
         if (type) {
-          setAssets((prev) => ({ ...prev, [type]: [] }));
-          await fetchAssetsForType(type);
+          await refreshAssetsForType(type);
         }
       } else {
         setResult(data.error || texts.settings.resultFail);
@@ -104,8 +113,7 @@ const Settings: React.FC = () => {
     try {
       await axios.delete(`${uploadUrls[type].replace('/upload', '')}/${id}`);
       // 削除後、該当タイプのアセットリストを再取得
-      setAssets((prev) => ({ ...prev, [type]: [] }));
-      await fetchAssetsForType(type);
+      await refreshAssetsForType(type);
       setResult(texts.settings.deleteSuccess);
     } catch {
       setResult(texts.settings.deleteFail);
@@ -318,16 +326,29 @@ const Settings: React.FC = () => {
                             ← 前へ
                           </button>
                           
-                          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                            .filter(page => {
-                              // 現在のページ周辺のみ表示（最初、最後、現在ページ±2）
-                              return page === 1 || 
-                                     page === pagination.totalPages || 
-                                     Math.abs(page - pagination.currentPage) <= 2;
-                            })
-                            .map((page, idx, arr) => {
-                              // ページ番号の間に省略記号を挿入
-                              const prevPage = arr[idx - 1];
+                          {(() => {
+                            const currentPage = pagination.currentPage;
+                            const totalPages = pagination.totalPages;
+                            const pagesToShow: number[] = [];
+                            
+                            // 常に最初のページを表示
+                            pagesToShow.push(1);
+                            
+                            // 現在ページ周辺のページを追加
+                            for (let i = Math.max(2, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) {
+                              pagesToShow.push(i);
+                            }
+                            
+                            // 最後のページを追加（複数ページある場合）
+                            if (totalPages > 1) {
+                              pagesToShow.push(totalPages);
+                            }
+                            
+                            // 重複を削除してソート
+                            const uniquePages = Array.from(new Set(pagesToShow)).sort((a, b) => a - b);
+                            
+                            return uniquePages.map((page, idx) => {
+                              const prevPage = uniquePages[idx - 1];
                               const showEllipsis = prevPage && page - prevPage > 1;
                               
                               return (
@@ -349,7 +370,8 @@ const Settings: React.FC = () => {
                                   </button>
                                 </React.Fragment>
                               );
-                            })}
+                            });
+                          })()}
                           
                           <button
                             onClick={() => handlePageChange(key, pagination.currentPage + 1)}
