@@ -14,7 +14,9 @@ import { PartsProvider } from './context/PartsContext';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);
+  // BGM: Default to ON on first visit (auto-play background music)
   const [bgmOn, setBgmOn] = useState(localStorage.getItem('bgmOn') !== '0');
+  // SE: Default to OFF on first visit (opt-in for sound effects)
   const [seOn, setSeOn] = useState(localStorage.getItem('seOn') === '1');
 
   // BGM自動再生
