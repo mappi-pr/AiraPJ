@@ -68,7 +68,7 @@ const Title: React.FC = () => {
         <div style={{ margin: '16px 0', textAlign: 'center' }}>
           {user ? (
             <div>
-              <p>ようこそ、{user.name || user.email}さん</p>
+              <p>ようこそ、{user.name || 'ユーザー'}さん</p>
               {user.picture && <img src={user.picture} alt="Profile" style={{ width: 48, height: 48, borderRadius: '50%' }} />}
               {isAdmin && <p style={{ color: '#4CAF50', fontWeight: 'bold' }}>管理者権限</p>}
               <button onClick={logout} style={{ marginTop: 8 }}>ログアウト</button>
