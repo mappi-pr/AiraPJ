@@ -11,6 +11,17 @@ router.get('/', async (req, res) => {
   res.json(backHairs);
 });
 
+// GET /api/back-hair/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const backHair = await BackHair.findByPk(req.params.id);
+    if (!backHair || backHair.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(backHair);
+  } catch (e) {
+    res.status(500).json({ error: 'Fetch failed' });
+  }
+});
+
 // DELETE /api/back-hair/:id
 router.delete('/:id', async (req, res) => {
   try {

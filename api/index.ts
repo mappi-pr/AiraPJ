@@ -12,6 +12,7 @@ import frontHairRouter from './routes/frontHair';
 import frontHairUploadRouter from './routes/frontHair-upload';
 import backHairRouter from './routes/backHair';
 import backHairUploadRouter from './routes/backHair-upload';
+import generationHistoryRouter from './routes/generation-history';
 import { sequelize } from './models';
 import { getUploadsBasePath } from './config/uploads';
 
@@ -44,6 +45,7 @@ app.use('/api/front-hair', frontHairRouter);
 app.use('/api/front-hair', frontHairUploadRouter);
 app.use('/api/back-hair', backHairRouter);
 app.use('/api/back-hair', backHairUploadRouter);
+app.use('/api/generation-history', generationHistoryRouter);
 
 // アップロードされたファイルを静的に配信
 // 本番環境では UPLOADS_DIR 環境変数でパスを指定可能

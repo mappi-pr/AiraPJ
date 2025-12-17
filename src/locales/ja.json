@@ -30,7 +30,13 @@
     "title": "フリー撮影モード"
   },
   "history": {
-    "title": "履歴管理"
+    "title": "履歴管理",
+    "noHistory": "まだ生成履歴がありません",
+    "deleteConfirm": "この履歴を削除しますか？",
+    "deleteFail": "削除に失敗しました",
+    "restore": "復元",
+    "delete": "削除",
+    "restoreFail": "復元に失敗しました"
   },
   "settings": {
     "title": "設定",

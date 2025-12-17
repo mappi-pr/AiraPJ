@@ -2,6 +2,8 @@ import React, { useContext, useRef } from 'react';
 import texts from '../locales/ja.json';
 import { PartsContext } from '../context/PartsContextOnly';
 import html2canvas from 'html2canvas';
+import { getUserId } from '../utils/user';
+import axios from 'axios';
 
 const Photo: React.FC = () => {
   // ドラッグ用state
@@ -55,6 +57,25 @@ const Photo: React.FC = () => {
       link.download = 'my_character.png';
       link.href = canvas.toDataURL();
       link.click();
+
+      // Save generation history
+      try {
+        const userId = getUserId();
+        await axios.post('/api/generation-history', {
+          userId,
+          backgroundId: selectedParts.background?.id || null,
+          costumeId: selectedParts.costume?.id || null,
+          backHairId: selectedParts.backHair?.id || null,
+          faceId: selectedParts.face?.id || null,
+          frontHairId: selectedParts.frontHair?.id || null,
+          scale,
+          dragX: dragPos.x,
+          dragY: dragPos.y,
+        });
+        console.log('Generation history saved');
+      } catch (error) {
+        console.error('Failed to save generation history:', error);
+      }
     }
   };
 
