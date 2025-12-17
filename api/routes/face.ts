@@ -11,6 +11,17 @@ router.get('/', async (req, res) => {
   res.json(faces);
 });
 
+// GET /api/face/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const face = await Face.findByPk(req.params.id);
+    if (!face || face.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(face);
+  } catch (e) {
+    res.status(500).json({ error: 'Fetch failed' });
+  }
+});
+
 // DELETE /api/face/:id
 router.delete('/:id', async (req, res) => {
   try {
