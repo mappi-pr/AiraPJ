@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { BackHair } from '../models/backHair';
@@ -17,7 +17,7 @@ router.get('/:id', async (req, res) => {
     const backHair = await BackHair.findByPk(req.params.id);
     if (!backHair || backHair.deleted) return res.status(404).json({ error: 'Not found' });
     res.json(backHair);
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: 'Fetch failed' });
   }
 });
@@ -38,7 +38,7 @@ router.delete('/:id', async (req, res) => {
     backHair.deletedAt = new Date();
     await backHair.save();
     res.json({ success: true });
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: 'Delete failed' });
   }
 });
