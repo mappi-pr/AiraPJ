@@ -1,10 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import type { Locale, SupportedLanguage } from '../types/locale';
 import ja from '../locales/ja.json';
-
-// 型定義：ja.jsonの構造を反映
-export type Locale = typeof ja;
-export type SupportedLanguage = 'ja';
 
 interface LocaleContextType {
   locale: SupportedLanguage;

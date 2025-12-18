@@ -117,11 +117,9 @@ const Settings: React.FC = () => {
           <label>
             {t.settings.typeLabel}
             <select name="type" ref={assetTypeRef}>
-              <option value="face">顔パーツ</option>
-              <option value="frontHair">前髪パーツ</option>
-              <option value="backHair">後髪パーツ</option>
-              <option value="background">背景</option>
-              <option value="costume">衣装</option>
+              {assetTypes.map(({ key, label }) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
             </select>
           </label>
           <br />
