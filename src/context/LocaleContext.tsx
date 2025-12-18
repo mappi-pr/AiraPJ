@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { Locale, SupportedLanguage } from '../types/locale';
+import { SUPPORTED_LANGUAGES } from '../types/locale';
 import ja from '../locales/ja.json';
 
 interface LocaleContextType {
@@ -19,7 +20,7 @@ export const LocaleProvider: React.FC<LocaleProviderProps> = ({ children }) => {
   // ブラウザの言語設定またはlocalStorageから初期言語を取得
   const getInitialLocale = (): SupportedLanguage => {
     const stored = localStorage.getItem('locale') as SupportedLanguage | null;
-    if (stored && ['ja'].includes(stored)) {
+    if (stored && SUPPORTED_LANGUAGES.includes(stored)) {
       return stored;
     }
     // デフォルトは日本語

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from '../hooks/useTranslation';
@@ -25,13 +25,14 @@ const Settings: React.FC = () => {
     costume: '/api/costume/upload',
   };
 
-  const assetTypes = [
+  // useMemoで最適化：tが変わったときのみ再計算
+  const assetTypes = useMemo(() => [
     { key: 'face', label: t.settings.faceLabel },
     { key: 'frontHair', label: t.settings.frontHairLabel },
     { key: 'backHair', label: t.settings.backHairLabel },
     { key: 'background', label: t.settings.backgroundLabel },
     { key: 'costume', label: t.settings.costumeLabel },
-  ];
+  ], [t]);
 
   // 一覧取得
   const fetchAssets = async () => {

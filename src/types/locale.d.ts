@@ -20,6 +20,13 @@ export type SupportedLanguage = 'ja';
 // Future: export type SupportedLanguage = 'ja' | 'en' | 'zh' | ...;
 
 /**
+ * Array of all supported languages
+ * Used for validation and language selection
+ */
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['ja'] as const;
+// Future: export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['ja', 'en', 'zh'] as const;
+
+/**
  * Type for translation keys (for dynamic access)
  */
 export type TranslationKeys = keyof Locale;
