@@ -1,18 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import texts from '../locales/ja.json';
+import { useTranslation } from '../hooks/useTranslation';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
-
-const assetTypes = [
-  { key: 'face', label: texts.settings.faceLabel },
-  { key: 'frontHair', label: texts.settings.frontHairLabel },
-  { key: 'backHair', label: texts.settings.backHairLabel },
-  { key: 'background', label: texts.settings.backgroundLabel },
-  { key: 'costume', label: texts.settings.costumeLabel },
-];
 
 const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
@@ -22,6 +14,7 @@ const Settings: React.FC = () => {
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
   const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
 
   // アップロード種別ごとのエンドポイント
   const uploadUrls: Record<string, string> = {
@@ -31,6 +24,14 @@ const Settings: React.FC = () => {
     background: '/api/background/upload',
     costume: '/api/costume/upload',
   };
+
+  const assetTypes = [
+    { key: 'face', label: t.settings.faceLabel },
+    { key: 'frontHair', label: t.settings.frontHairLabel },
+    { key: 'backHair', label: t.settings.backHairLabel },
+    { key: 'background', label: t.settings.backgroundLabel },
+    { key: 'costume', label: t.settings.costumeLabel },
+  ];
 
   // 一覧取得
   const fetchAssets = async () => {
@@ -60,11 +61,11 @@ const Settings: React.FC = () => {
     const name = assetNameRef.current?.value;
     const file = assetFileRef.current?.files?.[0];
     if (!file || file.type !== 'image/png') {
-      setResult(texts.settings.pngOnly);
+      setResult(t.settings.pngOnly);
       return;
     }
     if (!type || !uploadUrls[type]) {
-      setResult(texts.settings.selectType);
+      setResult(t.settings.selectType);
       return;
     }
     const formData = new FormData();
@@ -80,26 +81,26 @@ const Settings: React.FC = () => {
       if (assetPath && id) {
         playSuccess();
         setResult(
-          `${texts.settings.resultSuccess}\nID: ${id}\n画像: <img src="${assetPath}" width="100" />`
+          `${t.settings.resultSuccess}\nID: ${id}\n画像: <img src="${assetPath}" width="100" />`
         );
       } else {
-        setResult(data.error || texts.settings.resultFail);
+        setResult(data.error || t.settings.resultFail);
       }
     } catch {
-      setResult(texts.settings.resultFail);
+      setResult(t.settings.resultFail);
     }
   };
 
   // 削除
   const handleDelete = async (type: string, id: number) => {
-    if (!window.confirm(texts.settings.deleteConfirm)) return;
+    if (!window.confirm(t.settings.deleteConfirm)) return;
     playClick();
     try {
       await axios.delete(`${uploadUrls[type].replace('/upload', '')}/${id}`);
       fetchAssets();
-      setResult(texts.settings.deleteSuccess);
+      setResult(t.settings.deleteSuccess);
     } catch {
-      setResult(texts.settings.deleteFail);
+      setResult(t.settings.deleteFail);
     }
   };
 
@@ -107,14 +108,14 @@ const Settings: React.FC = () => {
     <PageTransition>
       <SparkleEffect />
       <div className="main-container">
-        <h1>{texts.settings.title}</h1>
+        <h1>{t.settings.title}</h1>
         <nav>
-          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
+          <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>
-        <h2>{texts.settings.uploadTitle}</h2>
+        <h2>{t.settings.uploadTitle}</h2>
         <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
           <label>
-            {texts.settings.typeLabel}
+            {t.settings.typeLabel}
             <select name="type" ref={assetTypeRef}>
               <option value="face">顔パーツ</option>
               <option value="frontHair">前髪パーツ</option>
@@ -125,18 +126,18 @@ const Settings: React.FC = () => {
           </label>
           <br />
           <label>
-            {texts.settings.nameLabel} <input type="text" name="name" ref={assetNameRef} required />
+            {t.settings.nameLabel} <input type="text" name="name" ref={assetNameRef} required />
           </label>
           <br />
           <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
           <br />
-          <button type="submit">{texts.settings.uploadBtn}</button>
+          <button type="submit">{t.settings.uploadBtn}</button>
         </form>
         <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
 
-        <h2>{texts.settings.assetListTitle}</h2>
+        <h2>{t.settings.assetListTitle}</h2>
         {loading ? (
-          <div>{texts.common.loading}</div>
+          <div>{t.common.loading}</div>
         ) : (
           assetTypes.map(({ key, label }) => (
             <section key={key}>
@@ -147,12 +148,12 @@ const Settings: React.FC = () => {
                     <li key={item.id} style={{ marginBottom: 8 }}>
                       <img src={item.assetPath} alt={item.name} width={60} style={{ verticalAlign: 'middle' }} />
                       <span style={{ margin: '0 8px' }}>{item.name}</span>
-                      <button onClick={() => handleDelete(key, item.id)}>{texts.settings.deleteBtn}</button>
+                      <button onClick={() => handleDelete(key, item.id)}>{t.settings.deleteBtn}</button>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <div>{texts.settings.noAsset}</div>
+                <div>{t.settings.noAsset}</div>
               )}
             </section>
           ))

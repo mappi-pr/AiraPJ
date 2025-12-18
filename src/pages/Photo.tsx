@@ -1,6 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import texts from '../locales/ja.json';
+import { useTranslation } from '../hooks/useTranslation';
 import { PartsContext } from '../context/PartsContextOnly';
 import html2canvas from 'html2canvas';
 import { useSound } from '../utils/useSound';
@@ -13,6 +13,7 @@ const Photo: React.FC = () => {
   const [dragging, setDragging] = React.useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
   const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
 
   // ドラッグ中のグローバルイベント監視
   React.useEffect(() => {
@@ -89,7 +90,7 @@ const Photo: React.FC = () => {
     <PageTransition>
       <SparkleEffect />
       <div className="main-container">
-        <h1>{texts.photo.title}</h1>
+        <h1>{t.photo.title}</h1>
         <div style={{ margin: '16px 0' }}>
           <label>
             拡大率
@@ -237,7 +238,7 @@ const Photo: React.FC = () => {
         <button onClick={handleDownload}>PNGで保存</button>
         <button onClick={handleReset}>位置リセット</button>
         <nav>
-          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
+          <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>
       </div>
     </PageTransition>

@@ -1,0 +1,60 @@
+{
+  "common": {
+    "noData": "No data",
+    "next": "Next",
+    "backToTitle": "Back to Title",
+    "loading": "Loading..."
+  },
+  "title": {
+    "mainTitle": "Aira PJ",
+    "startBtn": "Start Game",
+    "favorites": "Favorites",
+    "settings": "Settings",
+    "terms": "Terms & Credits"
+  },
+  "characterPartsSelect": {
+    "title": "Character Parts Selection",
+    "face": "Face",
+    "frontHair": "Front Hair",
+    "backHair": "Back Hair"
+  },
+  "backgroundSelect": {
+    "title": "Background Selection",
+    "backToCharacter": "Back to Character Selection"
+  },
+  "costumeSelect": {
+    "title": "Costume Selection",
+    "backToBackground": "Back to Background Selection"
+  },
+  "photo": {
+    "title": "Free Photo Mode"
+  },
+  "history": {
+    "title": "History Management"
+  },
+  "settings": {
+    "title": "Settings",
+    "uploadTitle": "Upload Image Assets",
+    "typeLabel": "Upload Type:",
+    "nameLabel": "Name:",
+    "uploadBtn": "Upload",
+    "resultSuccess": "Upload successful!",
+    "resultFail": "Upload failed",
+    "pngOnly": "Only PNG images can be uploaded.",
+    "selectType": "Please select a type.",
+    "assetListTitle": "Asset List & Delete",
+    "faceLabel": "Face Parts",
+    "frontHairLabel": "Front Hair Parts",
+    "backHairLabel": "Back Hair Parts",
+    "backgroundLabel": "Background",
+    "costumeLabel": "Costume",
+    "deleteBtn": "Delete",
+    "deleteConfirm": "Are you sure you want to delete? (Image will be physically deleted, DB record will be logically deleted)",
+    "deleteSuccess": "Deleted successfully",
+    "deleteFail": "Failed to delete",
+    "noAsset": "No assets available"
+  },
+  "terms": {
+    "title": "Terms & Credits"
+  }
+}

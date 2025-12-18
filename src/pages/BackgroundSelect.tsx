@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import texts from '../locales/ja.json';
+import { useTranslation } from '../hooks/useTranslation';
 import { PartsContext } from '../context/PartsContextOnly';
 import type { PartInfo } from '../context/PartsContextOnly';
 import { useSound } from '../utils/useSound';
@@ -13,6 +13,7 @@ const BackgroundSelect: React.FC = () => {
   const navigate = useNavigate();
   const partsContext = useContext(PartsContext);
   const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch('/api/background')
@@ -48,7 +49,7 @@ const BackgroundSelect: React.FC = () => {
     <PageTransition>
       <SparkleEffect />
       <div className="main-container">
-        <h1>{texts.backgroundSelect.title}</h1>
+        <h1>{t.backgroundSelect.title}</h1>
         <div className="select-container">
           {backgrounds.length > 0 ? (
             <>
@@ -60,15 +61,15 @@ const BackgroundSelect: React.FC = () => {
               <button onClick={handleNext}>→</button>
             </>
           ) : (
-            <div>{texts.common.noData}</div>
+            <div>{t.common.noData}</div>
           )}
         </div>
         <form onSubmit={handleNextPage}>
-          <button type="submit">{texts.common.next}</button>
+          <button type="submit">{t.common.next}</button>
         </form>
         <nav>
-          <Link to="/character" onClick={playClick}>{texts.backgroundSelect.backToCharacter}</Link> |
-          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
+          <Link to="/character" onClick={playClick}>{t.backgroundSelect.backToCharacter}</Link> |
+          <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>
       </div>
     </PageTransition>

@@ -117,10 +117,21 @@ AiraSPA/
 - Vite
 - TypeScript
 - react-router-dom
-- Context API
+- Context API（状態管理、多言語化）
 - Express
 - Sequelize
 - PostgreSQL
+
+## 多言語化対応
+
+このプロジェクトは多言語化システムを実装しています。現在は日本語のみですが、将来的に他の言語も簡単に追加できます。
+
+詳細については **[docs/MULTILINGUAL.md](./docs/MULTILINGUAL.md)** を参照してください。
+
+- 新しい言語の追加方法
+- 翻訳キーの追加方法
+- 開発者向けの使用方法
+- ベストプラクティス
 
 ## 開発・設計ポイント
 - 画面遷移はreact-router-domで制御し、BGM/SEはApp直下で管理して継続再生
