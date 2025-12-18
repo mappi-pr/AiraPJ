@@ -68,6 +68,7 @@ src/
 - アプリケーション全体のフォントファミリー
 - 基本的な行間・文字色
 - ダークテーマのグラデーション背景
+- `color-scheme`でブラウザのUI要素（スクロールバー、フォームコントロールなど）の配色を制御
 - フォントレンダリング最適化（アンチエイリアス、サブピクセルレンダリング制御）
 
 #### 2. 基本要素のスタイル
@@ -168,7 +169,7 @@ button::before {
 button:hover {
   transform: translateY(-2px) scale(1.05);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);  /* 透明だったボーダーが白く光る */
 }
 
 button:active::before {
@@ -240,7 +241,7 @@ body::before {
 **目的:**
 - ファンタジー世界観の演出
 - 静的でない動的な背景効果
-- 7つの異なる位置のradial-gradientで星のような効果を生成
+- 7つの異なるradial-gradientレイヤーで星のような効果を生成
 - アニメーションで位置と透明度を変化させてキラキラ感を演出
 
 #### 4. ページ遷移アニメーション
@@ -510,6 +511,15 @@ select {
   transition: filter 300ms;
 }
 
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
@@ -544,7 +554,7 @@ select {
 #### 色の使用
 
 両ファイルで共通して使用される色：
-- **プライマリグラデーション**: `#667eea` → `#764ba2`
+- **プライマリグラデーション**: `#667eea` から `#764ba2`
 - **背景透過**: `rgba(255, 255, 255, 0.05)` など
 - **光彩効果**: `rgba(102, 126, 234, 0.x)` のバリエーション
 
