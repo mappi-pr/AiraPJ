@@ -57,7 +57,10 @@ src/
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  /* フォント最適化設定 */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 ```
 
@@ -65,7 +68,7 @@ src/
 - アプリケーション全体のフォントファミリー
 - 基本的な行間・文字色
 - ダークテーマのグラデーション背景
-- フォントレンダリング最適化
+- フォントレンダリング最適化（アンチエイリアス、サブピクセルレンダリング制御）
 
 #### 2. 基本要素のスタイル
 
@@ -76,13 +79,23 @@ a {
   font-weight: 600;
   color: #ffffff;
   text-decoration: underline;
-  /* ホバー時の光彩効果 */
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+  text-underline-offset: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+a:hover {
+  color: #ffffff;
+  text-decoration-color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 ```
 
 **目的:**
 - リンクの視認性確保
-- インタラクティブなホバー効果
+- 下線の色とオフセットのカスタマイズ
+- インタラクティブなホバー効果（光彩効果）
 
 ##### ボディ（`body`）
 
@@ -132,14 +145,55 @@ button {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   cursor: pointer;
-  /* トランジション、ホバー、アクティブ、フォーカス効果 */
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+button:active::before {
+  width: 300px;
+  height: 300px;
+  transition: width 0s, height 0s;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 3px solid rgba(102, 126, 234, 0.5);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 ```
 
 **目的:**
 - すべてのボタンの統一されたデザイン
 - グラデーション背景とホバー時の浮き上がり効果
-- クリック時のリップル効果（`::before` 疑似要素）
+- クリック時のリップル効果（`::before` 疑似要素で実装）
 - アクセシビリティ対応（フォーカス表示）
 - 無効状態の視覚的表現
 
@@ -151,15 +205,43 @@ button {
 body::before {
   content: '';
   position: fixed;
-  /* 複数のradial-gradientでキラキラを表現 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 60%, white, transparent),
+    radial-gradient(1px 1px at 33% 80%, white, transparent),
+    radial-gradient(1px 1px at 15% 90%, white, transparent);
+  background-size: 200% 200%;
+  background-position: 0% 0%;
   animation: sparkle 20s ease-in-out infinite;
   opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.2;
+    background-position: 0% 0%;
+  }
+  50% {
+    opacity: 0.5;
+    background-position: 100% 100%;
+  }
 }
 ```
 
 **目的:**
 - ファンタジー世界観の演出
 - 静的でない動的な背景効果
+- 7つの異なる位置のradial-gradientで星のような効果を生成
+- アニメーションで位置と透明度を変化させてキラキラ感を演出
 
 #### 4. ページ遷移アニメーション
 
