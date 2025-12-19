@@ -126,7 +126,7 @@ AiraSPA/
 
 このプロジェクトは多言語化システムを実装しています。現在は日本語のみですが、将来的に他の言語も簡単に追加できます。
 
-詳細については **[docs/MULTILINGUAL.md](./docs/MULTILINGUAL.md)** を参照してください。
+詳細については **[doc/MULTILINGUAL.md](./doc/MULTILINGUAL.md)** を参照してください。
 
 - 新しい言語の追加方法
 - 翻訳キーの追加方法
