@@ -10,6 +10,7 @@
   - [Docker を使用した環境構築（推奨）](#docker-を使用した環境構築推奨)
   - [ローカル開発環境の構築](#ローカル開発環境の構築)
 - [プロダクション環境への配置](#プロダクション環境への配置)
+- [スマートフォン実機での開発・テスト](#スマートフォン実機での開発テスト)
 - [トラブルシューティング](#トラブルシューティング)
 - [開発ガイドライン](#開発ガイドライン)
 
@@ -804,6 +805,150 @@ npm run build
 ### テスト
 
 現時点ではテストは実装されていません。今後追加予定です。
+
+---
+
+## スマートフォン実機での開発・テスト
+
+スマートフォン実機から開発サーバーにアクセスして、実際のデバイスでUI/UXを確認できます。
+
+### 前提条件
+
+- スマートフォンと開発PCが同じWi-Fiネットワークに接続されていること
+- Vite dev server（`npm run dev`）とAPIサーバー（`cd api && npm run dev`）が起動していること
+
+### クイックセットアップ
+
+#### 1. サーバー設定の確認
+
+**Vite設定** (`vite.config.ts`) - すべてのネットワークインターフェースでリッスン:
+
+```typescript
+export default defineConfig({
+  server: {
+    host: '0.0.0.0',  // 外部アクセスを許可
+    port: 5173,
+    // ... 他の設定
+  },
+})
+```
+
+**APIサーバー設定** (`api/index.ts`) - 0.0.0.0でリッスン:
+
+```typescript
+const PORT = Number(process.env.PORT) || 4000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API server running on port ${PORT}`);
+});
+```
+
+#### 2. 開発PCのIPアドレス確認
+
+**Windows (PowerShell)**:
+```powershell
+ipconfig
+# 「ワイヤレス LAN アダプター Wi-Fi」の IPv4 アドレスをメモ (例: 192.168.1.100)
+```
+
+**Mac**:
+```bash
+ipconfig getifaddr en0
+```
+
+**Linux / WSL2**:
+```bash
+hostname -I | awk '{print $1}'
+```
+
+#### 3. ファイアウォール設定
+
+**Windows**: ポート 5173（Vite）と 4000（API）を許可
+
+```powershell
+# 管理者権限のPowerShellで実行
+New-NetFirewallRule -DisplayName "Vite Dev Server" -Direction Inbound -LocalPort 5173 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "Express API Server" -Direction Inbound -LocalPort 4000 -Protocol TCP -Action Allow
+```
+
+**Mac**: 通常は設定不要
+
+**Linux**:
+```bash
+sudo ufw allow 5173/tcp
+sudo ufw allow 4000/tcp
+```
+
+#### 4. WSL2追加設定（Windowsのみ）
+
+WSL2を使用している場合、ポートフォワーディングが必要です:
+
+```powershell
+# 管理者権限のPowerShellで実行
+$wsl_ip = (wsl hostname -I).trim()
+netsh interface portproxy add v4tov4 listenport=5173 listenaddress=0.0.0.0 connectport=5173 connectaddress=$wsl_ip
+netsh interface portproxy add v4tov4 listenport=4000 listenaddress=0.0.0.0 connectport=4000 connectaddress=$wsl_ip
+
+# 設定確認
+netsh interface portproxy show v4tov4
+```
+
+**自動化スクリプト** (`setup-wsl-port-forwarding.ps1`):
+```powershell
+# WSL2再起動時に実行
+$wsl_ip = (wsl hostname -I).trim()
+Write-Host "WSL IP: $wsl_ip"
+
+# 既存設定削除 & 新規設定
+netsh interface portproxy delete v4tov4 listenport=5173 listenaddress=0.0.0.0 2>$null
+netsh interface portproxy delete v4tov4 listenport=4000 listenaddress=0.0.0.0 2>$null
+netsh interface portproxy add v4tov4 listenport=5173 listenaddress=0.0.0.0 connectport=5173 connectaddress=$wsl_ip
+netsh interface portproxy add v4tov4 listenport=4000 listenaddress=0.0.0.0 connectport=4000 connectaddress=$wsl_ip
+
+Write-Host "`nSetup complete!"
+netsh interface portproxy show v4tov4
+```
+
+実行: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned; .\setup-wsl-port-forwarding.ps1`
+
+#### 5. スマートフォンからアクセス
+
+ブラウザで以下のURLにアクセス（IPアドレスは実際のものに置き換え）:
+
+- **フロントエンド**: `http://192.168.1.100:5173`
+- **API**: `http://192.168.1.100:4000/api/health`
+
+### トラブルシューティング
+
+**アクセスできない場合**:
+1. ファイアウォールで両ポートが許可されているか確認
+2. サーバーが起動しているか確認: `curl http://localhost:5173`
+3. 同じWi-Fiに接続されているか確認
+4. WSL2の場合、ポートフォワーディング設定を確認
+
+**WSL2でIPアドレスが変わる**:
+- WSL2再起動後はIPが変わることがあります → 上記の自動化スクリプトを再実行
+
+**HTTPSが必要な場合**（カメラAPI等）:
+```typescript
+// vite.config.ts
+import fs from 'fs'
+
+export default defineConfig({
+  server: {
+    host: '0.0.0.0',
+    https: {
+      key: fs.readFileSync('./localhost-key.pem'),
+      cert: fs.readFileSync('./localhost-cert.pem'),
+    },
+  },
+})
+```
+
+自己署名証明書作成:
+```bash
+openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
+  -keyout localhost-key.pem -out localhost-cert.pem
+```
 
 ---
 
