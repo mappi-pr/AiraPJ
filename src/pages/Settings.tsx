@@ -41,8 +41,8 @@ const Settings: React.FC = () => {
   ], [t]);
 
   // セクション展開時のみアセットを取得
-  const fetchAssetsForType = async (type: string) => {
-    if (assets[type] && assets[type].length > 0) return; // 既にロード済み
+  const fetchAssetsForType = async (type: string, forceRefresh = false) => {
+    if (!forceRefresh && assets[type] && assets[type].length > 0) return; // 既にロード済み
     
     setLoading(true);
     try {
@@ -56,12 +56,7 @@ const Settings: React.FC = () => {
 
   // アセットリストの再取得
   const refreshAssetsForType = async (type: string) => {
-    setAssets((prev) => {
-      const newAssets = { ...prev };
-      delete newAssets[type];
-      return newAssets;
-    });
-    await fetchAssetsForType(type);
+    await fetchAssetsForType(type, true);
   };
 
   // セクションの展開/折りたたみ
@@ -322,12 +317,13 @@ const Settings: React.FC = () => {
                                   style={{
                                     padding: '4px 8px',
                                     backgroundColor: originalIndex === 0 ? '#ccc' : '#007bff',
-                                    color: 'white',
+                                    color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: originalIndex === 0 ? 'not-allowed' : 'pointer',
                                     fontSize: '12px',
                                   }}
+                                  title={originalIndex === 0 ? '' : '上へ移動'}
                                 >
                                   ↑
                                 </button>
@@ -337,12 +333,13 @@ const Settings: React.FC = () => {
                                   style={{
                                     padding: '4px 8px',
                                     backgroundColor: originalIndex === fullList.length - 1 ? '#ccc' : '#007bff',
-                                    color: 'white',
+                                    color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: originalIndex === fullList.length - 1 ? 'not-allowed' : 'pointer',
                                     fontSize: '12px',
                                   }}
+                                  title={originalIndex === fullList.length - 1 ? '' : '下へ移動'}
                                 >
                                   ↓
                                 </button>
@@ -350,13 +347,14 @@ const Settings: React.FC = () => {
                                   onClick={() => handleDelete(key, item.id)}
                                   style={{
                                     padding: '4px 8px',
-                                    backgroundColor: '#ff4444',
-                                    color: 'white',
+                                    backgroundColor: '#dc3545',
+                                    color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: 'pointer',
                                     fontSize: '12px',
                                   }}
+                                  title="削除"
                                 >
                                   {t.settings.deleteBtn}
                                 </button>
