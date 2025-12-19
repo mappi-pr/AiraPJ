@@ -90,6 +90,7 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
   // タブ切り替え時にページをリセット
   useEffect(() => {
     setPage(1);
+    setHasMore(true);
   }, [partType]);
 
   // 非同期でパーツ一覧取得（キャッシュ活用）
