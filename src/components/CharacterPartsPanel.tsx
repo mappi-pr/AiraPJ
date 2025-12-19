@@ -87,6 +87,11 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
   const [fetchError, setFetchError] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // タブ切り替え時にページをリセット
+  useEffect(() => {
+    setPage(1);
+  }, [partType]);
+
   // 非同期でパーツ一覧取得（キャッシュ活用）
   useEffect(() => {
     setFetchError(false); // タブ切り替え時はエラー解除
