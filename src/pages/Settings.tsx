@@ -10,6 +10,7 @@ const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
   const [assets, setAssets] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
@@ -73,6 +74,7 @@ const Settings: React.FC = () => {
     formData.append('name', name || '');
     formData.append('asset', file);
     const url = uploadUrls[type];
+    setUploading(true);
     try {
       const res = await axios.post(url, formData);
       const data = res.data;
@@ -91,6 +93,8 @@ const Settings: React.FC = () => {
       }
     } catch {
       setResult(t.settings.resultFail);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -144,7 +148,9 @@ const Settings: React.FC = () => {
           <br />
           <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
           <br />
-          <button type="submit">{t.settings.uploadBtn}</button>
+          <button type="submit" disabled={uploading}>
+            {uploading ? t.settings.uploadingBtn : t.settings.uploadBtn}
+          </button>
         </form>
         <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
 

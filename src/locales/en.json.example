@@ -47,6 +47,7 @@
     "typeLabel": "Upload Type:",
     "nameLabel": "Name:",
     "uploadBtn": "Upload",
+    "uploadingBtn": "Uploading...",
     "resultSuccess": "Upload successful!",
     "resultImage": "Image:",
     "resultFail": "Upload failed",

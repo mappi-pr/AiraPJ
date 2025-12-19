@@ -47,6 +47,7 @@
     "typeLabel": "アップロード種別:",
     "nameLabel": "名前:",
     "uploadBtn": "アップロード",
+    "uploadingBtn": "アップロード中...",
     "resultSuccess": "アップロード成功！",
     "resultImage": "画像:",
     "resultFail": "アップロード失敗",
