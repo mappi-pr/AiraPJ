@@ -786,6 +786,7 @@ AiraPJ/
 - BGM は `App.tsx` で管理し、画面遷移しても継続再生
 - SE は各ページで必要に応じて再生
 - 音声ファイルは `src/assets/sound/` 配下に配置
+  - 詳細な配置方法は `src/assets/sound/README.md` を参照
 
 ### ビルドとデプロイ
 

@@ -94,6 +94,8 @@ AiraPJ/
 │   ├── components/      # コンポーネント
 │   ├── context/         # Context API
 │   └── assets/          # 静的アセット
+│       └── sound/       # サウンドファイル（BGM/SE）
+│           └── README.md  # サウンドファイル配置ガイド
 ├── api/                 # APIサーバー（Express）
 │   ├── routes/          # API ルーティング
 │   ├── models/          # Sequelize モデル

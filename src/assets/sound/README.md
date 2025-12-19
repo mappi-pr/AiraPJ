@@ -1,27 +1,27 @@
-# Sound Assets Directory
+# サウンドアセットディレクトリ
 
-This directory contains audio files for the application.
+このディレクトリにはアプリケーションで使用するオーディオファイルを配置します。
 
-## Directory Structure
+## ディレクトリ構成
 
 ```
 sound/
-├── bgm/          # Background music files
-│   └── main.mp3  # Main BGM (place your file here)
-└── se/           # Sound effects
-    └── *.mp3     # Sound effect files
+├── bgm/          # BGM（背景音楽）ファイル
+│   └── main.mp3  # メインBGM（ここにファイルを配置）
+└── se/           # SE（効果音）ファイル
+    └── *.mp3     # 効果音ファイル
 ```
 
-## Adding BGM
+## BGMの追加方法
 
-1. Place your background music MP3 file at `bgm/main.mp3`
-2. Update `src/App.tsx` to import the file:
+1. 背景音楽のMP3ファイルを `bgm/main.mp3` に配置します
+2. `src/App.tsx` を更新してファイルをインポートします：
    ```typescript
    import bgmpath from './assets/sound/bgm/main.mp3';
    ```
-3. Replace the empty string constant with the import
+3. 空文字列の定数をインポートに置き換えます
 
-## Note
+## 注意事項
 
-Sound files are git-ignored except for .gitkeep files to keep repository size manageable.
-Add your sound files locally or deploy them separately in production.
+サウンドファイルはリポジトリサイズを管理可能に保つため、.gitkeep ファイルを除き git で無視されます。
+サウンドファイルはローカルに追加するか、本番環境では別途配置してください。
