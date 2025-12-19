@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import texts from '../locales/ja.json';
+import { useTranslation } from '../hooks/useTranslation';
 import { PartsContext } from '../context/PartsContextOnly';
 import type { PartInfo } from '../context/PartsContextOnly';
 import { useSound } from '../utils/useSound';
@@ -17,6 +17,7 @@ const CharacterPartsSelect: React.FC = () => {
   const navigate = useNavigate();
   const partsContext = useContext(PartsContext);
   const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch('/api/face').then(res => res.json()).then(setFaces);
@@ -58,44 +59,44 @@ const CharacterPartsSelect: React.FC = () => {
     <PageTransition>
       <SparkleEffect />
       <div className="main-container">
-        <h1>{texts.characterPartsSelect.title}</h1>
+        <h1>{t.characterPartsSelect.title}</h1>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 24, margin: '24px 0' }}>
           <div>
-            <div>{texts.characterPartsSelect.face}</div>
+            <div>{t.characterPartsSelect.face}</div>
             <button onClick={() => handlePrev('face')}>←</button>
-            <span style={{ minWidth: 60, display: 'inline-block' }}>{faces.length === 0 ? texts.common.noData : (faces[faceIdx]?.name || '')}</span>
+            <span style={{ minWidth: 60, display: 'inline-block' }}>{faces.length === 0 ? t.common.noData : (faces[faceIdx]?.name || '')}</span>
             <button onClick={() => handleNext('face')}>→</button>
           </div>
           <div>
-            <div>{texts.characterPartsSelect.frontHair}</div>
+            <div>{t.characterPartsSelect.frontHair}</div>
             <button onClick={() => handlePrev('front')}>←</button>
-            <span style={{ minWidth: 60, display: 'inline-block' }}>{frontHairs.length === 0 ? texts.common.noData : (frontHairs[frontIdx]?.name || '')}</span>
+            <span style={{ minWidth: 60, display: 'inline-block' }}>{frontHairs.length === 0 ? t.common.noData : (frontHairs[frontIdx]?.name || '')}</span>
             <button onClick={() => handleNext('front')}>→</button>
           </div>
           <div>
-            <div>{texts.characterPartsSelect.backHair}</div>
+            <div>{t.characterPartsSelect.backHair}</div>
             <button onClick={() => handlePrev('back')}>←</button>
-            <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs.length === 0 ? texts.common.noData : (backHairs[backIdx]?.name || '')}</span>
+            <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs.length === 0 ? t.common.noData : (backHairs[backIdx]?.name || '')}</span>
             <button onClick={() => handleNext('back')}>→</button>
           </div>
         </div>
         <div style={{ position: 'relative', width: 240, height: 320, margin: '0 auto' }}>
           {/* 後髪 → 顔 → 前髪 の順で重ねる */}
           {backHairs[backIdx] && (
-            <img src={backHairs[backIdx].assetPath} alt={texts.characterPartsSelect.backHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
+            <img src={backHairs[backIdx].assetPath} alt={t.characterPartsSelect.backHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
           )}
           {faces[faceIdx] && (
-            <img src={faces[faceIdx].assetPath} alt={texts.characterPartsSelect.face} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
+            <img src={faces[faceIdx].assetPath} alt={t.characterPartsSelect.face} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
           )}
           {frontHairs[frontIdx] && (
-            <img src={frontHairs[frontIdx].assetPath} alt={texts.characterPartsSelect.frontHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
+            <img src={frontHairs[frontIdx].assetPath} alt={t.characterPartsSelect.frontHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
           )}
         </div>
         <form onSubmit={handleNextPage}>
-          <button type="submit">{texts.common.next}</button>
+          <button type="submit">{t.common.next}</button>
         </form>
         <nav>
-          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
+          <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>
       </div>
     </PageTransition>

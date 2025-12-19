@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import texts from '../locales/ja.json';
+import { useTranslation } from '../hooks/useTranslation';
 import { PartsContext } from '../context/PartsContextOnly';
 import type { PartInfo } from '../context/PartsContextOnly';
 import { useSound } from '../utils/useSound';
@@ -13,6 +13,7 @@ const CostumeSelect: React.FC = () => {
   const navigate = useNavigate();
   const partsContext = useContext(PartsContext);
   const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch('/api/costume')
@@ -48,27 +49,27 @@ const CostumeSelect: React.FC = () => {
     <PageTransition>
       <SparkleEffect />
       <div className="main-container">
-        <h1>{texts.costumeSelect.title}</h1>
+        <h1>{t.costumeSelect.title}</h1>
         <div className="select-container">
           {costumes.length > 0 ? (
             <>
               <button onClick={handlePrev}>←</button>
               <div id="costume-info">
-                <img src={costumes[idx].assetPath} alt="衣装画像" style={{ maxWidth: 200, maxHeight: 200 }} />
+                <img src={costumes[idx].assetPath} alt={t.costumeSelect.imageAlt} style={{ maxWidth: 200, maxHeight: 200 }} />
                 <div>{costumes[idx].name}</div>
               </div>
               <button onClick={handleNext}>→</button>
             </>
           ) : (
-            <div>{texts.common.noData}</div>
+            <div>{t.common.noData}</div>
           )}
         </div>
         <form onSubmit={handleNextPage}>
-          <button type="submit">{texts.common.next}</button>
+          <button type="submit">{t.common.next}</button>
         </form>
         <nav>
-          <Link to="/background" onClick={playClick}>{texts.costumeSelect.backToBackground}</Link> |
-          <Link to="/title" onClick={playClick}>{texts.common.backToTitle}</Link>
+          <Link to="/background" onClick={playClick}>{t.costumeSelect.backToBackground}</Link> |
+          <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>
       </div>
     </PageTransition>
