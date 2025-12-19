@@ -2,9 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import texts from '../locales/ja.json';
 
 // 画像トリミング時の透明度判定閾値（アルファ値がこの値以下のピクセルを透明とみなす）
-const ALPHA_THRESHOLD = 16;
-
-// 画像の余白（透明部分）をトリミングしてBase64で返す
+const ALPHA_THRESHOLD = 16;// 画像の余白（透明部分）をトリミングしてBase64で返す
 const trimImage = (src: string): Promise<string> => {
   return new Promise(resolve => {
     const img = new window.Image();
