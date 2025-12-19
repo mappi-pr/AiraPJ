@@ -275,19 +275,23 @@ const Settings: React.FC = () => {
                         listStyle: 'none',
                         padding: 0,
                       }}>
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {pagination.items.map((item: any, _index: number) => {
-                          // Get the original index in the full filtered list
+                        {(() => {
+                          // Get the full filtered list once for all items
                           const fullList = getFilteredAssets(key);
-                          const originalIndex = fullList.findIndex(a => a.id === item.id);
                           
                           return (
-                            <li key={item.id} style={{
-                              border: '1px solid #ddd',
-                              borderRadius: '8px',
-                              padding: '12px',
-                              display: 'flex',
-                              flexDirection: 'column',
+                            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                            pagination.items.map((item: any, _index: number) => {
+                              // Get the original index in the full filtered list
+                              const originalIndex = fullList.findIndex(a => a.id === item.id);
+                              
+                              return (
+                                <li key={item.id} style={{
+                                  border: '1px solid #ddd',
+                                  borderRadius: '8px',
+                                  padding: '12px',
+                                  display: 'flex',
+                                  flexDirection: 'column',
                               alignItems: 'center',
                               gap: '8px',
                             }}>
@@ -359,7 +363,9 @@ const Settings: React.FC = () => {
                               </div>
                             </li>
                           );
-                        })}
+                        })
+                          );
+                        })()}
                       </ul>
 
                       {/* ページネーション */}
