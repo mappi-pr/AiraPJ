@@ -84,6 +84,8 @@ const Settings: React.FC = () => {
         setResult(
           `${t.settings.resultSuccess}\nID: ${id}\n${t.settings.resultImage} <img src="${assetPath}" width="100" />`
         );
+        // アセット一覧を再取得して最新の状態を反映
+        fetchAssets();
       } else {
         setResult(data.error || t.settings.resultFail);
       }
