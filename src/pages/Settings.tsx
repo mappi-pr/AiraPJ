@@ -317,15 +317,15 @@ const Settings: React.FC = () => {
                                   style={{
                                     padding: '4px 8px',
                                     backgroundColor: originalIndex === 0 ? '#ccc' : '#007bff',
-                                    color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: originalIndex === 0 ? 'not-allowed' : 'pointer',
                                     fontSize: '12px',
+                                    fontWeight: 'bold',
                                   }}
-                                  title={originalIndex === 0 ? '' : '上へ移動'}
+                                  title={originalIndex === 0 ? '' : t.settings.moveUpTooltip}
                                 >
-                                  ↑
+                                  {t.settings.moveUpBtn}
                                 </button>
                                 <button
                                   onClick={() => handleReorder(key, item.id, 'down')}
@@ -333,28 +333,28 @@ const Settings: React.FC = () => {
                                   style={{
                                     padding: '4px 8px',
                                     backgroundColor: originalIndex === fullList.length - 1 ? '#ccc' : '#007bff',
-                                    color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: originalIndex === fullList.length - 1 ? 'not-allowed' : 'pointer',
                                     fontSize: '12px',
+                                    fontWeight: 'bold',
                                   }}
-                                  title={originalIndex === fullList.length - 1 ? '' : '下へ移動'}
+                                  title={originalIndex === fullList.length - 1 ? '' : t.settings.moveDownTooltip}
                                 >
-                                  ↓
+                                  {t.settings.moveDownBtn}
                                 </button>
                                 <button 
                                   onClick={() => handleDelete(key, item.id)}
                                   style={{
                                     padding: '4px 8px',
                                     backgroundColor: '#dc3545',
-                                    color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: 'pointer',
                                     fontSize: '12px',
+                                    fontWeight: 'bold',
                                   }}
-                                  title="削除"
+                                  title={t.settings.deleteTooltip}
                                 >
                                   {t.settings.deleteBtn}
                                 </button>
