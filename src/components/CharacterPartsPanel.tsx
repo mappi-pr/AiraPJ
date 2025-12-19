@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import texts from '../locales/ja.json';
 // 画像の余白（透明部分）をトリミングしてBase64で返す
 const trimImage = (src: string): Promise<string> => {
   return new Promise(resolve => {
@@ -164,7 +165,7 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
           onSelect={onSelect}
         />
       ))}
-      {loading && <div>読み込み中...</div>}
+      {loading && <div>{texts.common.loading}</div>}
     </div>
   );
 };
