@@ -25,7 +25,6 @@ npm install
   DB_PASS=yourpassword
   DB_HOST=localhost
   DB_PORT=5432
-  VITE_API_BASE_URL=http://localhost:4000
   ```
 
 ### 4. サーバーの起動
@@ -35,7 +34,7 @@ npm install
 npm run dev
 ```
 - デフォルト: http://localhost:5173
-- Viteの `vite.config.ts` で `/api` へのリクエストは `.env` の `VITE_API_BASE_URL` へプロキシされます。
+- Viteの `vite.config.ts` で `/api` へのリクエストは http://localhost:4000 へプロキシされます。
 
 #### APIサーバー（Express）
 ```sh
@@ -44,7 +43,7 @@ nvm use   # .nvmrcがある場合
 npm run build
 npm start
 ```
-- デフォルト: http://localhost:4000（`.env` の `VITE_API_BASE_URL` で変更可）
+- デフォルト: http://localhost:4000
 - アップロード画像は `api/dist/uploads/` 配下に保存されます。
 - ビルド時に `uploads` ディレクトリが `dist/uploads` へ自動コピーされます。
 - アップロード時、必要なサブディレクトリ（chr/bg/csm）は自動生成されます。
@@ -58,9 +57,20 @@ npm start
 
 ### 6. 注意点
 - Node.js v22系などではAPIサーバーは起動できません。必ずv20系で実行してください。
-- DB接続情報・APIサーバーポート・ViteのAPIプロキシ先は `.env` の `VITE_API_BASE_URL` で一元管理します。
+- DB接続情報・APIサーバーポートは `.env` で一元管理します。
 - フロントエンドのAPIリクエストは `/api/xxx` の相対パスで記述してください。
 - CORSエラーが出る場合はAPIサーバー側のCORS設定を見直してください。
+
+### 7. スマートフォン実機からのアクセス（開発環境）
+Windows + WSL2環境でスマートフォン実機から開発サーバーにアクセスする場合は、特別な設定が必要です。
+詳細な手順については **[DEVELOPMENT.md](./doc/DEVELOPMENT.md)** を参照してください。
+
+- ポートフォワーディングの設定（WSL2環境）
+- ファイアウォールの設定
+- ネットワーク設定の調整（環境変数 `HOST=0.0.0.0` の設定等）
+- トラブルシューティング
+
+**重要**: これらの設定は開発環境専用です。本番環境では適切なセキュリティ対策を行ってください。詳細は [DEVELOPMENT.md](./doc/DEVELOPMENT.md) のセキュリティセクションを参照してください。
 
 ## 型エラー対策（Express/TypeScript）
 - `express`はv4.x、`@types/express`もv4.17.21に固定してください。
@@ -79,7 +89,6 @@ npm start
 ## セットアップ注意
 - Node.js 18以上推奨
 - APIサーバ起動: `npm run dev` または `npm run build && npm start`
-- フロントのAPI_BASE_URLは`.env`の`VITE_API_BASE_URL`で一元管理
 
 ## ディレクトリ構成（例）
 ```
@@ -108,10 +117,21 @@ AiraSPA/
 - Vite
 - TypeScript
 - react-router-dom
-- Context API
+- Context API（状態管理、多言語化）
 - Express
 - Sequelize
 - PostgreSQL
+
+## 多言語化対応
+
+このプロジェクトは多言語化システムを実装しています。現在は日本語のみですが、将来的に他の言語も簡単に追加できます。
+
+詳細については **[docs/MULTILINGUAL.md](./docs/MULTILINGUAL.md)** を参照してください。
+
+- 新しい言語の追加方法
+- 翻訳キーの追加方法
+- 開発者向けの使用方法
+- ベストプラクティス
 
 ## 開発・設計ポイント
 - 画面遷移はreact-router-domで制御し、BGM/SEはApp直下で管理して継続再生
@@ -120,6 +140,7 @@ AiraSPA/
 - Express APIサーバーは `/api` 配下でRESTエンドポイントを提供
 - DB登録・アップロード時のディレクトリ自動生成に対応
 - **キャラクター選択画面は「顔・前髪・後髪」3パーツ選択式（`CharacterPartsSelect.tsx`）**
+- CSSの設計・管理方針については **[CSS.md](./doc/CSS.md)** を参照してください
 
 ## 画面仕様・photo（フォト撮影）機能
 - セッションで選択したパーツ情報（背景・衣装・後髪・顔・前髪）をContext API等で記憶し、各画面で引き継ぐ。
