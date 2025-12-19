@@ -5,23 +5,43 @@ Express APIサーバーと連携し、キャラクター・背景・衣装の着
 
 ## クイックスタート
 
-### Docker を使用する場合（推奨）
+### Docker で開発する場合（推奨）
+
+**Vite の開発サーバー（HMR対応）を使用:**
 
 ```sh
 # 環境変数の設定
 cp .env.example .env
 
-# コンテナの起動
+# 開発用コンテナの起動（Vite dev server + API + PostgreSQL）
+docker compose -f docker-compose.dev.yml up
+
+# アクセス
+# フロントエンド: http://localhost:5173 (Vite dev server with HMR)
+# API: http://localhost:4000/api/health
+```
+
+コード変更が自動的に反映されます（Hot Module Replacement）。
+
+### Docker で本番環境をテストする場合
+
+**nginx + ビルド済みファイルを使用:**
+
+```sh
+# 環境変数の設定
+cp .env.example .env
+
+# 本番用コンテナの起動（nginx + API + PostgreSQL）
 docker compose up -d
 
 # アクセス
-# フロントエンド: http://localhost
+# フロントエンド: http://localhost (nginx)
 # API: http://localhost/api/health
 ```
 
 **データ永続化について**: データベースとアップロードファイルは Docker ボリューム（`postgres_data`, `uploads_data`）に保存されます。コンテナを停止・削除（`docker compose down`）してもデータは保持されます。データを完全に削除する場合のみ `docker compose down -v` を使用してください。
 
-### ローカル開発の場合
+### ローカル開発の場合（Docker なし）
 
 ```sh
 # Node.js v20.x を使用

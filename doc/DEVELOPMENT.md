@@ -62,14 +62,93 @@ Express API サーバーと PostgreSQL データベースを連携し、キャ�
 
 ## 開発環境のセットアップ
 
-### Docker を使用した環境構築（推奨）
+### Docker を使用した開発環境構築（推奨）
 
-Docker を使用することで、フロントエンド（nginx）、API サーバー（Express）、データベース（PostgreSQL）を一括で自動構築できます。
+開発時は **Vite の開発サーバー**を使用することで、Hot Module Replacement（HMR）によるコード変更の即時反映が可能です。
 
 #### 前提条件
 
 - Docker 20.10 以上
 - Docker Compose 2.0 以上
+
+#### 開発モードでのセットアップ
+
+**1. リポジトリのクローン**
+
+```bash
+git clone https://github.com/mappi-pr/AiraPJ.git
+cd AiraPJ
+```
+
+**2. 環境変数の設定**
+
+```bash
+cp .env.example .env
+```
+
+`.env` ファイルを編集して、必要に応じて値を変更します：
+
+```env
+# PostgreSQL設定
+DB_NAME=airapj
+DB_USER=postgres
+DB_PASS=postgres
+DB_PORT=5432
+
+# フロントエンドポート（開発モード）
+FRONTEND_PORT=5173
+```
+
+**3. 開発用コンテナの起動**
+
+```bash
+# Vite dev server でフロントエンドを起動
+docker compose -f docker-compose.dev.yml up
+
+# バックグラウンドで起動する場合
+docker compose -f docker-compose.dev.yml up -d
+```
+
+**4. アクセス確認**
+
+- **フロントエンド**: http://localhost:5173（Vite dev server、HMR 対応）
+- **API**: http://localhost:4000/api/health
+- **データベース**: localhost:5432
+
+**開発モードの特徴:**
+- ✅ コード変更が即座に反映（Hot Module Replacement）
+- ✅ ソースマップによる詳細なデバッグ
+- ✅ Vite の高速な開発サーバー
+- ✅ ボリュームマウントでホストのコードを直接使用
+
+**5. コンテナの停止**
+
+```bash
+docker compose -f docker-compose.dev.yml down
+```
+
+---
+
+### Docker を使用した本番環境構築
+
+本番環境やデプロイテストには **nginx** + ビルド済みファイルを使用します。
+
+**本番モードを使用するケース:**
+- 本番環境へのデプロイ前の動作確認
+- nginx の設定テスト
+- ビルド後のパフォーマンス確認
+- CI/CD パイプラインでの統合テスト
+
+**開発モード（docker-compose.dev.yml）との違い:**
+
+| 項目 | 開発モード | 本番モード |
+|------|----------|----------|
+| フロントエンド | Vite dev server | nginx + ビルド済み |
+| ポート | 5173 | 80 |
+| HMR | ✅ 対応 | ❌ 非対応 |
+| ビルド時間 | なし（即起動） | あり（数分） |
+| パフォーマンス | 開発最適化 | 本番最適化 |
+| 用途 | 日常の開発作業 | デプロイテスト |
 
 #### セットアップ手順
 
@@ -143,45 +222,62 @@ docker compose down
 docker compose down -v
 ```
 
-#### 開発時のワークフロー
+#### 開発時のワークフロー（開発モード）
 
-**コード変更後の再ビルド**
+**Vite dev server を使用した開発:**
 
 ```bash
-# すべてのサービスを再ビルド
-docker compose up -d --build
+# 開発サーバーを起動（コード変更は自動反映）
+docker compose -f docker-compose.dev.yml up
 
-# 特定のサービスのみ再ビルド
-docker compose up -d --build api
-docker compose up -d --build frontend
+# バックグラウンドで起動
+docker compose -f docker-compose.dev.yml up -d
+
+# ログを確認
+docker compose -f docker-compose.dev.yml logs -f frontend
+docker compose -f docker-compose.dev.yml logs -f api
 ```
 
-**データベースのリセット**
+**コードの変更:**
+- ホストマシンでファイルを編集すると、Vite が自動的に変更を検出してブラウザに反映します
+- API のコードを変更した場合も、`npm run dev` が自動的に再起動します
+
+**データベースのリセット:**
 
 ```bash
 # データベースを含むすべてのデータを削除
-docker compose down -v
+docker compose -f docker-compose.dev.yml down -v
 
 # 再起動（データベースが初期化される）
-docker compose up -d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
-**コンテナ内でのコマンド実行**
+**コンテナ内でのコマンド実行:**
 
 ```bash
-# API コンテナ内でシェルを実行
-docker compose exec api sh
+# API コンテナ内でシェルを実行（開発モード）
+docker compose -f docker-compose.dev.yml exec api sh
 
-# データベースに接続
-docker compose exec db psql -U postgres -d airapj
+# データベースに接続（開発モード）
+docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
 
-# npm コマンドの実行例
-docker compose exec api npm run build
+# npm コマンドの実行例（開発モード）
+docker compose -f docker-compose.dev.yml exec api npm install axios
 ```
+
+---
 
 #### Docker 環境の詳細
 
-**サービス構成**
+**開発モード（docker-compose.dev.yml）のサービス構成**
+
+| サービス | コンテナ名 | ポート | 説明 |
+|---------|-----------|--------|------|
+| frontend | airapj-frontend-dev | 5173 | Vite dev server（HMR 対応） |
+| api | airapj-api-dev | 4000 | Express API サーバー（開発モード） |
+| db | airapj-db-dev | 5432 | PostgreSQL 16 |
+
+**本番モード（docker-compose.yml）のサービス構成**
 
 | サービス | コンテナ名 | ポート | 説明 |
 |---------|-----------|--------|------|
@@ -193,6 +289,11 @@ docker compose exec api npm run build
 
 Docker の名前付きボリュームを使用してデータを永続化しています：
 
+**開発モード:**
+- `postgres_data_dev`: PostgreSQL のデータ永続化
+- `uploads_data_dev`: アップロードされた画像ファイルの永続化
+
+**本番モード:**
 - `postgres_data`: PostgreSQL のデータ永続化
   - データベースのテーブル、レコード、インデックスなどすべてのデータ
   - コンテナを削除（`docker compose down`）してもデータは保持されます
