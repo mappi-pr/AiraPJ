@@ -53,9 +53,47 @@ export type PartInfo = {
   imagePath?: string;
 };
 
-// キャッシュ用
-const partsCache: { [key: string]: PartInfo[] } = {};
+// キャッシュ用（TTL & サイズ制限付き）
+type PartsCacheEntry = {
+  data: PartInfo[];
+  timestamp: number;
+};
 
+const PARTS_CACHE_TTL_MS = 5 * 60 * 1000; // 5分で期限切れ
+const PARTS_CACHE_MAX_ENTRIES = 50;       // キャッシュする最大キー数
+
+const internalPartsCache: { [key: string]: PartsCacheEntry } = {};
+
+const partsCache = new Proxy(internalPartsCache, {
+  get(target, prop: string) {
+    const entry = target[prop];
+    if (!entry) return undefined;
+    const now = Date.now();
+    if (now - entry.timestamp > PARTS_CACHE_TTL_MS) {
+      // 期限切れなら削除して未定義として扱う
+      delete target[prop];
+      return undefined;
+    }
+    return entry.data;
+  },
+  set(target, prop: string, value: PartInfo[]) {
+    const now = Date.now();
+    target[prop] = { data: value, timestamp: now };
+
+    // エントリー数が多すぎる場合は古いものから削除
+    const keys = Object.keys(target);
+    if (keys.length > PARTS_CACHE_MAX_ENTRIES) {
+      keys
+        .sort((a, b) => target[a].timestamp - target[b].timestamp)
+        .slice(0, keys.length - PARTS_CACHE_MAX_ENTRIES)
+        .forEach((key) => {
+          delete target[key];
+        });
+    }
+
+   return true;
+  },
+}) as unknown as { [key: string]: PartInfo[] };
 interface Props {
   partType: 'face' | 'frontHair' | 'backHair';
   selectedId: number | null;
