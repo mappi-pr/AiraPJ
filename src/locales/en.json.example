@@ -20,14 +20,23 @@
   },
   "backgroundSelect": {
     "title": "Background Selection",
-    "backToCharacter": "Back to Character Selection"
+    "backToCharacter": "Back to Character Selection",
+    "imageAlt": "Background image"
   },
   "costumeSelect": {
     "title": "Costume Selection",
-    "backToBackground": "Back to Background Selection"
+    "backToBackground": "Back to Background Selection",
+    "imageAlt": "Costume image"
   },
   "photo": {
-    "title": "Free Photo Mode"
+    "title": "Free Photo Mode",
+    "scaleLabel": "Scale",
+    "scaleSuffix": "x",
+    "saveButton": "Save as PNG",
+    "resetButton": "Reset Position",
+    "noBackground": "No background selected",
+    "noCostume": "No costume selected",
+    "noPartsContext": "Cannot retrieve parts information"
   },
   "history": {
     "title": "History Management"

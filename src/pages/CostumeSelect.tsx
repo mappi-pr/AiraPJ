@@ -55,7 +55,7 @@ const CostumeSelect: React.FC = () => {
             <>
               <button onClick={handlePrev}>←</button>
               <div id="costume-info">
-                <img src={costumes[idx].assetPath} alt="衣装画像" style={{ maxWidth: 200, maxHeight: 200 }} />
+                <img src={costumes[idx].assetPath} alt={t.costumeSelect.imageAlt} style={{ maxWidth: 200, maxHeight: 200 }} />
                 <div>{costumes[idx].name}</div>
               </div>
               <button onClick={handleNext}>→</button>

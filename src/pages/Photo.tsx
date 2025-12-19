@@ -47,7 +47,7 @@ const Photo: React.FC = () => {
 
   const partsContext = useContext(PartsContext);
   const photoRef = useRef<HTMLDivElement>(null);
-  if (!partsContext) return <div>パーツ情報が取得できません</div>;
+  if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
   const { selectedParts, scale, setScale } = partsContext;
 
   // デバッグ用: 選択中パーツ情報を表示
@@ -93,7 +93,7 @@ const Photo: React.FC = () => {
         <h1>{t.photo.title}</h1>
         <div style={{ margin: '16px 0' }}>
           <label>
-            拡大率
+            {t.photo.scaleLabel}
             <input
               type="range"
               min={0.5}
@@ -102,7 +102,7 @@ const Photo: React.FC = () => {
               value={scale}
               onChange={e => setScale(Number(e.target.value))}
             />
-            {scale}倍
+            {scale}{t.photo.scaleSuffix}
           </label>
         </div>
         <div
@@ -136,7 +136,7 @@ const Photo: React.FC = () => {
               }}
             />
           ) : (
-            <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>背景未選択</div>
+            <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noBackground}</div>
           )}
           {/* パーツ重ね順: 後髪→衣装→顔→前髪 */}
           <div
@@ -193,7 +193,7 @@ const Photo: React.FC = () => {
                 }}
               />
             ) : (
-              <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>衣装未選択</div>
+              <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noCostume}</div>
             )}
             {selectedParts.face && (
               <img
@@ -235,8 +235,8 @@ const Photo: React.FC = () => {
             )}
           </div>
         </div>
-        <button onClick={handleDownload}>PNGで保存</button>
-        <button onClick={handleReset}>位置リセット</button>
+        <button onClick={handleDownload}>{t.photo.saveButton}</button>
+        <button onClick={handleReset}>{t.photo.resetButton}</button>
         <nav>
           <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>

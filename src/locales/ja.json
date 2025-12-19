@@ -20,14 +20,23 @@
   },
   "backgroundSelect": {
     "title": "背景選択",
-    "backToCharacter": "キャラクター選択へ戻る"
+    "backToCharacter": "キャラクター選択へ戻る",
+    "imageAlt": "背景画像"
   },
   "costumeSelect": {
     "title": "衣装選択",
-    "backToBackground": "背景選択へ戻る"
+    "backToBackground": "背景選択へ戻る",
+    "imageAlt": "衣装画像"
   },
   "photo": {
-    "title": "フリー撮影モード"
+    "title": "フリー撮影モード",
+    "scaleLabel": "拡大率",
+    "scaleSuffix": "倍",
+    "saveButton": "PNGで保存",
+    "resetButton": "位置リセット",
+    "noBackground": "背景未選択",
+    "noCostume": "衣装未選択",
+    "noPartsContext": "パーツ情報が取得できません"
   },
   "history": {
     "title": "履歴管理"

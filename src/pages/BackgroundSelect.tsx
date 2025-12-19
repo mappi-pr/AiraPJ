@@ -55,7 +55,7 @@ const BackgroundSelect: React.FC = () => {
             <>
               <button onClick={handlePrev}>←</button>
               <div id="background-info">
-                <img src={backgrounds[idx].assetPath} alt="背景画像" style={{ maxWidth: 200, maxHeight: 200 }} />
+                <img src={backgrounds[idx].assetPath} alt={t.backgroundSelect.imageAlt} style={{ maxWidth: 200, maxHeight: 200 }} />
                 <div>{backgrounds[idx].name}</div>
               </div>
               <button onClick={handleNext}>→</button>
