@@ -48,20 +48,94 @@ src/
 ### 主な定義対象
 
 #### 1. ルート変数とフォント設定
-- **`:root`** - アプリケーション全体のフォント、配色、背景グラデーション
+
+```css
+:root {
+  /* フォント、配色、背景グラデーションの定義 */
+}
+```
+
+**目的**: アプリケーション全体のフォントファミリー、配色、背景グラデーションを一元管理
 
 #### 2. HTML基本要素
-- **`a`** - リンクのスタイルとホバー効果
-- **`body`** - ページ全体のレイアウト、キラキラ背景エフェクト（`body::before`）
-- **`h1`** - 見出しのスタイル
-- **`button`** - ボタンの統一デザイン（グラデーション、ホバー、フォーカス、リップル効果）
+
+```css
+a {
+  /* リンクの基本スタイル */
+}
+
+a:hover {
+  /* ホバー時の光彩効果 */
+}
+
+body {
+  /* ページ全体のレイアウト */
+}
+
+body::before {
+  /* キラキラ背景エフェクト */
+}
+
+h1 {
+  /* 見出しのスタイル */
+}
+
+button {
+  /* ボタンの基本デザイン */
+}
+
+button::before {
+  /* リップル効果用疑似要素 */
+}
+
+button:hover,
+button:active,
+button:focus,
+button:disabled {
+  /* 各状態のスタイル */
+}
+```
+
+**目的**:
+- `a`: リンクの視認性確保とホバー時の光彩効果
+- `body`: ページ全体のレイアウト基盤とキラキラ背景
+- `h1`: 見出しの統一された外観
+- `button`: すべてのボタンの統一デザイン（グラデーション、ホバー、フォーカス、リップル効果）
 
 #### 3. ページ遷移アニメーション
-- **`.page-fade-enter`** / **`.page-fade-enter-active`** - フェードイン
-- **`.page-fade-exit`** / **`.page-fade-exit-active`** - フェードアウト
+
+```css
+.page-fade-enter {
+  /* フェードイン開始状態 */
+}
+
+.page-fade-enter-active {
+  /* フェードイン完了状態 */
+}
+
+.page-fade-exit {
+  /* フェードアウト開始状態 */
+}
+
+.page-fade-exit-active {
+  /* フェードアウト完了状態 */
+}
+```
+
+**目的**: ページ遷移時のスムーズなフェードイン・フェードアウト効果
 
 #### 4. カラーモード対応
-- **`@media (prefers-color-scheme: light)`** - ライトテーマ用の配色調整
+
+```css
+@media (prefers-color-scheme: light) {
+  :root {
+    /* ライトテーマ用の配色 */
+  }
+  /* その他の要素の色調整 */
+}
+```
+
+**目的**: システムのカラーモード設定に対応したライトテーマの提供
 
 ### 管理方針
 
@@ -77,28 +151,154 @@ src/
 ### 主な定義対象
 
 #### 1. ルートコンテナ
-- **`#root`** - アプリケーションコンテナの最大幅、中央寄せ
+
+```css
+#root {
+  /* アプリケーションコンテナの最大幅、中央寄せ */
+}
+```
+
+**目的**: アプリケーションコンテナの最大幅制限と中央寄せレイアウト
 
 #### 2. アニメーション効果
-- **`.main-container`** - コンテンツのフェードイン
-- **`.sparkle-particle`** - キラキラパーティクル
-- **`@keyframes fadeIn`** / **`@keyframes float`** - アニメーション定義
+
+```css
+.main-container {
+  /* コンテンツのフェードイン */
+}
+
+.sparkle-particle {
+  /* キラキラパーティクルの表示 */
+}
+
+@keyframes fadeIn {
+  /* フェードインアニメーション */
+}
+
+@keyframes float {
+  /* 浮遊アニメーション */
+}
+```
+
+**目的**:
+- `.main-container`: コンテンツ表示時のフェードイン効果
+- `.sparkle-particle`: 画面上を漂うキラキラエフェクト
+- アニメーション定義でファンタジー感を演出
 
 #### 3. 機能的UIコンポーネント
-- **`.select-container`** - 背景・衣装選択エリア（グラスモーフィズム）
-- **`#background-info`** / **`#costume-info`** - 選択中のアイテム情報表示
-- **`.asset-list`** - アセット一覧リスト
+
+```css
+.select-container {
+  /* 背景・衣装選択エリアのグラスモーフィズムデザイン */
+}
+
+#background-info,
+#costume-info {
+  /* 選択中のアイテム情報表示 */
+}
+
+#background-info:hover,
+#costume-info:hover {
+  /* ホバー時のインタラクティブ効果 */
+}
+
+.asset-list {
+  /* アセット一覧リスト */
+}
+
+.asset-list li {
+  /* 各アセット項目 */
+}
+
+.asset-list li:hover {
+  /* ホバー時のスライドアニメーション */
+}
+```
+
+**目的**:
+- `.select-container`: グラスモーフィズムデザインの選択エリア
+- `#background-info`, `#costume-info`: 選択中のアイテム情報を表示
+- `.asset-list`: 管理画面でのアセット一覧表示
 
 #### 4. 特殊な入力要素
-- **`input[type="range"]`** - キャラクター拡縮スライダー
-- **`input[type="text"]`** / **`input[type="file"]`** / **`select`** - フォーム要素
+
+```css
+input[type="range"] {
+  /* スライダーの基本デザイン */
+}
+
+input[type="range"]::-webkit-slider-thumb,
+input[type="range"]::-moz-range-thumb {
+  /* スライダーのつまみカスタマイズ */
+}
+
+input[type="text"],
+input[type="file"],
+select {
+  /* フォーム要素の統一デザイン */
+}
+
+input[type="text"]:focus,
+select:focus {
+  /* フォーカス時の光彩効果 */
+}
+```
+
+**目的**:
+- `input[type="range"]`: キャラクター拡縮スライダーのカスタムデザイン
+- `input[type="text"]`, `select`: フォーム要素の統一されたデザインとフォーカス効果
 
 #### 5. 特定機能のスタイル
-- **`.button-wrapper`** - ボタンのリップル効果コンテナ
-- **`#settings-icon`** - 設定アイコンの回転・拡大効果
-- **`#sound-toggle button`** - BGM/SEトグルボタン
-- **`.logo`** - ロゴアニメーション
-- **`.card`** / **`.read-the-docs`** - その他のコンポーネント
+
+```css
+.button-wrapper {
+  /* ボタンのリップル効果コンテナ */
+}
+
+#settings-icon {
+  /* 設定アイコン */
+}
+
+#settings-icon:hover img {
+  /* ホバー時の回転・拡大効果 */
+}
+
+#sound-toggle button {
+  /* BGM/SEトグルボタン専用デザイン */
+}
+
+.logo {
+  /* ロゴの基本スタイル */
+}
+
+.logo:hover {
+  /* ロゴのホバー効果 */
+}
+
+@keyframes logo-spin {
+  /* ロゴ回転アニメーション */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    /* モーション許可時のロゴアニメーション */
+  }
+}
+
+.card {
+  /* カードコンポーネント */
+}
+
+.read-the-docs {
+  /* ドキュメントリンク */
+}
+```
+
+**目的**:
+- `#settings-icon`: 設定アイコンの回転・拡大効果
+- `#sound-toggle button`: BGM/SEトグルボタンの専用デザイン
+- `.logo`: ロゴアニメーション（モーション設定への配慮あり）
+- その他のアプリケーション固有コンポーネント
 
 ### 管理方針
 
