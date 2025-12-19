@@ -55,7 +55,7 @@ const CharacterPartsSelect: React.FC = () => {
           ctx.drawImage(img, 0, 0, size, size);
         });
         const dataUrl = canvas.toDataURL();
-        // TrimmedLayerは空ファイルなのでトリミングは省略
+        // 現在は各レイヤー画像をそのまま縮小描画してプレビューを生成しており、ここではトリミング処理は行っていない
         setTrimmedPreviewUrl(dataUrl);
       });
     }, [selectedFace, selectedFrontHair, selectedBackHair]);
