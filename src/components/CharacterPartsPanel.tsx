@@ -220,7 +220,8 @@ const TrimmedButton: React.FC<TrimmedButtonProps> = ({ part, selected, onSelect 
         onError={e => {
           const img = e.currentTarget;
           img.onerror = null;
-          img.src = '';
+          // Set a safe placeholder image instead of an empty src to avoid further error events.
+          img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIvPg==';
           img.style.background = '#ccc';
         }}
       />
