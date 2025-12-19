@@ -113,7 +113,7 @@ const Photo: React.FC = () => {
             height: 320,
             background: '#eee',
             margin: '0 auto',
-            overflow: 'visible',
+            overflow: 'hidden',
           }}
         >
           {/* 背景（固定） */}
@@ -168,7 +168,7 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 1,
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   pointerEvents: 'none',
                   userSelect: 'none',
                 }}
@@ -187,7 +187,7 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 2,
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   pointerEvents: 'none',
                   userSelect: 'none',
                 }}
@@ -208,7 +208,7 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 3,
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   pointerEvents: 'none',
                   userSelect: 'none',
                 }}
@@ -227,7 +227,7 @@ const Photo: React.FC = () => {
                   width: 240,
                   height: 320,
                   zIndex: 4,
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   pointerEvents: 'none',
                   userSelect: 'none',
                 }}
