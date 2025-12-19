@@ -63,14 +63,21 @@ docker run -d --name airapj-postgres \
 # API サーバー起動（ターミナル1）
 cd api && npm run dev
 
-
-# フロントエンド起動（ターミナル2）npm run dev
+# フロントエンド起動（ターミナル2）
+npm run dev
 ```
 
+## 詳細なドキュメント
 
 包括的な開発者向けドキュメントは **[doc/DEVELOPMENT.md](doc/DEVELOPMENT.md)** を参照してください。
 
+- Docker を使用した環境構築
+- ローカル開発環境の構築
+- プロダクション環境への配置
+- トラブルシューティング
+- 開発ガイドライン
 
+---
 
 ## 概要
 
@@ -79,6 +86,7 @@ cd api && npm run dev
 - **バックエンド**: Express 4, Sequelize, PostgreSQL 16
 - **インフラ**: Docker, Docker Compose, nginx
 
+### ディレクトリ構成
 ```
 AiraPJ/
 ├── src/                  # フロントエンド（React+Vite）
@@ -95,7 +103,13 @@ AiraPJ/
 └── public/              # 静的ファイル
 ```
 
+### 主な機能
+- キャラクター着せ替え（顔・前髪・後髪・衣装・背景の組み合わせ）
+- BGM/SE の継続再生
+- 画面遷移演出
+- フォト撮影機能（PNG保存）
+- パーツアップロード機能
 
-
+---
 
 詳細な開発手順、トラブルシューティング、プロダクション環境への配置については **[doc/DEVELOPMENT.md](doc/DEVELOPMENT.md)** を参照してください。
