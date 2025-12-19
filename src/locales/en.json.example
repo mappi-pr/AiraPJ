@@ -39,6 +39,7 @@
     "nameLabel": "Name:",
     "uploadBtn": "Upload",
     "resultSuccess": "Upload successful!",
+    "resultImage": "Image:",
     "resultFail": "Upload failed",
     "pngOnly": "Only PNG images can be uploaded.",
     "selectType": "Please select a type.",

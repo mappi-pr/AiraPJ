@@ -39,6 +39,7 @@
     "nameLabel": "名前:",
     "uploadBtn": "アップロード",
     "resultSuccess": "アップロード成功！",
+    "resultImage": "画像:",
     "resultFail": "アップロード失敗",
     "pngOnly": "PNG画像のみアップロード可能です。",
     "selectType": "種別を選択してください。",

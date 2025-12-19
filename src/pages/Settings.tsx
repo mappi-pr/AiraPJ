@@ -82,7 +82,7 @@ const Settings: React.FC = () => {
       if (assetPath && id) {
         playSuccess();
         setResult(
-          `${t.settings.resultSuccess}\nID: ${id}\n画像: <img src="${assetPath}" width="100" />`
+          `${t.settings.resultSuccess}\nID: ${id}\n${t.settings.resultImage} <img src="${assetPath}" width="100" />`
         );
       } else {
         setResult(data.error || t.settings.resultFail);

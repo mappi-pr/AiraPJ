@@ -1,22 +1,28 @@
-# 多言語化対応ガイド (Multilingual Support Guide)
+# 多言語化対応ガイド / Multilingual Support Guide
 
-このドキュメントでは、AiraPJプロジェクトの多言語化システムについて説明します。
-
-## 目次
-
-1. [概要](#概要)
-2. [システムアーキテクチャ](#システムアーキテクチャ)
-3. [新しい言語の追加方法](#新しい言語の追加方法)
-4. [翻訳キーの追加方法](#翻訳キーの追加方法)
-5. [開発者向け使用方法](#開発者向け使用方法)
-6. [ベストプラクティス](#ベストプラクティス)
-7. [トラブルシューティング](#トラブルシューティング)
+[日本語](#日本語) | [English](#english)
 
 ---
 
-## 概要
+# 日本語
 
-AiraPJプロジェクトは、React Context APIを使用した多言語化システムを実装しています。このシステムにより、以下が可能になります：
+このドキュメントでは、AiraPJの多言語化システムについて説明します。
+
+## 目次
+
+1. [概要](#概要-ja)
+2. [システムアーキテクチャ](#システムアーキテクチャ-ja)
+3. [新しい言語の追加方法](#新しい言語の追加方法-ja)
+4. [翻訳キーの追加方法](#翻訳キーの追加方法-ja)
+5. [開発者向け使用方法](#開発者向け使用方法-ja)
+6. [ベストプラクティス](#ベストプラクティス-ja)
+7. [トラブルシューティング](#トラブルシューティング-ja)
+
+---
+
+## 概要 {#概要-ja}
+
+AiraPJは、React Context APIを使用した多言語化システムを実装しています。このシステムにより、以下が可能になります：
 
 - 複数言語のサポート（現在は日本語のみ、将来的に拡張可能）
 - 型安全な翻訳キーの使用
@@ -35,7 +41,7 @@ AiraPJプロジェクトは、React Context APIを使用した多言語化シス
 
 ---
 
-## システムアーキテクチャ
+## システムアーキテクチャ {#システムアーキテクチャ-ja}
 
 ### ディレクトリ構造
 
@@ -90,11 +96,12 @@ TypeScriptの型安全性を保証：
 ```typescript
 export type Locale = typeof ja;  // ja.jsonの構造を型として定義
 export type SupportedLanguage = 'ja';  // サポート言語のリスト
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['ja'] as const;
 ```
 
 ---
 
-## 新しい言語の追加方法
+## 新しい言語の追加方法 {#新しい言語の追加方法-ja}
 
 ### ステップ1: 翻訳ファイルの作成
 
@@ -117,12 +124,11 @@ cp src/locales/en.json.example src/locales/zh-CN.json
 ```typescript
 // 変更前
 export type SupportedLanguage = 'ja';
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['ja'] as const;
 
 // 変更後（英語を追加）
 export type SupportedLanguage = 'ja' | 'en';
-
-// 変更後（英語と中国語を追加）
-export type SupportedLanguage = 'ja' | 'en' | 'zh-CN';
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['ja', 'en'] as const;
 ```
 
 ### ステップ3: LocaleContextの更新
@@ -134,16 +140,7 @@ export type SupportedLanguage = 'ja' | 'en' | 'zh-CN';
 import ja from '../locales/ja.json';
 import en from '../locales/en.json';  // 追加
 
-// 2. getInitialLocale関数内のチェックを更新
-const getInitialLocale = (): SupportedLanguage => {
-  const stored = localStorage.getItem('locale') as SupportedLanguage | null;
-  if (stored && ['ja', 'en'].includes(stored)) {  // 'en'を追加
-    return stored;
-  }
-  return 'ja';
-};
-
-// 3. loadTranslations関数内のswitch文を更新
+// 2. loadTranslations関数内のswitch文を更新
 const loadTranslations = async () => {
   try {
     let newTranslations: Locale;
@@ -193,7 +190,7 @@ function LanguageSwitcher() {
 
 ---
 
-## 翻訳キーの追加方法
+## 翻訳キーの追加方法 {#翻訳キーの追加方法-ja}
 
 新しい画面や機能を追加する際に、翻訳キーを追加する方法：
 
@@ -257,7 +254,7 @@ t.newFeature.nonExistentKey  // TypeScript error!
 
 ---
 
-## 開発者向け使用方法
+## 開発者向け使用方法 {#開発者向け使用方法-ja}
 
 ### 基本的な使い方
 
@@ -310,11 +307,11 @@ const greeting = `${t.greeting.hello}、${userName}さん！`;
 ### 配列やオブジェクトのマッピング
 
 ```tsx
-const assetTypes = [
+const assetTypes = useMemo(() => [
   { key: 'face', label: t.settings.faceLabel },
   { key: 'frontHair', label: t.settings.frontHairLabel },
   { key: 'backHair', label: t.settings.backHairLabel },
-];
+], [t]);
 
 return (
   <ul>
@@ -327,7 +324,7 @@ return (
 
 ---
 
-## ベストプラクティス
+## ベストプラクティス {#ベストプラクティス-ja}
 
 ### 1. 翻訳ファイルの構造
 
@@ -373,27 +370,20 @@ return (
 - `ja.json` を常に最新かつ完全な状態に保つ
 - 他の言語ファイルは `ja.json` を基準に作成
 
-### 5. エラーハンドリング
+### 5. パフォーマンス最適化
 
-`LocaleContext.tsx` では、翻訳の読み込みに失敗した場合に日本語にフォールバックします：
+- `useMemo` を使用して、翻訳キーに依存する配列やオブジェクトの再生成を防ぐ
 
-```typescript
-try {
-  // 翻訳読み込み
-} catch (error) {
-  console.error('Failed to load translations:', error);
-  setTranslations(ja);  // 日本語にフォールバック
-}
+```tsx
+const assetTypes = useMemo(() => [
+  { key: 'face', label: t.settings.faceLabel },
+  // ...
+], [t]);
 ```
-
-### 6. パフォーマンス
-
-- 翻訳ファイルは静的にimportされるため、ビルド時にバンドルされます
-- 言語切り替え時のみ再レンダリングが発生します
 
 ---
 
-## トラブルシューティング
+## トラブルシューティング {#トラブルシューティング-ja}
 
 ### 問題: TypeScriptエラー「Property does not exist」
 
@@ -446,26 +436,466 @@ import en from '../locales/en.json';
 
 ## まとめ
 
-このガイドに従うことで、AiraPJプロジェクトに新しい言語を追加し、効果的に多言語化を管理できます。
+このガイドに従うことで、AiraPJに新しい言語を追加し、効果的に多言語化を管理できます。
 
 ### チェックリスト
 
 新しい言語を追加する際のチェックリスト：
 
 - [ ] `src/locales/<lang>.json` ファイルを作成
-- [ ] `src/types/locale.d.ts` の `SupportedLanguage` 型を更新
+- [ ] `src/types/locale.d.ts` の `SupportedLanguage` 型と `SUPPORTED_LANGUAGES` 配列を更新
 - [ ] `src/context/LocaleContext.tsx` にimport文を追加
-- [ ] `LocaleContext.tsx` の `getInitialLocale` 関数を更新
 - [ ] `LocaleContext.tsx` の `loadTranslations` 関数を更新
 - [ ] 言語切り替えUIを追加（オプション）
 - [ ] すべてのページでテキストが正しく表示されることを確認
 
-### 参考リンク
+---
 
-- [React Context API](https://react.dev/reference/react/useContext)
-- [TypeScript型定義](https://www.typescriptlang.org/docs/handbook/2/types-from-types.html)
-- [LocalStorage API](https://developer.mozilla.org/ja/docs/Web/API/Window/localStorage)
+# English
+
+This document explains the multilingual system of AiraPJ.
+
+## Table of Contents
+
+1. [Overview](#overview-en)
+2. [System Architecture](#system-architecture-en)
+3. [How to Add a New Language](#how-to-add-a-new-language-en)
+4. [How to Add Translation Keys](#how-to-add-translation-keys-en)
+5. [Developer Usage Guide](#developer-usage-guide-en)
+6. [Best Practices](#best-practices-en)
+7. [Troubleshooting](#troubleshooting-en)
 
 ---
 
-**最終更新日**: 2025-12-18
+## Overview {#overview-en}
+
+AiraPJ implements a multilingual system using React Context API. This system enables:
+
+- Support for multiple languages (currently Japanese only, expandable in the future)
+- Type-safe translation key usage
+- Runtime language switching
+- Language setting persistence via browser language detection and localStorage
+
+### Currently Supported Languages
+
+- **Japanese (ja)** - Default language
+
+### Main Technology Stack
+
+- React Context API (state management)
+- TypeScript (type safety)
+- LocalStorage (language setting persistence)
+
+---
+
+## System Architecture {#system-architecture-en}
+
+### Directory Structure
+
+```
+src/
+├── context/
+│   └── LocaleContext.tsx      # Multilingual Context (language state management)
+├── hooks/
+│   └── useTranslation.ts      # Custom hook for retrieving translation text
+├── locales/
+│   ├── ja.json                # Japanese translation file
+│   └── en.json.example        # English translation template (for future use)
+├── types/
+│   └── locale.d.ts            # Multilingual type definitions
+└── pages/
+    ├── Title.tsx              # Uses useTranslation
+    ├── CharacterPartsSelect.tsx
+    └── ...
+```
+
+### Main Components
+
+#### 1. LocaleContext (`src/context/LocaleContext.tsx`)
+
+The core Context for multilingualization. Provides the following features:
+
+- Management of current language state
+- Loading and providing translation data
+- Language switching functionality
+- Persistence to localStorage
+
+```typescript
+export interface LocaleContextType {
+  locale: SupportedLanguage;  // Current language
+  setLocale: (locale: SupportedLanguage) => void;  // Language change function
+  t: Locale;  // Translation object
+}
+```
+
+#### 2. useTranslation Hook (`src/hooks/useTranslation.ts`)
+
+A custom hook for easily retrieving translation text:
+
+```typescript
+const { t, locale, setLocale } = useTranslation();
+```
+
+#### 3. Type Definitions (`src/types/locale.d.ts`)
+
+Ensures TypeScript type safety:
+
+```typescript
+export type Locale = typeof ja;  // Define ja.json structure as a type
+export type SupportedLanguage = 'ja';  // List of supported languages
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['ja'] as const;
+```
+
+---
+
+## How to Add a New Language {#how-to-add-a-new-language-en}
+
+### Step 1: Create Translation File
+
+1. Copy `src/locales/en.json.example` to create a new language file:
+
+```bash
+# For English
+cp src/locales/en.json.example src/locales/en.json
+
+# For Simplified Chinese
+cp src/locales/en.json.example src/locales/zh-CN.json
+```
+
+2. Translate all text in the new file. **Make sure to maintain the same JSON structure as ja.json.**
+
+### Step 2: Update Type Definitions
+
+Edit `src/types/locale.d.ts` and add the new language code:
+
+```typescript
+// Before
+export type SupportedLanguage = 'ja';
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['ja'] as const;
+
+// After (adding English)
+export type SupportedLanguage = 'ja' | 'en';
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['ja', 'en'] as const;
+```
+
+### Step 3: Update LocaleContext
+
+Edit `src/context/LocaleContext.tsx` and add import and switch statement for the new language:
+
+```typescript
+// 1. Add import at the top of the file
+import ja from '../locales/ja.json';
+import en from '../locales/en.json';  // Add
+
+// 2. Update switch statement in loadTranslations function
+const loadTranslations = async () => {
+  try {
+    let newTranslations: Locale;
+    switch (locale) {
+      case 'ja':
+        newTranslations = ja;
+        break;
+      case 'en':  // Add
+        newTranslations = en;
+        break;
+      default:
+        newTranslations = ja;
+        break;
+    }
+    setTranslations(newTranslations);
+    localStorage.setItem('locale', locale);
+  } catch (error) {
+    console.error('Failed to load translations:', error);
+    setTranslations(ja);
+  }
+};
+```
+
+### Step 4: Add Language Switcher UI (Optional)
+
+To add language switching buttons:
+
+```tsx
+// Example: App.tsx or dedicated language switcher component
+import { useTranslation } from './hooks/useTranslation';
+
+function LanguageSwitcher() {
+  const { locale, setLocale } = useTranslation();
+  
+  return (
+    <div>
+      <button onClick={() => setLocale('ja')} disabled={locale === 'ja'}>
+        日本語
+      </button>
+      <button onClick={() => setLocale('en')} disabled={locale === 'en'}>
+        English
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+## How to Add Translation Keys {#how-to-add-translation-keys-en}
+
+When adding new screens or features, here's how to add translation keys:
+
+### Step 1: Add to Translation Files
+
+Add the same key to all language files (`ja.json`, `en.json`, etc.):
+
+```json
+// src/locales/ja.json
+{
+  "common": { ... },
+  "newFeature": {
+    "title": "新機能",
+    "description": "これは新しい機能です",
+    "button": "実行"
+  }
+}
+```
+
+```json
+// src/locales/en.json
+{
+  "common": { ... },
+  "newFeature": {
+    "title": "New Feature",
+    "description": "This is a new feature",
+    "button": "Execute"
+  }
+}
+```
+
+### Step 2: Use in Component
+
+```tsx
+import { useTranslation } from '../hooks/useTranslation';
+
+const NewFeaturePage: React.FC = () => {
+  const { t } = useTranslation();
+  
+  return (
+    <div>
+      <h1>{t.newFeature.title}</h1>
+      <p>{t.newFeature.description}</p>
+      <button>{t.newFeature.button}</button>
+    </div>
+  );
+};
+```
+
+### Step 3: TypeScript Type Checking
+
+TypeScript automatically performs type checking, so referencing a non-existent key will result in a compile error:
+
+```typescript
+// ✅ Correct
+t.newFeature.title
+
+// ❌ Error (non-existent key)
+t.newFeature.nonExistentKey  // TypeScript error!
+```
+
+---
+
+## Developer Usage Guide {#developer-usage-guide-en}
+
+### Basic Usage
+
+```tsx
+import { useTranslation } from '../hooks/useTranslation';
+
+const MyComponent: React.FC = () => {
+  const { t } = useTranslation();
+  
+  return <h1>{t.title.mainTitle}</h1>;
+};
+```
+
+### Getting Language Information
+
+```tsx
+const { t, locale } = useTranslation();
+
+console.log(locale);  // 'ja' or 'en' etc.
+console.log(t.title.mainTitle);  // Text in current language
+```
+
+### Switching Languages
+
+```tsx
+const { setLocale } = useTranslation();
+
+// Switch to English
+setLocale('en');
+```
+
+### Dynamic Text
+
+For text with variables, use template literals:
+
+```tsx
+// Translation file
+{
+  "greeting": {
+    "hello": "Hello"
+  }
+}
+
+// Component
+const userName = "Taro";
+const greeting = `${t.greeting.hello}, ${userName}!`;
+// Result: "Hello, Taro!"
+```
+
+### Mapping Arrays and Objects
+
+```tsx
+const assetTypes = useMemo(() => [
+  { key: 'face', label: t.settings.faceLabel },
+  { key: 'frontHair', label: t.settings.frontHairLabel },
+  { key: 'backHair', label: t.settings.backHairLabel },
+], [t]);
+
+return (
+  <ul>
+    {assetTypes.map(({ key, label }) => (
+      <li key={key}>{label}</li>
+    ))}
+  </ul>
+);
+```
+
+---
+
+## Best Practices {#best-practices-en}
+
+### 1. Translation File Structure
+
+- **Logical Grouping**: Group keys by feature or screen
+- **Consistent Naming**: Use camelCase (e.g., `mainTitle`, `startBtn`)
+- **Separate Common Text**: Place common text in the `common` section
+
+```json
+{
+  "common": {
+    "next": "Next",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "specificFeature": {
+    "title": "Feature Title",
+    "description": "Description"
+  }
+}
+```
+
+### 2. Translation Key Naming Conventions
+
+- **Descriptive Names**: Use `startBtn` instead of `btn1`
+- **Include Context**: Use `pageTitle` instead of just `title`
+- **Use Verbs**: Use verbs for buttons (`save`, `delete`, `upload`)
+
+### 3. Leverage Type Safety
+
+- Always use the `t` object instead of hardcoding strings
+- Leverage TypeScript's autocomplete and error checking
+
+```tsx
+// ✅ Recommended
+<h1>{t.title.mainTitle}</h1>
+
+// ❌ Not recommended (hardcoding)
+<h1>Aira PJ</h1>
+```
+
+### 4. Default Language Setup
+
+- Keep `ja.json` always up-to-date and complete
+- Create other language files based on `ja.json`
+
+### 5. Performance Optimization
+
+- Use `useMemo` to prevent regeneration of arrays or objects that depend on translation keys
+
+```tsx
+const assetTypes = useMemo(() => [
+  { key: 'face', label: t.settings.faceLabel },
+  // ...
+], [t]);
+```
+
+---
+
+## Troubleshooting {#troubleshooting-en}
+
+### Issue: TypeScript Error "Property does not exist"
+
+**Cause**: Translation key doesn't exist in all language files
+
+**Solution**:
+1. Add the same key to all language files (ja.json, en.json, etc.)
+2. Check the type definition file (`locale.d.ts`)
+
+### Issue: Translations Not Displayed
+
+**Cause 1**: `LocaleProvider` is not placed high enough in the component tree
+
+**Solution**: Check `LocaleProvider` in `App.tsx`
+
+```tsx
+// App.tsx
+return (
+  <LocaleProvider>
+    <PartsProvider>
+      {/* Other components */}
+    </PartsProvider>
+  </LocaleProvider>
+);
+```
+
+**Cause 2**: Using `useTranslation` outside of `LocaleProvider`
+
+**Solution**: Ensure the component is a descendant of `LocaleProvider`
+
+### Issue: Language Switch Not Saved
+
+**Cause**: localStorage is disabled or browser is in private mode
+
+**Solution**:
+- Check browser localStorage settings
+- Disable private mode
+
+### Issue: Build Error "Cannot find module"
+
+**Cause**: New translation file is not imported
+
+**Solution**: Add import statement to `LocaleContext.tsx`
+
+```typescript
+import en from '../locales/en.json';
+```
+
+---
+
+## Summary
+
+By following this guide, you can add new languages to AiraPJ and effectively manage multilingualization.
+
+### Checklist
+
+Checklist when adding a new language:
+
+- [ ] Create `src/locales/<lang>.json` file
+- [ ] Update `SupportedLanguage` type and `SUPPORTED_LANGUAGES` array in `src/types/locale.d.ts`
+- [ ] Add import statement to `src/context/LocaleContext.tsx`
+- [ ] Update `loadTranslations` function in `LocaleContext.tsx`
+- [ ] Add language switcher UI (optional)
+- [ ] Verify text displays correctly on all pages
+
+---
+
+**Last Updated**: 2025-12-19
