@@ -30,7 +30,14 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     }
     const { name } = req.body;
     const assetPath = `/uploads/face/${req.file.filename}`;
-    const face = await Face.create({ name, assetPath });
+    
+    // 最大のsortOrderを取得して+1
+    const maxOrderItem = await Face.findOne({ 
+      order: [['sortOrder', 'DESC']] 
+    });
+    const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
+    
+    const face = await Face.create({ name, assetPath, sortOrder });
     res.json(face);
   } catch (err) {
     console.error('Face upload error:', err);
