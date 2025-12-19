@@ -113,7 +113,7 @@ const Photo: React.FC = () => {
             height: 320,
             background: '#eee',
             margin: '0 auto',
-            overflow: 'hidden', // 追加
+            overflow: 'visible',
           }}
         >
           {/* 背景（固定） */}
