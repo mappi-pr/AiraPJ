@@ -1,14 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-import texts from '../locales/ja.json';
-
-const assetTypes = [
-  { key: 'face', label: texts.settings.faceLabel },
-  { key: 'frontHair', label: texts.settings.frontHairLabel },
-  { key: 'backHair', label: texts.settings.backHairLabel },
-  { key: 'background', label: texts.settings.backgroundLabel },
-  { key: 'costume', label: texts.settings.costumeLabel },
-];
+import { useTranslation } from '../hooks/useTranslation';
+import { useSound } from '../utils/useSound';
+import { PageTransition } from '../utils/PageTransition';
+import { SparkleEffect } from '../utils/SparkleEffect';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -23,6 +19,8 @@ const Settings: React.FC = () => {
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
+  const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
 
   // アップロード種別ごとのエンドポイント
   const uploadUrls: Record<string, string> = {
@@ -32,6 +30,15 @@ const Settings: React.FC = () => {
     background: '/api/background/upload',
     costume: '/api/costume/upload',
   };
+
+  // useMemoで最適化：tが変わったときのみ再計算
+  const assetTypes = useMemo(() => [
+    { key: 'face', label: t.settings.faceLabel },
+    { key: 'frontHair', label: t.settings.frontHairLabel },
+    { key: 'backHair', label: t.settings.backHairLabel },
+    { key: 'background', label: t.settings.backgroundLabel },
+    { key: 'costume', label: t.settings.costumeLabel },
+  ], [t]);
 
   // セクション展開時のみアセットを取得
   const fetchAssetsForType = async (type: string) => {
@@ -74,11 +81,11 @@ const Settings: React.FC = () => {
     const name = assetNameRef.current?.value;
     const file = assetFileRef.current?.files?.[0];
     if (!file || file.type !== 'image/png') {
-      setResult(texts.settings.pngOnly);
+      setResult(t.settings.pngOnly);
       return;
     }
     if (!type || !uploadUrls[type]) {
-      setResult(texts.settings.selectType);
+      setResult(t.settings.selectType);
       return;
     }
     const formData = new FormData();
@@ -92,31 +99,45 @@ const Settings: React.FC = () => {
       const assetPath = data.assetPath || data.face?.assetPath || data.frontHair?.assetPath || data.backHair?.assetPath || data.background?.assetPath || data.costume?.assetPath;
       const id = data.id || data.face?.id || data.frontHair?.id || data.backHair?.id || data.background?.id || data.costume?.id;
       if (assetPath && id) {
+        playSuccess();
         setResult(
-          `${texts.settings.resultSuccess}\nID: ${id}\n画像: <img src="${assetPath}" width="100" />`
+          `${t.settings.resultSuccess}\nID: ${id}\n${t.settings.resultImage} <img src="${assetPath}" width="100" />`
         );
         // アップロード後、該当タイプのアセットリストを再取得
         if (type) {
           await refreshAssetsForType(type);
         }
       } else {
-        setResult(data.error || texts.settings.resultFail);
+        setResult(data.error || t.settings.resultFail);
       }
     } catch {
-      setResult(texts.settings.resultFail);
+      setResult(t.settings.resultFail);
     }
   };
 
   // 削除
   const handleDelete = async (type: string, id: number) => {
-    if (!window.confirm(texts.settings.deleteConfirm)) return;
+    if (!window.confirm(t.settings.deleteConfirm)) return;
+    playClick();
     try {
       await axios.delete(`${uploadUrls[type].replace('/upload', '')}/${id}`);
       // 削除後、該当タイプのアセットリストを再取得
       await refreshAssetsForType(type);
-      setResult(texts.settings.deleteSuccess);
+      setResult(t.settings.deleteSuccess);
     } catch {
-      setResult(texts.settings.deleteFail);
+      setResult(t.settings.deleteFail);
+    }
+  };
+
+  // 並び替え
+  const handleReorder = async (type: string, id: number, direction: 'up' | 'down') => {
+    playClick();
+    try {
+      await axios.put(`${uploadUrls[type].replace('/upload', '')}/${id}/order`, { direction });
+      await refreshAssetsForType(type);
+      setResult(t.settings.sortOrderUpdateSuccess);
+    } catch {
+      setResult(t.settings.sortOrderUpdateFail);
     }
   };
 
@@ -160,35 +181,35 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <div className="main-container">
-      <h1>{texts.settings.title}</h1>
-      <nav>
-        <a href="/title">{texts.common.backToTitle}</a>
-      </nav>
-      <h2>{texts.settings.uploadTitle}</h2>
-      <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
-        <label>
-          {texts.settings.typeLabel}
-          <select name="type" ref={assetTypeRef}>
-            <option value="face">顔パーツ</option>
-            <option value="frontHair">前髪パーツ</option>
-            <option value="backHair">後髪パーツ</option>
-            <option value="background">背景</option>
-            <option value="costume">衣装</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          {texts.settings.nameLabel} <input type="text" name="name" ref={assetNameRef} required />
-        </label>
-        <br />
-        <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
-        <br />
-        <button type="submit">{texts.settings.uploadBtn}</button>
-      </form>
-      <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
+    <PageTransition>
+      <SparkleEffect />
+      <div className="main-container">
+        <h1>{t.settings.title}</h1>
+        <nav>
+          <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
+        </nav>
+        <h2>{t.settings.uploadTitle}</h2>
+        <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
+          <label>
+            {t.settings.typeLabel}
+            <select name="type" ref={assetTypeRef}>
+              {assetTypes.map(({ key, label }) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <br />
+          <label>
+            {t.settings.nameLabel} <input type="text" name="name" ref={assetNameRef} required />
+          </label>
+          <br />
+          <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
+          <br />
+          <button type="submit">{t.settings.uploadBtn}</button>
+        </form>
+        <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
 
-      <h2>{texts.settings.assetListTitle}</h2>
+        <h2>{t.settings.assetListTitle}</h2>
       <div className="asset-sections">
         {assetTypes.map(({ key, label }) => {
           const isExpanded = expandedSections[key];
@@ -221,7 +242,7 @@ const Settings: React.FC = () => {
                 <div className="section-content">
                   {loading && !assets[key] ? (
                     <div style={{ padding: '20px', textAlign: 'center' }}>
-                      {texts.common.loading}
+                      {t.common.loading}
                     </div>
                   ) : pagination && pagination.totalItems > 0 ? (
                     <>
@@ -255,52 +276,90 @@ const Settings: React.FC = () => {
                         padding: 0,
                       }}>
                         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {pagination.items.map((item: any) => (
-                          <li key={item.id} style={{
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '8px',
-                          }}>
-                            <img 
-                              src={item.assetPath} 
-                              alt={item.name} 
-                              loading="lazy"
-                              style={{ 
-                                width: '100%',
-                                height: '120px',
-                                objectFit: 'contain',
-                                backgroundColor: '#f9f9f9',
-                                borderRadius: '4px',
-                              }} 
-                            />
-                            <span style={{ 
-                              fontSize: '14px',
-                              fontWeight: 'bold',
-                              textAlign: 'center',
-                              wordBreak: 'break-word',
+                        {pagination.items.map((item: any, _index: number) => {
+                          // Get the original index in the full filtered list
+                          const fullList = getFilteredAssets(key);
+                          const originalIndex = fullList.findIndex(a => a.id === item.id);
+                          
+                          return (
+                            <li key={item.id} style={{
+                              border: '1px solid #ddd',
+                              borderRadius: '8px',
+                              padding: '12px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '8px',
                             }}>
-                              {item.name}
-                            </span>
-                            <button 
-                              onClick={() => handleDelete(key, item.id)}
-                              style={{
-                                padding: '6px 12px',
-                                backgroundColor: '#ff4444',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                              }}
-                            >
-                              {texts.settings.deleteBtn}
-                            </button>
-                          </li>
-                        ))}
+                              <img 
+                                src={item.assetPath} 
+                                alt={item.name} 
+                                loading="lazy"
+                                style={{ 
+                                  width: '100%',
+                                  height: '120px',
+                                  objectFit: 'contain',
+                                  backgroundColor: '#f9f9f9',
+                                  borderRadius: '4px',
+                                }} 
+                              />
+                              <span style={{ 
+                                fontSize: '14px',
+                                fontWeight: 'bold',
+                                textAlign: 'center',
+                                wordBreak: 'break-word',
+                              }}>
+                                {item.name}
+                              </span>
+                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <button
+                                  onClick={() => handleReorder(key, item.id, 'up')}
+                                  disabled={originalIndex === 0}
+                                  style={{
+                                    padding: '4px 8px',
+                                    backgroundColor: originalIndex === 0 ? '#ccc' : '#007bff',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: originalIndex === 0 ? 'not-allowed' : 'pointer',
+                                    fontSize: '12px',
+                                  }}
+                                >
+                                  ↑
+                                </button>
+                                <button
+                                  onClick={() => handleReorder(key, item.id, 'down')}
+                                  disabled={originalIndex === fullList.length - 1}
+                                  style={{
+                                    padding: '4px 8px',
+                                    backgroundColor: originalIndex === fullList.length - 1 ? '#ccc' : '#007bff',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: originalIndex === fullList.length - 1 ? 'not-allowed' : 'pointer',
+                                    fontSize: '12px',
+                                  }}
+                                >
+                                  ↓
+                                </button>
+                                <button 
+                                  onClick={() => handleDelete(key, item.id)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    backgroundColor: '#ff4444',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px',
+                                  }}
+                                >
+                                  {t.settings.deleteBtn}
+                                </button>
+                              </div>
+                            </li>
+                          );
+                        })}
                       </ul>
 
                       {/* ページネーション */}
@@ -391,7 +450,7 @@ const Settings: React.FC = () => {
                     </>
                   ) : (
                     <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                      {texts.settings.noAsset}
+                      {t.settings.noAsset}
                     </div>
                   )}
                 </div>
@@ -401,6 +460,7 @@ const Settings: React.FC = () => {
         })}
       </div>
     </div>
+    </PageTransition>
   );
 };
 
