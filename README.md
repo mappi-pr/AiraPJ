@@ -3,194 +3,77 @@
 このプロジェクトはReact + Vite + TypeScriptによるSPA（シングルページアプリケーション）です。
 Express APIサーバーと連携し、キャラクター・背景・衣装の着せ替えやBGM/SEの継続再生、リッチな画面遷移演出を実現します。
 
-## Docker によるセットアップ（推奨）
+## クイックスタート
 
-Docker を使用することで、フロントエンド（nginx）、APIサーバー（Express）、データベース（PostgreSQL）を簡単にセットアップできます。
+### Docker を使用する場合（推奨）
 
-### 1. 環境変数ファイルの作成
 ```sh
+# 環境変数の設定
 cp .env.example .env
-```
-必要に応じて `.env` ファイルを編集してください。
 
-### 2. Docker Compose で起動
-```sh
+# コンテナの起動
 docker compose up -d
+
+# アクセス
+# フロントエンド: http://localhost
+# API: http://localhost/api/health
 ```
 
-### 3. アクセス
-- フロントエンド: http://localhost (デフォルトポート80)
-- API: http://localhost/api/health
+### ローカル開発の場合
 
-### 4. ログ確認
 ```sh
-docker compose logs -f
-```
+# Node.js v20.x を使用
+nvm use
 
-### 5. 停止
-```sh
-docker compose down
-```
-
-### 6. データのリセット（注意: DBデータも削除されます）
-```sh
-docker compose down -v
-```
-
----
-
-## ローカル開発環境のセットアップ
-
-Docker を使用せずにローカルで開発する場合は以下の手順を参照してください。
-
-### 1. Node.jsバージョンの統一
-- プロジェクトルートに `.nvmrc`（例: `20`）があり、`nvm use` でNode.js v20系を自動選択できます。
-- nvm未使用の場合も、**必ずNode.js v20.x** を利用してください。
-
-### 2. 依存パッケージのインストール
-```sh
+# 依存関係のインストール
 npm install
-cd api
-npm install
+cd api && npm install && cd ..
+
+# API環境変数の設定
+cd api && cp .env.example .env && cd ..
+
+# PostgreSQL を起動（Docker推奨）
+docker run -d --name airapj-postgres \
+  -e POSTGRES_DB=airapj -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
+  postgres:16-alpine
+
+# API サーバー起動（ターミナル1）
+cd api && npm run dev
+
+
+# フロントエンド起動（ターミナル2）npm run dev
 ```
 
-### 3. 環境変数ファイルの作成
-- `api/.env.example` を参考に `api/.env` を作成し、DBやAPIサーバーの設定を記入します。
-- 例:
-  ```
-  DB_NAME=airapj
-  DB_USER=youruser
-  DB_PASS=yourpassword
-  DB_HOST=localhost
-  DB_PORT=5432
-  ```
 
-### 4. サーバーの起動
+包括的な開発者向けドキュメントは **[doc/DEVELOPMENT.md](doc/DEVELOPMENT.md)** を参照してください。
 
-#### フロントエンド（Vite）
-```sh
-npm run dev
+
+
+## 概要
+
+### 技術スタック
+- **フロントエンド**: React 19, Vite, TypeScript, React Router DOM
+- **バックエンド**: Express 4, Sequelize, PostgreSQL 16
+- **インフラ**: Docker, Docker Compose, nginx
+
 ```
-- デフォルト: http://localhost:5173
-- Viteの `vite.config.ts` で `/api` へのリクエストは http://localhost:4000 へプロキシされます。
-
-#### APIサーバー（Express）
-```sh
-cd api
-nvm use   # .nvmrcがある場合
-npm run build
-npm start
-```
-- デフォルト: http://localhost:4000
-- アップロード画像は `api/dist/uploads/` 配下に保存されます。
-- ビルド時に `uploads` ディレクトリが `dist/uploads` へ自動コピーされます。
-- アップロード時、必要なサブディレクトリ（chr/bg/csm）は自動生成されます。
-
-### 5. APIエンドポイント例
-- `/api/face/upload` 顔パーツ画像アップロード
-- `/api/front-hair/upload` 前髪パーツ画像アップロード
-- `/api/back-hair/upload` 後髪パーツ画像アップロード
-- `/api/background/upload` 背景画像アップロード
-- `/api/costume/upload` 衣装画像アップロード
-
-### 6. 注意点
-- Node.js v22系などではAPIサーバーは起動できません。必ずv20系で実行してください。
-- DB接続情報・APIサーバーポートは `.env` で一元管理します。
-- フロントエンドのAPIリクエストは `/api/xxx` の相対パスで記述してください。
-- CORSエラーが出る場合はAPIサーバー側のCORS設定を見直してください。
-
-### 7. スマートフォン実機からのアクセス（開発環境）
-Windows + WSL2環境でスマートフォン実機から開発サーバーにアクセスする場合は、特別な設定が必要です。
-詳細な手順については **[DEVELOPMENT.md](./doc/DEVELOPMENT.md)** を参照してください。
-
-- ポートフォワーディングの設定（WSL2環境）
-- ファイアウォールの設定
-- ネットワーク設定の調整（環境変数 `HOST=0.0.0.0` の設定等）
-- トラブルシューティング
-
-**重要**: これらの設定は開発環境専用です。本番環境では適切なセキュリティ対策を行ってください。詳細は [DEVELOPMENT.md](./doc/DEVELOPMENT.md) のセキュリティセクションを参照してください。
-
-## 型エラー対策（Express/TypeScript）
-- `express`はv4.x、`@types/express`もv4.17.21に固定してください。
-- v5系型が混在するとAPIルートで型エラーが発生します。
-- 例: `npm install --save-dev @types/express@4.17.21`
-
-## アセット削除仕様
-- 各アセット（顔・前髪・後髪・背景・衣装）は物理削除＋データベースは論理削除（deleted, deletedAt）対応。
-- GET APIは論理削除されていないもののみ返却。
-- DELETE APIは画像ファイルを物理削除し、DBレコードは論理削除。
-
-## DBマイグレーション
-- `.env` のDB接続情報を `config/config.js` で自動参照します（`config.json`は不要です）。
-- マイグレーション例: `npx sequelize-cli db:migrate`
-
-## セットアップ注意
-- Node.js 18以上推奨
-- APIサーバ起動: `npm run dev` または `npm run build && npm start`
-
-## ディレクトリ構成（例）
-```
-AiraSPA/
+AiraPJ/
 ├── src/                  # フロントエンド（React+Vite）
-│   ├── components/      # Reactコンポーネント群
 │   ├── pages/           # 各画面
-│   ├── App.tsx          # ルーティング/状態管理のエントリ
-│   ├── main.tsx         # エントリポイント
-│   └── ...
-├── public/              # 静的アセット
-├── api/                 # APIサーバー
-│   ├── routes/          # APIルーティング
-│   ├── models/          # DBモデル
-│   ├── uploads/         # 画像アップロード保存先
-│   ├── dist/uploads/    # 本番用アップロード保存先
-│   ├── index.ts         # APIサーバーエントリ
-│   └── ...
-├── .nvmrc               # Node.jsバージョン指定
-├── README.md
-└── ...
+│   ├── components/      # コンポーネント
+│   ├── context/         # Context API
+│   └── assets/          # 静的アセット
+├── api/                 # APIサーバー（Express）
+│   ├── routes/          # API ルーティング
+│   ├── models/          # Sequelize モデル
+│   └── uploads/         # アップロードファイル
+├── docker/              # Docker設定
+├── doc/                 # ドキュメント
+└── public/              # 静的ファイル
 ```
 
-## 主な技術
-- React 18+
-- Vite
-- TypeScript
-- react-router-dom
-- Context API（状態管理、多言語化）
-- Express
-- Sequelize
-- PostgreSQL
 
-## 多言語化対応
 
-このプロジェクトは多言語化システムを実装しています。現在は日本語のみですが、将来的に他の言語も簡単に追加できます。
 
-詳細については **[doc/MULTILINGUAL.md](./doc/MULTILINGUAL.md)** を参照してください。
-
-- 新しい言語の追加方法
-- 翻訳キーの追加方法
-- 開発者向けの使用方法
-- ベストプラクティス
-
-## 開発・設計ポイント
-- 画面遷移はreact-router-domで制御し、BGM/SEはApp直下で管理して継続再生
-- API通信はfetch/axiosで実装
-- 画面遷移時の演出や連打防止もSPAで制御
-- Express APIサーバーは `/api` 配下でRESTエンドポイントを提供
-- DB登録・アップロード時のディレクトリ自動生成に対応
-- **キャラクター選択画面は「顔・前髪・後髪」3パーツ選択式（`CharacterPartsSelect.tsx`）**
-- CSSの設計・管理方針については **[CSS.md](./doc/CSS.md)** を参照してください
-
-## 画面仕様・photo（フォト撮影）機能
-- セッションで選択したパーツ情報（背景・衣装・後髪・顔・前髪）をContext API等で記憶し、各画面で引き継ぐ。
-- photo画面では、選択中パーツを「背景→後髪→衣装→顔→前髪」の順でdiv+background-imageで重ね合わせ。
-    - どちらも透過PNGのアルファチャンネルを正しく合成可能。
-    - 複数divを`position: absolute`で重ね、各divに`backgroundImage`でパーツ画像を指定する。
-- 顔系パーツと衣装は一体化して拡縮可（スライダーで倍率調整）、背景は固定。
-- 拡縮スライダーでキャラクターの拡大率を変更可能。
-- 「PNGで保存」ボタンで統合画像を1枚のPNGとしてダウンロード可能。
-    - `html2canvas`方式（画面の見た目をそのままキャプチャ）
-    - canvas API手動合成方式（全パーツ画像をレイヤー順に透過合成し高精度PNG化）
-- 透過PNG精度向上のため、div+background-imageで`crossOrigin="anonymous"`を付与し、サーバー側でCORSヘッダを有効化。
-
----
-> 詳細なAPI設計や画面仕様は今後追記予定
+詳細な開発手順、トラブルシューティング、プロダクション環境への配置については **[doc/DEVELOPMENT.md](doc/DEVELOPMENT.md)** を参照してください。
