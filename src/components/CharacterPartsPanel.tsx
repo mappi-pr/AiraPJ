@@ -91,6 +91,7 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
   useEffect(() => {
     setPage(1);
     setHasMore(true);
+    setParts([]);
   }, [partType]);
 
   // 非同期でパーツ一覧取得（キャッシュ活用）
