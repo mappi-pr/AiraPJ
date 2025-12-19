@@ -19,6 +19,8 @@ docker compose up -d
 # API: http://localhost/api/health
 ```
 
+**データ永続化について**: データベースとアップロードファイルは Docker ボリューム（`postgres_data`, `uploads_data`）に保存されます。コンテナを停止・削除（`docker compose down`）してもデータは保持されます。データを完全に削除する場合のみ `docker compose down -v` を使用してください。
+
 ### ローカル開発の場合
 
 ```sh

@@ -189,10 +189,45 @@ docker compose exec api npm run build
 | api | airapj-api | 4000 | Express API サーバー |
 | db | airapj-db | 5432 | PostgreSQL 16 |
 
-**ボリューム**
+**ボリューム（データ永続化）**
+
+Docker の名前付きボリュームを使用してデータを永続化しています：
 
 - `postgres_data`: PostgreSQL のデータ永続化
+  - データベースのテーブル、レコード、インデックスなどすべてのデータ
+  - コンテナを削除（`docker compose down`）してもデータは保持されます
+  
 - `uploads_data`: アップロードされた画像ファイルの永続化
+  - ユーザーがアップロードした顔・髪・衣装・背景などの画像ファイル
+  - コンテナを削除してもファイルは保持されます
+
+**重要**: コンテナとボリュームの削除について
+
+```bash
+# コンテナのみ停止・削除（データは保持される）
+docker compose down
+# → postgres_data と uploads_data ボリュームは残る
+# → 次回起動時に既存のデータベースとファイルがそのまま使用される
+
+# コンテナとボリュームを完全に削除（データも削除される）
+docker compose down -v
+# → すべてのデータが削除される（データベース、アップロードファイルなど）
+# → 次回起動時にクリーンな状態から開始される
+```
+
+**ボリュームの確認**
+
+```bash
+# ボリュームの一覧表示
+docker volume ls | grep airapj
+
+# ボリュームの詳細情報
+docker volume inspect airapj_postgres_data
+docker volume inspect airapj_uploads_data
+
+# ボリュームのサイズ確認
+docker system df -v
+```
 
 **ネットワーク**
 
