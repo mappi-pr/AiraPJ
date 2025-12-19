@@ -63,6 +63,7 @@
     "deleteSuccess": "削除しました",
     "deleteFail": "削除に失敗しました",
     "noAsset": "アセットがありません",
+    "noSearchResults": "検索結果がありません",
     "moveUpBtn": "↑",
     "moveDownBtn": "↓",
     "moveUpTooltip": "上へ移動",

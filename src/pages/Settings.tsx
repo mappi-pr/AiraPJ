@@ -239,7 +239,7 @@ const Settings: React.FC = () => {
                     <div style={{ padding: '20px', textAlign: 'center' }}>
                       {t.common.loading}
                     </div>
-                  ) : pagination && pagination.totalItems > 0 ? (
+                  ) : assets[key] && assets[key].length > 0 ? (
                     <>
                       {/* 検索バー */}
                       <div style={{ marginBottom: '12px' }}>
@@ -257,13 +257,15 @@ const Settings: React.FC = () => {
                           }}
                         />
                         <span style={{ marginLeft: '12px', color: '#666' }}>
-                          {pagination.totalItems}件中 {Math.min((pagination.currentPage - 1) * ITEMS_PER_PAGE + 1, pagination.totalItems)}-
-                          {Math.min(pagination.currentPage * ITEMS_PER_PAGE, pagination.totalItems)}件を表示
+                          {pagination?.totalItems || 0}件中 {pagination && pagination.totalItems > 0 ? Math.min((pagination.currentPage - 1) * ITEMS_PER_PAGE + 1, pagination.totalItems) : 0}-
+                          {pagination ? Math.min(pagination.currentPage * ITEMS_PER_PAGE, pagination.totalItems) : 0}件を表示
                         </span>
                       </div>
 
-                      {/* アセットリスト */}
-                      <ul className="asset-list" style={{ 
+                      {pagination && pagination.totalItems > 0 ? (
+                        <>
+                          {/* アセットリスト */}
+                          <ul className="asset-list" style={{ 
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
                         gap: '16px',
@@ -449,6 +451,12 @@ const Settings: React.FC = () => {
                           >
                             次へ →
                           </button>
+                        </div>
+                      )}
+                    </>
+                      ) : (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                          {t.settings.noSearchResults}
                         </div>
                       )}
                     </>
