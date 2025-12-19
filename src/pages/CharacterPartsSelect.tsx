@@ -82,7 +82,7 @@ const CharacterPartsSelect: React.FC = () => {
       <div className="main-container">
         <h1>{texts.characterPartsSelect.title}</h1>
         {(faces.length === 0 || frontHairs.length === 0 || backHairs.length === 0) ? (
-          <div style={{ textAlign: 'center', margin: '32px 0', fontSize: 18, color: '#888' }}>読み込み中...</div>
+          <div style={{ textAlign: 'center', margin: '32px 0', fontSize: 18, color: '#888' }}>{texts.common.loading}</div>
         ) : (
           <>
             <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
