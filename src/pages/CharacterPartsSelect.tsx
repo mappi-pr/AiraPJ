@@ -43,6 +43,10 @@ const CharacterPartsSelect: React.FC = () => {
   const selectedFace = faces[faceIdx] || null;
   const selectedFrontHair = frontHairs[frontIdx] || null;
   const selectedBackHair = backHairs[backIdx] || null;
+  const partsContext = useContext(PartsContext);
+  const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
+
   useEffect(() => {
     const loadParts = async () => {
     const loadParts = async () => {
@@ -213,7 +217,8 @@ const CharacterPartsSelect: React.FC = () => {
             </nav>
           </>
         )}      </div>
-    );
+    </PageTransition>
   };
-  
-  export default CharacterPartsSelect;
+};
+
+export default CharacterPartsSelect;
