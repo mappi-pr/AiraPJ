@@ -15,6 +15,15 @@ const getPartUrl = (part: PanelPartInfo | null): string | null => {
   return part.assetPath || part.imagePath || part.thumbUrl || part.imageUrl || null;
 };
 
+const convertToContextPartInfo = (part: PanelPartInfo | null) => {
+  if (!part) return null;
+  return {
+    id: part.id,
+    name: part.name,
+    assetPath: part.assetPath || part.imagePath || part.imageUrl || part.thumbUrl || '',
+  };
+};
+
 const CharacterPartsSelect: React.FC = () => {
   const navigate = useNavigate();
   const [faces, setFaces] = useState<PanelPartInfo[]>([]);
@@ -66,14 +75,6 @@ const CharacterPartsSelect: React.FC = () => {
   // 選択内容をContextに保存
   useEffect(() => {
     if (!partsContext) return;
-    const convertToContextPartInfo = (part: PanelPartInfo | null) => {
-      if (!part) return null;
-      return {
-        id: part.id,
-        name: part.name,
-        assetPath: part.assetPath || part.imagePath || part.imageUrl || part.thumbUrl || '',
-      };
-    };
     partsContext.setSelectedParts(prev => ({
       ...prev,
       face: convertToContextPartInfo(selectedFace),
@@ -81,7 +82,7 @@ const CharacterPartsSelect: React.FC = () => {
       backHair: convertToContextPartInfo(selectedBackHair),
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- partsContext intentionally excluded from deps
-  }, [faceIdx, frontIdx, backIdx, selectedFace, selectedFrontHair, selectedBackHair]);
+  }, [faceIdx, frontIdx, backIdx]);
 
   useEffect(() => {
     if (!selectedFace && !selectedFrontHair && !selectedBackHair) {
