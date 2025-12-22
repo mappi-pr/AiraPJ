@@ -80,7 +80,7 @@ const CharacterPartsSelect: React.FC = () => {
       frontHair: convertToContextPartInfo(selectedFrontHair),
       backHair: convertToContextPartInfo(selectedBackHair),
     }));
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- partsContext intentionally excluded from deps
   }, [faceIdx, frontIdx, backIdx, selectedFace, selectedFrontHair, selectedBackHair]);
 
   useEffect(() => {
