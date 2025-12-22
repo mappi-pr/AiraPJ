@@ -37,22 +37,45 @@ console.log(`Running: ${cmd}`);
 console.log('---');
 
 try {
+  // 必要な環境変数のみを渡す
+  const env = {
+    NODE_ENV: process.env.NODE_ENV,
+    DB_NAME: process.env.DB_NAME,
+    DB_USER: process.env.DB_USER,
+    DB_PASS: process.env.DB_PASS,
+    DB_HOST: process.env.DB_HOST,
+    DB_PORT: process.env.DB_PORT,
+    PATH: process.env.PATH,
+  };
+  
   execSync(cmd, {
     cwd: path.join(__dirname, '..'),
     stdio: 'inherit',
-    env: process.env,
+    env: env,
   });
   console.log('---');
   console.log('Migration completed successfully!');
 } catch (error) {
   console.error('---');
   console.error('Migration failed!');
+  if (error.message) {
+    console.error('Error:', error.message);
+  }
   console.error('');
   console.error('トラブルシューティング:');
-  console.error('1. データベースが起動しているか確認してください');
-  console.error('2. .env ファイルの設定が正しいか確認してください');
-  console.error('3. テーブルがすでに存在する場合、手動でカラムを確認してください');
   console.error('');
-  console.error('詳細は DEVELOPMENT.md の「データベースマイグレーション」セクションを参照してください');
+  console.error('1. データベースが起動しているか確認してください');
+  console.error('   docker compose -f docker-compose.dev.yml ps');
+  console.error('');
+  console.error('2. .env ファイルの設定が正しいか確認してください');
+  console.error('   DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME');
+  console.error('');
+  console.error('3. 「column already exists」エラーの場合:');
+  console.error('   → 新規データベースではマイグレーション不要です');
+  console.error('   → sequelize.sync() で作成されたテーブルは最新です');
+  console.error('   → 詳細は doc/DEVELOPMENT.md の「データベースマイグレーション管理」を参照');
+  console.error('');
+  console.error('4. 詳しいトラブルシューティング:');
+  console.error('   doc/DEVELOPMENT.md の「データベースマイグレーション管理」セクション');
   process.exit(1);
 }

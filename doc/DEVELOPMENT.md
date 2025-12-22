@@ -1086,6 +1086,11 @@ npm run migrate:status
 
 出力例：
 ```
+up   YYYYMMDD_migration_name_1.js
+up   YYYYMMDD_migration_name_2.js
+```
+または実際の例:
+```
 up   20250625_add_deleted_columns.js
 up   20251111_add_sort_order.js
 ```
@@ -1149,9 +1154,14 @@ docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
 > SELECT * FROM "SequelizeMeta";
 
 # 3. 既に適用済みのマイグレーションを手動で記録（必要な場合）
-> INSERT INTO "SequelizeMeta" (name) VALUES ('20250625_add_deleted_columns.js');
-> INSERT INTO "SequelizeMeta" (name) VALUES ('20251111_add_sort_order.js');
+# 注: マイグレーションファイル名は実際のファイル名に置き換えてください
+# api/migrations/ ディレクトリを確認: ls api/migrations/
+> INSERT INTO "SequelizeMeta" (name) VALUES ('YYYYMMDD_migration_name.js');
 > \q
+
+# 実際のマイグレーションファイル名を確認する例:
+# > INSERT INTO "SequelizeMeta" (name) VALUES ('20250625_add_deleted_columns.js');
+# > INSERT INTO "SequelizeMeta" (name) VALUES ('20251111_add_sort_order.js');
 
 # 4. 再度マイグレーション状態を確認
 npm run migrate:status
