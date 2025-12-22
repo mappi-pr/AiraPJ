@@ -18,9 +18,34 @@ const CharacterPartsSelect: React.FC = () => {
   const selectedFrontHair = frontHairs[frontIdx] || null;
   const selectedBackHair = backHairs[backIdx] || null;
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/face`).then(res => res.json()).then(data => setFaces(data));
-    fetch(`${API_BASE_URL}/api/front-hair`).then(res => res.json()).then(data => setFrontHairs(data));
-    fetch(`${API_BASE_URL}/api/back-hair`).then(res => res.json()).then(data => setBackHairs(data));
+    const loadParts = async () => {
+      try {
+        const faceRes = await fetch(`${API_BASE_URL}/api/face`);
+        if (!faceRes.ok) {
+          throw new Error(`Failed to fetch faces: ${faceRes.status} ${faceRes.statusText}`);
+        }
+        const faceData = await faceRes.json();
+        setFaces(faceData);
+
+        const frontHairRes = await fetch(`${API_BASE_URL}/api/front-hair`);
+        if (!frontHairRes.ok) {
+          throw new Error(`Failed to fetch front hairs: ${frontHairRes.status} ${frontHairRes.statusText}`);
+        }
+        const frontHairData = await frontHairRes.json();
+        setFrontHairs(frontHairData);
+
+        const backHairRes = await fetch(`${API_BASE_URL}/api/back-hair`);
+        if (!backHairRes.ok) {
+          throw new Error(`Failed to fetch back hairs: ${backHairRes.status} ${backHairRes.statusText}`);
+        }
+        const backHairData = await backHairRes.json();
+        setBackHairs(backHairData);
+      } catch (error) {
+        console.error('Failed to load character parts:', error);
+      }
+    };
+
+    void loadParts();
   }, []);
 
     useEffect(() => {
