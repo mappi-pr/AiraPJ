@@ -33,8 +33,8 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/back-hair/:id/order
-router.put('/:id/order', async (req, res) => {
+// PUT /api/back-hair/:id/order (管理者専用)
+router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
   try {
     const { direction } = req.body;
     const currentItem = await BackHair.findByPk(req.params.id);

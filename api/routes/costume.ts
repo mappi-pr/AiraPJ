@@ -33,8 +33,8 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/costume/:id/order
-router.put('/:id/order', async (req, res) => {
+// PUT /api/costume/:id/order (管理者専用)
+router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
   try {
     const { direction } = req.body;
     const currentItem = await Costume.findByPk(req.params.id);

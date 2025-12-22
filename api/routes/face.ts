@@ -35,8 +35,8 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/face/:id/order
-router.put('/:id/order', async (req, res) => {
+// PUT /api/face/:id/order (管理者専用)
+router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
   try {
     const { direction } = req.body; // 'up' or 'down'
     const currentItem = await Face.findByPk(req.params.id);
