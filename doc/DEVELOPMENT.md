@@ -110,6 +110,8 @@ docker compose -f docker-compose.dev.yml up
 docker compose -f docker-compose.dev.yml up -d
 ```
 
+**重要:** 初回起動時は `sequelize.sync()` によってテーブルが自動作成されます。マイグレーション実行は不要です。
+
 **4. アクセス確認**
 
 - **フロントエンド**: http://localhost:5173（Vite dev server、HMR 対応）
@@ -194,6 +196,8 @@ docker compose up
 - API サーバーのビルド
 - PostgreSQL のデータベース初期化
 - テーブルの自動作成（Sequelize sync）
+
+**注:** 既存のデータベースに新しいスキーマ変更を適用する場合は、マイグレーションを実行してください。詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」を参照。
 
 **4. アクセス確認**
 
@@ -407,12 +411,70 @@ DB_PORT=5432
 PORT=4000
 ```
 
-**5. データベースマイグレーション（必要に応じて）**
+**5. データベースマイグレーション**
+
+⚠️ **重要**: データベーススキーマの変更は以下の方法で管理されています。
+
+**初回セットアップ時（新規データベース）:**
+- API サーバー起動時に `sequelize.sync()` が自動実行されテーブルが作成されます
+- マイグレーションファイルは既に適用済みの状態と同等のスキーマを作成します
+- 初回は**マイグレーション実行不要**です
+
+**既存のデータベースに対してスキーマ変更を適用する場合:**
+
+既に稼働中のサーバーがあり、新しいマイグレーションファイルを適用する必要がある場合のみ実行してください。
 
 ```bash
 cd api
-npx sequelize-cli db:migrate
+
+# マイグレーションの状態を確認
+npm run migrate:status
+
+# 未適用のマイグレーションを実行
+npm run migrate
+
+# 直前のマイグレーションを取り消す（必要な場合のみ）
+npm run migrate:undo
 ```
+
+または、`sequelize-cli` を直接使用することもできます：
+
+```bash
+cd api
+npx sequelize-cli db:migrate:status  # 状態確認
+npx sequelize-cli db:migrate         # マイグレーション実行
+```
+
+**⚠️ 注意事項:**
+
+1. **新規データベースではマイグレーションを実行しない**
+   - `sequelize.sync()` で作成されたテーブルは既に最新のスキーマです
+   - マイグレーションを実行すると「カラムが既に存在する」エラーが発生します
+
+2. **既存データベースへの適用**
+   - 稼働中のサーバーで新しいカラムやテーブルを追加する際に使用します
+   - マイグレーション前に必ずバックアップを取得してください
+
+3. **マイグレーション履歴の管理**
+   - Sequelize は `SequelizeMeta` テーブルで適用済みマイグレーションを追跡します
+   - このテーブルが存在しない場合、全てのマイグレーションが未適用とみなされます
+
+**トラブルシューティング:**
+
+```bash
+# エラー: Column already exists
+# → 新規データベースでマイグレーションを実行した場合に発生
+# 解決策: マイグレーションを実行せず、sequelize.sync() に任せる
+
+# エラー: SequelizeMeta table not found
+# → 初回マイグレーション実行時に自動作成されます
+
+# エラー: Connection refused
+# → データベースが起動しているか確認
+docker compose -f docker-compose.dev.yml ps
+```
+
+詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」セクションを参照してください。
 
 **6. サーバーの起動**
 
@@ -949,6 +1011,258 @@ export default defineConfig({
 ```bash
 openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
   -keyout localhost-key.pem -out localhost-cert.pem
+```
+
+---
+
+## データベースマイグレーション管理
+
+このセクションでは、データベーススキーマの変更管理とマイグレーションの詳細について説明します。
+
+### 概要
+
+AiraPJ では以下の2つの方法でデータベーススキーマを管理しています：
+
+1. **Sequelize Sync** (`sequelize.sync()`)
+   - API サーバー起動時に自動実行
+   - モデル定義からテーブルを作成
+   - 開発環境や新規データベースで使用
+
+2. **Sequelize Migrations**
+   - 既存のデータベースにスキーマ変更を適用
+   - マイグレーションファイル（`api/migrations/`）で管理
+   - 本番環境のスキーマ更新で使用
+
+### マイグレーションファイルの構成
+
+```
+api/migrations/
+├── 20250625_add_deleted_columns.js  # 論理削除カラム追加
+└── 20251111_add_sort_order.js      # ソート順カラム追加
+```
+
+各マイグレーションファイルは以下の構造を持ちます：
+- `up()`: スキーマ変更を適用する処理
+- `down()`: スキーマ変更を取り消す処理（ロールバック用）
+
+### 新規データベースのセットアップ
+
+**Docker 環境（推奨）:**
+
+```bash
+# 開発モードで起動（データベースが自動的に初期化される）
+docker compose -f docker-compose.dev.yml up
+
+# マイグレーションは不要
+# sequelize.sync() が最新のスキーマでテーブルを作成します
+```
+
+**ローカル環境:**
+
+```bash
+# PostgreSQL を起動
+docker run -d --name airapj-postgres \
+  -e POSTGRES_DB=airapj -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
+  postgres:16-alpine
+
+# API サーバーを起動（初回起動時にテーブルが作成される）
+cd api
+npm run dev
+
+# マイグレーションは不要
+```
+
+### 既存データベースへのスキーマ変更適用
+
+稼働中のサーバーやデータが入っているデータベースにスキーマ変更を適用する場合：
+
+**1. マイグレーション状態の確認**
+
+```bash
+cd api
+npm run migrate:status
+```
+
+出力例：
+```
+up   20250625_add_deleted_columns.js
+up   20251111_add_sort_order.js
+```
+- `up`: 適用済み
+- `down`: 未適用
+
+**2. 未適用マイグレーションの実行**
+
+```bash
+cd api
+npm run migrate
+```
+
+これにより、未適用のマイグレーションファイルが順番に実行されます。
+
+**3. マイグレーションの取り消し（必要な場合のみ）**
+
+```bash
+cd api
+npm run migrate:undo
+```
+
+⚠️ 本番環境では慎重に実行してください。データ損失の可能性があります。
+
+### よくある問題と解決方法
+
+#### 問題1: "Column already exists" エラー
+
+**状況:**
+```bash
+cd api
+npx sequelize-cli db:migrate
+# ERROR: column "deleted" of relation "faces" already exists
+```
+
+**原因:**
+- 新規データベースで `sequelize.sync()` が既にテーブルを作成済み
+- その後にマイグレーションを実行しようとした
+
+**解決方法:**
+新規データベースではマイグレーション不要です。`sequelize.sync()` で作成されたテーブルは既に最新のスキーマです。
+
+#### 問題2: マイグレーションが1から実行されてしまう
+
+**状況:**
+- 既存データベースに新しいマイグレーションファイルが追加された
+- マイグレーション実行時に、既に適用済みのマイグレーションも実行しようとする
+
+**原因:**
+- `SequelizeMeta` テーブルが存在しない、または適切に更新されていない
+
+**解決方法:**
+
+```bash
+# 1. マイグレーション状態を確認
+cd api
+npm run migrate:status
+
+# 2. SequelizeMeta テーブルの確認
+docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
+> SELECT * FROM "SequelizeMeta";
+
+# 3. 既に適用済みのマイグレーションを手動で記録（必要な場合）
+> INSERT INTO "SequelizeMeta" (name) VALUES ('20250625_add_deleted_columns.js');
+> INSERT INTO "SequelizeMeta" (name) VALUES ('20251111_add_sort_order.js');
+> \q
+
+# 4. 再度マイグレーション状態を確認
+npm run migrate:status
+```
+
+#### 問題3: マイグレーションが失敗して中途半端な状態になった
+
+**解決方法:**
+
+```bash
+# 1. データベースの状態を確認
+docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
+> \d faces  # テーブル構造を確認
+> \q
+
+# 2. 必要に応じてロールバック
+cd api
+npm run migrate:undo
+
+# 3. 問題を修正してから再実行
+npm run migrate
+```
+
+### マイグレーションファイルの作成
+
+新しいスキーマ変更を追加する場合：
+
+```bash
+cd api
+npx sequelize-cli migration:generate --name add_new_column
+
+# 生成されたファイルを編集
+# api/migrations/YYYYMMDDHHMMSS-add_new_column.js
+```
+
+マイグレーションファイルの例：
+
+```javascript
+'use strict';
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.addColumn('faces', 'newColumn', {
+      type: Sequelize.STRING,
+      allowNull: true,
+    });
+  },
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.removeColumn('faces', 'newColumn');
+  }
+};
+```
+
+### Docker 環境でのマイグレーション実行
+
+**開発モード:**
+
+```bash
+# コンテナ内でマイグレーションを実行
+docker compose -f docker-compose.dev.yml exec api npm run migrate
+
+# または、コンテナ内でシェルを起動してから実行
+docker compose -f docker-compose.dev.yml exec api sh
+cd /app
+npm run migrate:status
+npm run migrate
+```
+
+**本番モード:**
+
+```bash
+docker compose exec api npm run migrate
+```
+
+### ベストプラクティス
+
+1. **マイグレーション前のバックアップ**
+   ```bash
+   # データベースバックアップ
+   docker compose exec db pg_dump -U postgres airapj > backup_$(date +%Y%m%d_%H%M%S).sql
+   ```
+
+2. **開発環境でのテスト**
+   本番環境に適用する前に、開発環境でマイグレーションをテストしてください。
+
+3. **ロールバック計画**
+   マイグレーション失敗時のロールバック手順を事前に確認してください。
+
+4. **マイグレーション履歴の管理**
+   `SequelizeMeta` テーブルを直接編集しないでください。マイグレーションツールに任せましょう。
+
+5. **モデル定義との整合性**
+   マイグレーション後は、モデル定義（`api/models/*.ts`）も更新して整合性を保ってください。
+
+### 参考コマンド一覧
+
+```bash
+# マイグレーション関連
+npm run migrate              # 未適用マイグレーションを実行
+npm run migrate:status       # マイグレーション状態を確認
+npm run migrate:undo         # 最後のマイグレーションを取り消す
+
+# sequelize-cli 直接実行
+npx sequelize-cli db:migrate
+npx sequelize-cli db:migrate:status
+npx sequelize-cli db:migrate:undo
+npx sequelize-cli migration:generate --name <name>
+
+# データベース接続
+docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
+docker compose exec db psql -U postgres -d airapj  # 本番モード
 ```
 
 ---
