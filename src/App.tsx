@@ -19,8 +19,13 @@ function App() {
     keydown?: () => void;
   }>({});
   
-  // BGM: Default to ON on first visit (auto-play background music)
-  const [bgmOn, setBgmOn] = useState(localStorage.getItem('bgmOn') !== '0');
+  // 初回訪問判定：localStorageにキーがない場合はモーダルを表示
+  const [showAudioModal, setShowAudioModal] = useState(localStorage.getItem('bgmOn') === null);
+  
+  // BGM: 初回はモーダルで決定するためnullで初期化、それ以外はlocalStorageから取得
+  const [bgmOn, setBgmOn] = useState(
+    localStorage.getItem('bgmOn') === null ? false : localStorage.getItem('bgmOn') !== '0'
+  );
   // SE: Default to OFF on first visit (opt-in for sound effects)
   const [seOn, setSeOn] = useState(localStorage.getItem('seOn') === '1');
 
@@ -100,10 +105,76 @@ function App() {
     localStorage.setItem('seOn', next ? '1' : '0');
   };
 
+  // モーダルでの音声設定
+  const handleAudioChoice = (enableAudio: boolean) => {
+    setBgmOn(enableAudio);
+    localStorage.setItem('bgmOn', enableAudio ? '1' : '0');
+    setShowAudioModal(false);
+  };
+
   return (
     <PartsProvider>
       <BrowserRouter>
         <audio ref={bgmRef} src={bgmpath} loop />
+        
+        {/* 音声設定モーダル */}
+        {showAudioModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
+          }}>
+            <div style={{
+              backgroundColor: '#1a1a1a',
+              padding: '2rem',
+              borderRadius: '12px',
+              maxWidth: '400px',
+              textAlign: 'center',
+              border: '1px solid #646cff'
+            }}>
+              <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>音声設定</h2>
+              <p style={{ marginBottom: '2rem', lineHeight: '1.6' }}>
+                このサイトでは、音声が流れるコンテンツが含まれます。<br />
+                音声をONにしますか？
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                <button 
+                  type="button" 
+                  onClick={() => handleAudioChoice(true)}
+                  style={{
+                    backgroundColor: '#646cff',
+                    color: 'white',
+                    padding: '0.75rem 1.5rem',
+                    fontSize: '1rem',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  ONにする
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => handleAudioChoice(false)}
+                  style={{
+                    backgroundColor: '#2a2a2a',
+                    color: 'rgba(255, 255, 255, 0.87)',
+                    padding: '0.75rem 1.5rem',
+                    fontSize: '1rem'
+                  }}
+                >
+                  OFFにする
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div id="sound-toggle" style={{ position: 'absolute', right: 16, top: 16, zIndex: 2, display: 'flex', gap: 8 }}>
           <button type="button" onClick={toggleBgm}>BGM: {bgmOn ? 'ON' : 'OFF'}</button>
           <button type="button" onClick={toggleSe}>SE: {seOn ? 'ON' : 'OFF'}</button>
