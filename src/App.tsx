@@ -11,6 +11,7 @@ import Settings from './pages/Settings';
 import Terms from './pages/Terms';
 import { PartsProvider } from './context/PartsContext';
 import { LocaleProvider } from './context/LocaleContext';
+import texts from './locales/ja.json';
 
 // BGM file path - place your MP3 file in src/assets/sound/bgm/main.mp3
 // Empty string disables BGM until file is added
