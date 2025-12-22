@@ -11,6 +11,7 @@ import History from './pages/History';
 import Settings from './pages/Settings';
 import Terms from './pages/Terms';
 import { PartsProvider } from './context/PartsContext';
+import texts from './locales/ja.json';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);
@@ -145,10 +146,10 @@ function App() {
               textAlign: 'center',
               border: '1px solid #646cff'
             }}>
-              <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>音声設定</h2>
+              <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>{texts.audioModal.title}</h2>
               <p style={{ marginBottom: '2rem', lineHeight: '1.6' }}>
-                このサイトでは、音声が流れるコンテンツが含まれます。<br />
-                音声（BGM・SE）をONにしますか？
+                {texts.audioModal.message}<br />
+                {texts.audioModal.question}
               </p>
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                 <button 
@@ -162,7 +163,7 @@ function App() {
                     fontWeight: 'bold'
                   }}
                 >
-                  ONにする
+                  {texts.audioModal.enableButton}
                 </button>
                 <button 
                   type="button" 
@@ -174,7 +175,7 @@ function App() {
                     fontSize: '1rem'
                   }}
                 >
-                  OFFにする
+                  {texts.audioModal.disableButton}
                 </button>
               </div>
             </div>
