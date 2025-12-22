@@ -131,101 +131,40 @@ docker compose -f docker-compose.dev.yml up -d
 docker compose -f docker-compose.dev.yml down
 ```
 
----
+#### コード変更後のリビルド・再デプロイ（開発モード）
 
-### Docker を使用した本番環境構築
+開発モードでは、ソースコードがボリュームマウントされているため、通常は**リビルド不要**です。コードを変更すると自動的に反映されます。
 
-本番環境やデプロイテストには **nginx** + ビルド済みファイルを使用します。
+ただし、以下の場合はコンテナの再起動またはリビルドが必要です：
 
-**本番モードを使用するケース:**
-- 本番環境へのデプロイ前の動作確認
-- nginx の設定テスト
-- ビルド後のパフォーマンス確認
-- CI/CD パイプラインでの統合テスト
-
-**開発モード（docker-compose.dev.yml）との違い:**
-
-| 項目 | 開発モード | 本番モード |
-|------|----------|----------|
-| フロントエンド | Vite dev server | nginx + ビルド済み |
-| ポート | 5173 | 80 |
-| HMR | ✅ 対応 | ❌ 非対応 |
-| ビルド時間 | なし（即起動） | あり（数分） |
-| パフォーマンス | 開発最適化 | 本番最適化 |
-| 用途 | 日常の開発作業 | デプロイテスト |
-
-#### セットアップ手順
-
-**1. リポジトリのクローン**
+**依存関係（package.json）を変更した場合:**
 
 ```bash
-git clone https://github.com/mappi-pr/AiraPJ.git
-cd AiraPJ
+# API の依存関係を変更した場合
+docker compose -f docker-compose.dev.yml restart api
+
+# フロントエンドの依存関係を変更した場合
+docker compose -f docker-compose.dev.yml restart frontend
 ```
 
-**2. 環境変数の設定**
+**Dockerfileや環境変数を変更した場合:**
 
 ```bash
-cp .env.example .env
+# 変更を反映してコンテナを再起動
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
-`.env` ファイルを編集して、必要に応じて値を変更します：
-
-```env
-# PostgreSQL設定
-DB_NAME=airapj
-DB_USER=postgres
-DB_PASS=postgres  # 本番環境では必ず強力なパスワードに変更
-DB_PORT=5432
-
-# フロントエンドポート
-FRONTEND_PORT=80
-```
-
-**3. コンテナの起動**
+**Git で別のブランチやコミットに切り替えた場合:**
 
 ```bash
-# バックグラウンドで起動
-docker compose up -d
+# ブランチ切り替え
+git checkout feature-branch
 
-# ログを表示しながら起動（初回推奨）
-docker compose up
-```
+# 依存関係が変更されている可能性があるため、コンテナを再起動
+docker compose -f docker-compose.dev.yml restart
 
-初回起動時は以下の処理が実行されます：
-- フロントエンドのビルド（数分かかる場合があります）
-- API サーバーのビルド
-- PostgreSQL のデータベース初期化
-- テーブルの自動作成（Sequelize sync）
-
-**注:** 既存のデータベースに新しいスキーマ変更を適用する場合は、マイグレーションを実行してください。詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」を参照。
-
-**4. アクセス確認**
-
-- **フロントエンド**: http://localhost
-- **API ヘルスチェック**: http://localhost/api/health
-- **データベース**: localhost:5432（ホストマシンから直接アクセス可能）
-
-**5. ログの確認**
-
-```bash
-# すべてのサービスのログ
-docker compose logs -f
-
-# 特定のサービスのみ
-docker compose logs -f api
-docker compose logs -f frontend
-docker compose logs -f db
-```
-
-**6. コンテナの停止**
-
-```bash
-# コンテナを停止（データは保持）
-docker compose down
-
-# コンテナとボリューム（データベースデータ含む）を削除
-docker compose down -v
+# Dockerfile や docker-compose の設定が変更されている場合はリビルド
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
 #### 開発時のワークフロー（開発モード）
@@ -261,15 +200,92 @@ docker compose -f docker-compose.dev.yml up -d
 **コンテナ内でのコマンド実行:**
 
 ```bash
-# API コンテナ内でシェルを実行（開発モード）
+# API コンテナ内でシェルを実行
 docker compose -f docker-compose.dev.yml exec api sh
 
-# データベースに接続（開発モード）
+# データベースに接続
 docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
 
-# npm コマンドの実行例（開発モード）
+# npm コマンドの実行例
 docker compose -f docker-compose.dev.yml exec api npm install axios
 ```
+
+---
+
+### 本番モードでの動作確認（Docker）
+
+本番環境やデプロイテストには **nginx** + ビルド済みファイルを使用します。
+
+**本番モードを使用するケース:**
+- 本番環境へのデプロイ前の動作確認
+- nginx の設定テスト
+- ビルド後のパフォーマンス確認
+
+**開発モードとの主な違い:**
+
+| 項目 | 開発モード | 本番モード |
+|------|----------|----------|
+| フロントエンド | Vite dev server | nginx + ビルド済み |
+| ポート | 5173 | 80 |
+| HMR | ✅ 対応 | ❌ 非対応 |
+| ビルド時間 | なし（即起動） | あり（数分） |
+| 用途 | 日常の開発作業 | デプロイテスト |
+
+#### 起動手順
+
+```bash
+# 環境変数の設定（未設定の場合）
+cp .env.example .env
+
+# コンテナの起動
+docker compose up -d
+
+# ログを表示しながら起動（初回推奨）
+docker compose up
+```
+
+初回起動時は、フロントエンドのビルド・APIサーバーのビルド・データベースの初期化が実行されます。
+
+#### アクセス確認
+
+- **フロントエンド**: http://localhost
+- **API**: http://localhost/api/health
+
+#### コード変更後のリビルド・再デプロイ（本番モード）
+
+本番モードでは、ソースコードはDockerイメージに含まれるため、コード変更後は**必ずリビルドが必要**です。
+
+**通常のコード変更の場合:**
+
+```bash
+# コンテナを停止
+docker compose down
+
+# イメージを再ビルドして起動
+docker compose up -d --build
+```
+
+**Git でブランチやコミットを切り替えた場合:**
+
+```bash
+# ブランチ切り替え
+git checkout main
+
+# 既存のコンテナを停止
+docker compose down
+
+# イメージを再ビルドして起動
+docker compose up -d --build
+```
+
+**環境変数のみ変更した場合:**
+
+```bash
+# .env ファイルを編集後、コンテナを再作成
+docker compose up -d --force-recreate
+```
+
+**注意**: 本番モードでは、すべてのコード変更がDockerイメージに反映されるまで数分かかります。頻繁にコードを変更する場合は、開発モード（`docker-compose.dev.yml`）の使用を推奨します。
 
 ---
 
@@ -296,33 +312,16 @@ docker compose -f docker-compose.dev.yml exec api npm install axios
 Docker の名前付きボリュームを使用してデータを永続化しています：
 
 **開発モード:**
-- `postgres_data_dev`: PostgreSQL のデータ永続化
-- `uploads_data_dev`: アップロードされた画像ファイルの永続化
+- `postgres_data_dev`: PostgreSQL のデータ
+- `uploads_data_dev`: アップロードされた画像ファイル
 
 **本番モード:**
-- `postgres_data`: PostgreSQL のデータ永続化
-  - データベースのテーブル、レコード、インデックスなどすべてのデータ
-  - コンテナを削除（`docker compose down`）してもデータは保持されます
-  
-- `uploads_data`: アップロードされた画像ファイルの永続化
-  - ユーザーがアップロードした顔・髪・衣装・背景などの画像ファイル
-  - コンテナを削除してもファイルは保持されます
+- `postgres_data`: PostgreSQL のデータ
+- `uploads_data`: アップロードされた画像ファイル
 
-**重要**: コンテナとボリュームの削除について
+**重要**: `docker compose down` ではボリュームは削除されません。データを完全に削除する場合は `docker compose down -v` を実行してください。
 
-```bash
-# コンテナのみ停止・削除（データは保持される）
-docker compose down
-# → postgres_data と uploads_data ボリュームは残る
-# → 次回起動時に既存のデータベースとファイルがそのまま使用される
-
-# コンテナとボリュームを完全に削除（データも削除される）
-docker compose down -v
-# → すべてのデータが削除される（データベース、アップロードファイルなど）
-# → 次回起動時にクリーンな状態から開始される
-```
-
-**ボリュームの確認**
+**ボリュームの確認:**
 
 ```bash
 # ボリュームの一覧表示
@@ -330,7 +329,6 @@ docker volume ls | grep airapj
 
 # ボリュームの詳細情報
 docker volume inspect airapj_postgres_data
-docker volume inspect airapj_uploads_data
 
 # ボリュームのサイズ確認
 docker system df -v
@@ -412,18 +410,13 @@ DB_PORT=5432
 PORT=4000
 ```
 
-**5. データベースマイグレーション**
+### データベースマイグレーション管理
 
-⚠️ **重要**: データベーススキーマの変更は以下の方法で管理されています。
+**⚠️ 重要**: 新規データベースではマイグレーション不要です。`sequelize.sync()` で最新のスキーマが自動作成されます。
 
-**初回セットアップ時（新規データベース）:**
-- API サーバー起動時に `sequelize.sync()` が自動実行されテーブルが作成されます
-- マイグレーションファイルは既に適用済みの状態と同等のスキーマを作成します
-- 初回は**マイグレーション実行不要**です
+#### 既存データベースへのスキーマ変更適用
 
-**既存のデータベースに対してスキーマ変更を適用する場合:**
-
-既に稼働中のサーバーがあり、新しいマイグレーションファイルを適用する必要がある場合のみ実行してください。
+稼働中のサーバーで新しいカラムやテーブルを追加する場合のみ、マイグレーションを実行します。
 
 ```bash
 cd api
@@ -438,47 +431,14 @@ npm run migrate
 npm run migrate:undo
 ```
 
-または、`sequelize-cli` を直接使用することもできます：
+#### Docker 環境でのマイグレーション実行
 
 ```bash
-cd api
-npx sequelize-cli db:migrate:status  # 状態確認
-npx sequelize-cli db:migrate         # マイグレーション実行
-```
+# 開発モード
+docker compose -f docker-compose.dev.yml exec api npm run migrate
 
-**⚠️ 注意事項:**
-
-1. **新規データベースではマイグレーションを実行しない**
-   - `sequelize.sync()` で作成されたテーブルは既に最新のスキーマです
-   - マイグレーションを実行すると「カラムが既に存在する」エラーが発生します
-
-2. **既存データベースへの適用**
-   - 稼働中のサーバーで新しいカラムやテーブルを追加する際に使用します
-   - マイグレーション前に必ずバックアップを取得してください
-
-3. **マイグレーション履歴の管理**
-   - Sequelize は `SequelizeMeta` テーブルで適用済みマイグレーションを追跡します
-   - このテーブルが存在しない場合、全てのマイグレーションが未適用とみなされます
-
-**トラブルシューティング:**
-
-```bash
-# エラー: Cannot find module 'dotenv'
-# → npm run migrate を api/ ディレクトリ以外から実行した場合に発生
-# 解決策: 必ず api/ ディレクトリから実行してください
-cd /path/to/AiraPJ/api
-npm run migrate
-
-# エラー: Column already exists
-# → 新規データベースでマイグレーションを実行した場合に発生
-# 解決策: マイグレーションを実行せず、sequelize.sync() に任せる
-
-# エラー: SequelizeMeta table not found
-# → 初回マイグレーション実行時に自動作成されます
-
-# エラー: Connection refused
-# → データベースが起動しているか確認
-docker compose -f docker-compose.dev.yml ps
+# 本番モード
+docker compose exec api npm run migrate
 ```
 
 詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」セクションを参照してください。
@@ -1031,16 +991,12 @@ openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
 
 ## データベースマイグレーション管理
 
-このセクションでは、データベーススキーマの変更管理とマイグレーションの詳細について説明します。
-
-### 概要
-
 AiraPJ では以下の2つの方法でデータベーススキーマを管理しています：
 
 1. **Sequelize Sync** (`sequelize.sync()`)
-   - API サーバー起動時に自動実行
-   - モデル定義からテーブルを作成
+   - API サーバー起動時に自動実行され、モデル定義からテーブルを作成
    - 開発環境や新規データベースで使用
+   - **新規データベースではマイグレーション不要**
 
 2. **Sequelize Migrations**
    - 既存のデータベースにスキーマ変更を適用
@@ -1061,14 +1017,16 @@ api/migrations/
 
 ### 新規データベースのセットアップ
 
-**Docker 環境（推奨）:**
+**Docker 環境:**
 
 ```bash
-# 開発モードで起動（データベースが自動的に初期化される）
+# 開発モード
 docker compose -f docker-compose.dev.yml up
 
-# マイグレーションは不要
-# sequelize.sync() が最新のスキーマでテーブルを作成します
+# 本番モード
+docker compose up
+
+# マイグレーションは不要（sequelize.sync() が最新スキーマでテーブルを作成）
 ```
 
 **ローカル環境:**
@@ -1080,11 +1038,9 @@ docker run -d --name airapj-postgres \
   -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
   postgres:16-alpine
 
-# API サーバーを起動（初回起動時にテーブルが作成される）
+# API サーバーを起動（テーブルが自動作成される）
 cd api
 npm run dev
-
-# マイグレーションは不要
 ```
 
 ### 既存データベースへのスキーマ変更適用
@@ -1098,15 +1054,7 @@ cd api
 npm run migrate:status
 ```
 
-出力例：
-```
-up   20250625_add_deleted_columns.js
-up   20251111_add_sort_order.js
-```
-- `up`: 適用済み
-- `down`: 未適用
-
-**注:** 実際のマイグレーションファイル名は `api/migrations/` ディレクトリを確認してください。
+出力例：`up` は適用済み、`down` は未適用を示します。
 
 **2. 未適用マイグレーションの実行**
 
@@ -1114,8 +1062,6 @@ up   20251111_add_sort_order.js
 cd api
 npm run migrate
 ```
-
-これにより、未適用のマイグレーションファイルが順番に実行されます。
 
 **3. マイグレーションの取り消し（必要な場合のみ）**
 
@@ -1126,70 +1072,57 @@ npm run migrate:undo
 
 ⚠️ 本番環境では慎重に実行してください。データ損失の可能性があります。
 
+### Docker 環境でのマイグレーション実行
+
+```bash
+# 開発モード
+docker compose -f docker-compose.dev.yml exec api npm run migrate:status
+docker compose -f docker-compose.dev.yml exec api npm run migrate
+
+# 本番モード
+docker compose exec api npm run migrate:status
+docker compose exec api npm run migrate
+```
+
 ### よくある問題と解決方法
 
 #### 問題1: "Column already exists" エラー
 
-**状況:**
-```bash
-cd api
-npx sequelize-cli db:migrate
-# ERROR: column "deleted" of relation "faces" already exists
-```
+**原因**: 新規データベースで `sequelize.sync()` が既にテーブルを作成済み
 
-**原因:**
-- 新規データベースで `sequelize.sync()` が既にテーブルを作成済み
-- その後にマイグレーションを実行しようとした
+**解決方法**: 新規データベースではマイグレーション不要です。
 
-**解決方法:**
-新規データベースではマイグレーション不要です。`sequelize.sync()` で作成されたテーブルは既に最新のスキーマです。
+#### 問題2: マイグレーションが既に適用済みのものも実行しようとする
 
-#### 問題2: マイグレーションが1から実行されてしまう
+**原因**: `SequelizeMeta` テーブルが存在しない、または適切に更新されていない
 
-**状況:**
-- 既存データベースに新しいマイグレーションファイルが追加された
-- マイグレーション実行時に、既に適用済みのマイグレーションも実行しようとする
-
-**原因:**
-- `SequelizeMeta` テーブルが存在しない、または適切に更新されていない
-
-**解決方法:**
+**解決方法**:
 
 ```bash
-# 1. マイグレーション状態を確認
+# マイグレーション状態を確認
 cd api
 npm run migrate:status
 
-# 2. SequelizeMeta テーブルの確認
-docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
-> SELECT * FROM "SequelizeMeta";
+# データベースで SequelizeMeta テーブルを確認
+docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj -c "SELECT * FROM \"SequelizeMeta\";"
 
-# 3. 既に適用済みのマイグレーションを手動で記録（必要な場合）
-# 重要: 以下は例です。実際のマイグレーションファイル名を確認してください
-# ファイル名を確認: ls api/migrations/
-> INSERT INTO "SequelizeMeta" (name) VALUES ('20250625_add_deleted_columns.js');
-> INSERT INTO "SequelizeMeta" (name) VALUES ('20251111_add_sort_order.js');
-> \q
-
-# 4. 再度マイグレーション状態を確認
-npm run migrate:status
+# 既に適用済みのマイグレーションを手動で記録（必要な場合のみ）
+# 注意: 実際のマイグレーションファイル名を確認してください（ls api/migrations/）
 ```
 
-#### 問題3: マイグレーションが失敗して中途半端な状態になった
+#### 問題3: マイグレーションが失敗して中途半端な状態
 
-**解決方法:**
+**解決方法**:
 
 ```bash
-# 1. データベースの状態を確認
-docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
-> \d faces  # テーブル構造を確認
-> \q
+# データベースの状態を確認
+docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj -c "\d faces"
 
-# 2. 必要に応じてロールバック
+# 必要に応じてロールバック
 cd api
 npm run migrate:undo
 
-# 3. 問題を修正してから再実行
+# 問題を修正してから再実行
 npm run migrate
 ```
 
@@ -1223,46 +1156,18 @@ module.exports = {
 };
 ```
 
-### Docker 環境でのマイグレーション実行
-
-**開発モード:**
-
-```bash
-# コンテナ内でマイグレーションを実行
-docker compose -f docker-compose.dev.yml exec api npm run migrate
-
-# または、コンテナ内でシェルを起動してから実行
-docker compose -f docker-compose.dev.yml exec api sh
-cd /app
-npm run migrate:status
-npm run migrate
-```
-
-**本番モード:**
-
-```bash
-docker compose exec api npm run migrate
-```
-
 ### ベストプラクティス
 
 1. **マイグレーション前のバックアップ**
    ```bash
-   # データベースバックアップ
    docker compose exec db pg_dump -U postgres airapj > backup_$(date +%Y%m%d_%H%M%S).sql
    ```
 
-2. **開発環境でのテスト**
-   本番環境に適用する前に、開発環境でマイグレーションをテストしてください。
+2. **開発環境でのテスト**: 本番環境に適用する前に、開発環境でマイグレーションをテストしてください。
 
-3. **ロールバック計画**
-   マイグレーション失敗時のロールバック手順を事前に確認してください。
+3. **ロールバック計画**: マイグレーション失敗時のロールバック手順を事前に確認してください。
 
-4. **マイグレーション履歴の管理**
-   `SequelizeMeta` テーブルを直接編集しないでください。マイグレーションツールに任せましょう。
-
-5. **モデル定義との整合性**
-   マイグレーション後は、モデル定義（`api/models/*.ts`）も更新して整合性を保ってください。
+4. **モデル定義との整合性**: マイグレーション後は、モデル定義（`api/models/*.ts`）も更新してください。
 
 ### 参考コマンド一覧
 
@@ -1272,16 +1177,13 @@ npm run migrate              # 未適用マイグレーションを実行
 npm run migrate:status       # マイグレーション状態を確認
 npm run migrate:undo         # 最後のマイグレーションを取り消す
 
-# sequelize-cli 直接実行
-npx sequelize-cli db:migrate
-npx sequelize-cli db:migrate:status
-npx sequelize-cli db:migrate:undo
-npx sequelize-cli migration:generate --name <name>
-
 # データベース接続
-docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
+docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj  # 開発モード
 docker compose exec db psql -U postgres -d airapj  # 本番モード
 ```
+
+---
+
 ## 関連ドキュメント
 
 AiraPJの機能別ドキュメント：
