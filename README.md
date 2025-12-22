@@ -82,6 +82,8 @@ npm run dev
 - **[ボイス実装ガイド](doc/VOICE_IMPLEMENTATION.md)** - キャラクター選択画面などでのボイス機能の実装方法
 - **[CSS アーキテクチャ](doc/CSS.md)** - スタイル管理とデザインガイドライン
 - **[多言語対応](doc/MULTILINGUAL.md)** - 国際化対応の実装方法
+- **[Google OAuth セットアップ](doc/GOOGLE_AUTH_SETUP.md)** - Google認証と管理者権限の設定方法
+- **[セキュリティサマリー](doc/SECURITY_SUMMARY.md)** - セキュリティ分析とCodeQL検査結果
 
 ---
 
