@@ -403,6 +403,78 @@ const Photo: React.FC = () => {
             閉じる
           </button>
         </div>
+        {/* ステッカーレイヤー（最前面） */}
+        {selectedParts.stickers.map((stickerInstance, index) => (
+          <div
+            key={index}
+            style={{
+              position: 'absolute',
+              left: stickerInstance.x,
+              top: stickerInstance.y,
+              zIndex: 100 + index,
+              cursor: draggingSticker === index ? 'grabbing' : 'grab',
+              touchAction: 'none',
+              transform: `scale(${stickerInstance.scale})`,
+              transformOrigin: 'center center',
+            }}
+            onMouseDown={(e) => handleStickerDragStart(e, index)}
+            onTouchStart={(e) => handleStickerDragStart(e, index)}
+          >
+            <img
+              src={API_BASE_URL + stickerInstance.sticker.assetPath}
+              alt={stickerInstance.sticker.name}
+              style={{ width: 100, height: 100, objectFit: 'contain', pointerEvents: 'none' }}
+            />
+          </div>
+        ))}
+      </div>
+      <button onClick={handleDownload}>PNGで保存</button>
+      <button onClick={() => setDragPos({ x: 0, y: 0 })}>位置リセット</button>
+      <button onClick={() => setShowStickerPanel(!showStickerPanel)}>
+        ステッカー追加
+      </button>
+      
+      {/* ステッカー選択パネル */}
+      {showStickerPanel && (
+        <div style={{ 
+          margin: '16px 0', 
+          padding: '16px', 
+          border: '1px solid #ccc', 
+          borderRadius: '8px',
+          background: '#f9f9f9' 
+        }}>
+          <h3>ステッカーを選択</h3>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {availableStickers.length > 0 ? (
+              availableStickers.map(sticker => (
+                <div
+                  key={sticker.id}
+                  onClick={() => handleAddSticker(sticker)}
+                  style={{
+                    cursor: 'pointer',
+                    border: '2px solid #ddd',
+                    borderRadius: '4px',
+                    padding: '8px',
+                    textAlign: 'center',
+                    background: 'white',
+                  }}
+                >
+                  <img
+                    src={API_BASE_URL + sticker.assetPath}
+                    alt={sticker.name}
+                    style={{ width: 60, height: 60, objectFit: 'contain' }}
+                  />
+                  <div style={{ fontSize: '12px', marginTop: '4px' }}>{sticker.name}</div>
+                </div>
+              ))
+            ) : (
+              <div>ステッカーが登録されていません</div>
+            )}
+          </div>
+          <button onClick={() => setShowStickerPanel(false)} style={{ marginTop: '8px' }}>
+            閉じる
+          </button>
+        </div>
       )}
       
       {/* ステッカー管理パネル */}
