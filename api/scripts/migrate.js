@@ -39,6 +39,7 @@ console.log('---');
 try {
   // 必要な環境変数のみを渡す（undefinedを除外）
   const env = {};
+  // PATH はnpmコマンド実行に必要
   const requiredEnvVars = ['NODE_ENV', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_HOST', 'DB_PORT', 'PATH'];
   
   requiredEnvVars.forEach(key => {

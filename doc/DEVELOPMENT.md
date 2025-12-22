@@ -1086,16 +1086,13 @@ npm run migrate:status
 
 出力例：
 ```
-up   YYYYMMDD_description_1.js
-up   YYYYMMDD_description_2.js
-```
-実際の例:
-```
 up   20250625_add_deleted_columns.js
 up   20251111_add_sort_order.js
 ```
 - `up`: 適用済み
 - `down`: 未適用
+
+**注:** 実際のマイグレーションファイル名は `api/migrations/` ディレクトリを確認してください。
 
 **2. 未適用マイグレーションの実行**
 
@@ -1154,15 +1151,11 @@ docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
 > SELECT * FROM "SequelizeMeta";
 
 # 3. 既に適用済みのマイグレーションを手動で記録（必要な場合）
-# 注: マイグレーションファイル名は実際のファイル名に置き換えてください
-# 実際のファイル名を確認: ls api/migrations/
-# フォーマット: YYYYMMDD_description.js
-> INSERT INTO "SequelizeMeta" (name) VALUES ('YYYYMMDD_description.js');
+# 注: 実際のマイグレーションファイル名を使用してください
+# ファイル名を確認: ls api/migrations/
+> INSERT INTO "SequelizeMeta" (name) VALUES ('20250625_add_deleted_columns.js');
+> INSERT INTO "SequelizeMeta" (name) VALUES ('20251111_add_sort_order.js');
 > \q
-
-# 実際のマイグレーションファイルを記録する例:
-# > INSERT INTO "SequelizeMeta" (name) VALUES ('20250625_add_deleted_columns.js');
-# > INSERT INTO "SequelizeMeta" (name) VALUES ('20251111_add_sort_order.js');
 
 # 4. 再度マイグレーション状態を確認
 npm run migrate:status
