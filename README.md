@@ -1,4 +1,4 @@
-# AiraSPA - 着せ替えゲームSPA
+# AiraPJ - 着せ替えゲームエンジン
 
 このプロジェクトはReact + Vite + TypeScriptによるSPA（シングルページアプリケーション）です。
 Express APIサーバーと連携し、キャラクター・背景・衣装の着せ替えやBGM/SEの継続再生、リッチな画面遷移演出を実現します。
