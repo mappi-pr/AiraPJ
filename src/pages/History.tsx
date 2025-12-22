@@ -56,7 +56,8 @@ const History: React.FC = () => {
           })
         );
         
-        setHistories(historiesWithAvailability);
+        // Filter to only show available histories
+        setHistories(historiesWithAvailability.filter(h => h.isAvailable !== false));
       } catch (error) {
         console.error('Failed to fetch generation history:', error);
       } finally {
@@ -67,27 +68,8 @@ const History: React.FC = () => {
     fetchHistories();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    if (!confirm(texts.history.deleteConfirm)) return;
-
-    try {
-      const userId = getUserId();
-      await axios.delete(`/api/generation-history/${id}?userId=${userId}`);
-      setHistories(histories.filter(h => h.id !== id));
-    } catch (error) {
-      console.error('Failed to delete generation history:', error);
-      alert(texts.history.deleteFail);
-    }
-  };
-
   const handleView = async (history: GenerationHistoryItem) => {
     if (!partsContext) return;
-    
-    // Don't allow viewing if parts are not available
-    if (!history.isAvailable) {
-      alert(texts.history.viewFail);
-      return;
-    }
 
     // Load all parts data to view
     try {
@@ -153,24 +135,13 @@ const History: React.FC = () => {
                 <div>{texts.history.faceId}: {history.faceId || texts.history.notSelected}</div>
                 <div>{texts.history.frontHairId}: {history.frontHairId || texts.history.notSelected}</div>
                 <div>{texts.history.scale}: {history.scale}{texts.history.scaleUnit}</div>
-                {!history.isAvailable && (
-                  <div style={{ color: 'red', fontWeight: 'bold', marginTop: '4px' }}>
-                    {texts.history.unavailable}
-                  </div>
-                )}
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button 
-                  onClick={() => handleView(history)} 
-                  style={{ flex: 1, fontSize: '12px' }}
-                  disabled={!history.isAvailable}
-                >
-                  {texts.history.view}
-                </button>
-                <button onClick={() => handleDelete(history.id)} style={{ flex: 1, fontSize: '12px' }}>
-                  {texts.history.delete}
-                </button>
-              </div>
+              <button 
+                onClick={() => handleView(history)} 
+                style={{ width: '100%', fontSize: '12px' }}
+              >
+                {texts.history.view}
+              </button>
             </div>
           ))}
         </div>
