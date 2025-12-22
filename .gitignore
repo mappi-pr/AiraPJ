@@ -31,6 +31,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+!api/.env.example
 
 # 画像アセット（空ディレクトリ維持用に.gitkeepを推奨）
 src/assets/img/chr/*
@@ -41,9 +42,27 @@ src/assets/img/csm/*
 !src/assets/img/csm/.gitkeep
 
 #　音声アセット
+# Ignore all files in sound directory except .gitkeep files
 src/assets/sound/*
+!src/assets/sound/README.md
+!src/assets/sound/bgm/
+!src/assets/sound/se/
+!src/assets/sound/voice/
+src/assets/sound/bgm/*
+src/assets/sound/se/*
+src/assets/sound/voice/*
 !src/assets/sound/bgm/.gitkeep
 !src/assets/sound/se/.gitkeep
+!src/assets/sound/voice/.gitkeep
+!src/assets/sound/voice/character/
+src/assets/sound/voice/character/*
+!src/assets/sound/voice/character/.gitkeep
+!src/assets/sound/voice/character/select/
+!src/assets/sound/voice/character/confirm/
+src/assets/sound/voice/character/select/*
+src/assets/sound/voice/character/confirm/*
+!src/assets/sound/voice/character/select/.gitkeep
+!src/assets/sound/voice/character/confirm/.gitkeep
 
 # Ignore runtime uploaded files and their distribution copies
 uploads/
