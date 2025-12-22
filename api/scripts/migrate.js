@@ -14,8 +14,8 @@
 const { execSync } = require('child_process');
 const path = require('path');
 
-// 環境変数を読み込む
-require('dotenv').config();
+// 環境変数は sequelize-cli が config/config.js を読み込む際に dotenv を通じて読み込まれます
+// ここで明示的に読み込む必要はありません
 
 const command = process.argv[2] || 'migrate';
 
@@ -66,18 +66,22 @@ try {
   console.error('');
   console.error('トラブルシューティング:');
   console.error('');
-  console.error('1. データベースが起動しているか確認してください');
+  console.error('1. このスクリプトは api/ ディレクトリから実行してください');
+  console.error('   cd /path/to/AiraPJ/api');
+  console.error('   npm run migrate');
+  console.error('');
+  console.error('2. データベースが起動しているか確認してください');
   console.error('   docker compose -f docker-compose.dev.yml ps');
   console.error('');
-  console.error('2. .env ファイルの設定が正しいか確認してください');
+  console.error('3. .env ファイルの設定が正しいか確認してください');
   console.error('   DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME');
   console.error('');
-  console.error('3. 「column already exists」エラーの場合:');
+  console.error('4. 「column already exists」エラーの場合:');
   console.error('   → 新規データベースではマイグレーション不要です');
   console.error('   → sequelize.sync() で作成されたテーブルは最新です');
   console.error('   → 詳細は doc/DEVELOPMENT.md の「データベースマイグレーション管理」を参照');
   console.error('');
-  console.error('4. 詳しいトラブルシューティング:');
+  console.error('5. 詳しいトラブルシューティング:');
   console.error('   doc/DEVELOPMENT.md の「データベースマイグレーション管理」セクション');
   process.exit(1);
 }

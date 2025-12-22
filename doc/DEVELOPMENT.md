@@ -463,6 +463,12 @@ npx sequelize-cli db:migrate         # マイグレーション実行
 **トラブルシューティング:**
 
 ```bash
+# エラー: Cannot find module 'dotenv'
+# → npm run migrate を api/ ディレクトリ以外から実行した場合に発生
+# 解決策: 必ず api/ ディレクトリから実行してください
+cd /path/to/AiraPJ/api
+npm run migrate
+
 # エラー: Column already exists
 # → 新規データベースでマイグレーションを実行した場合に発生
 # 解決策: マイグレーションを実行せず、sequelize.sync() に任せる
