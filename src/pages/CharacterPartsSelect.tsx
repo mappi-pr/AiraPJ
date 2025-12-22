@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import texts from '../locales/ja.json';
 import CharacterPartsPanel from '../components/CharacterPartsPanel';
 import type { PartInfo as PanelPartInfo } from '../components/CharacterPartsPanel';
@@ -11,6 +12,7 @@ const getPartUrl = (part: PanelPartInfo | null): string | null => {
 };
 
 const CharacterPartsSelect: React.FC = () => {
+  const navigate = useNavigate();
   const [faces, setFaces] = useState<PanelPartInfo[]>([]);
   const [frontHairs, setFrontHairs] = useState<PanelPartInfo[]>([]);
   const [backHairs, setBackHairs] = useState<PanelPartInfo[]>([]);
@@ -74,15 +76,20 @@ const CharacterPartsSelect: React.FC = () => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
       Promise.all(images.map(url => {
-        return new Promise<HTMLImageElement>((resolve) => {
+        return new Promise<HTMLImageElement | null>((resolve) => {
           const img = new window.Image();
           img.crossOrigin = 'anonymous';
           img.onload = () => resolve(img);
-          img.onerror = () => resolve(img);
+          img.onerror = () => resolve(null);
           img.src = url.startsWith('http') ? url : (API_BASE_URL + url);
         });
       })).then(imgs => {
-        imgs.forEach(img => {
+        const validImgs = imgs.filter((img): img is HTMLImageElement => img !== null);
+        if (validImgs.length === 0) {
+          setTrimmedPreviewUrl('');
+          return;
+        }
+        validImgs.forEach(img => {
           ctx.drawImage(img, 0, 0, size, size);
         });
         const dataUrl = canvas.toDataURL();
@@ -106,7 +113,7 @@ const CharacterPartsSelect: React.FC = () => {
   
     const handleNextPage = (e: React.FormEvent) => {
       e.preventDefault();
-      window.location.href = '/background';
+      navigate('/background');
     };
   
     return (
