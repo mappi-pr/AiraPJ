@@ -61,6 +61,7 @@ type PartsCacheEntry = {
 
 const PARTS_CACHE_TTL_MS = 5 * 60 * 1000; // 5分で期限切れ
 const PARTS_CACHE_MAX_ENTRIES = 50;       // キャッシュする最大キー数
+const INFINITE_SCROLL_THRESHOLD_PX = 10;  // 無限スクロール発火の閾値（下端からのピクセル数）
 
 const internalPartsCache: { [key: string]: PartsCacheEntry } = {};
 
@@ -167,7 +168,7 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
     const handleScroll = () => {
       if (!panelRef.current || loading || !hasMore) return;
       const { scrollTop, scrollHeight, clientHeight } = panelRef.current;
-      if (scrollTop + clientHeight >= scrollHeight - 10) {
+      if (scrollTop + clientHeight >= scrollHeight - INFINITE_SCROLL_THRESHOLD_PX) {
         setPage(p => p + 1);
       }
     };
