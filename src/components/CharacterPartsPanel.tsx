@@ -102,19 +102,14 @@ interface Props {
 }
 
 const getImageSrc = (part: PartInfo): string => {
-  if (part.assetPath) {
-    return part.assetPath.startsWith('http') ? part.assetPath : API_BASE_URL + part.assetPath;
-  }
-  if (part.imagePath) {
-    return part.imagePath.startsWith('http') ? part.imagePath : API_BASE_URL + part.imagePath;
-  }
-  if (part.thumbUrl) {
-    return part.thumbUrl.startsWith('http') ? part.thumbUrl : API_BASE_URL + part.thumbUrl;
-  }
-  if (part.imageUrl) {
-    return part.imageUrl.startsWith('http') ? part.imageUrl : API_BASE_URL + part.imageUrl;
-  }
-  return '';
+  // Helper function to format URL with API base if needed
+  const formatUrl = (url: string): string => {
+    return url.startsWith('http') ? url : API_BASE_URL + url;
+  };
+
+  // Check properties in priority order
+  const urlSource = part.assetPath || part.imagePath || part.thumbUrl || part.imageUrl;
+  return urlSource ? formatUrl(urlSource) : '';
 };
 
 
