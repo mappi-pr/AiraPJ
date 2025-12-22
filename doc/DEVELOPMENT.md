@@ -441,7 +441,7 @@ docker compose -f docker-compose.dev.yml exec api npm run migrate
 docker compose exec api npm run migrate
 ```
 
-詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理-1)」セクションを参照してください。
+詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」セクションを参照してください。
 
 **6. サーバーの起動**
 
