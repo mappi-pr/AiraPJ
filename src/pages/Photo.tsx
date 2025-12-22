@@ -1,14 +1,19 @@
 import React, { useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import texts from '../locales/ja.json';
+import { useTranslation } from '../hooks/useTranslation';
 import { PartsContext } from '../context/PartsContextOnly';
 import html2canvas from 'html2canvas';
+import { useSound } from '../utils/useSound';
+import { PageTransition } from '../utils/PageTransition';
+import { SparkleEffect } from '../utils/SparkleEffect';
 
 const Photo: React.FC = () => {
   // ドラッグ用state
   const [dragPos, setDragPos] = React.useState({ x: 0, y: 0 });
   const [dragging, setDragging] = React.useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
+  const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
 
   // ドラッグ中のグローバルイベント監視
   React.useEffect(() => {
@@ -42,7 +47,7 @@ const Photo: React.FC = () => {
 
   const partsContext = useContext(PartsContext);
   const photoRef = useRef<HTMLDivElement>(null);
-  if (!partsContext) return <div>パーツ情報が取得できません</div>;
+  if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
   const { selectedParts, scale, setScale } = partsContext;
 
   // デバッグ用: 選択中パーツ情報を表示
@@ -50,13 +55,24 @@ const Photo: React.FC = () => {
 
   // PNG保存
   const handleDownload = async () => {
+    playSuccess();
     if (photoRef.current) {
-      const canvas = await html2canvas(photoRef.current, { useCORS: true, background: undefined });
+      const canvas = await html2canvas(photoRef.current, { 
+        useCORS: true, 
+        background: undefined,
+        scale: window.devicePixelRatio * 2
+      } as any );
       const link = document.createElement('a');
       link.download = 'my_character.png';
       link.href = canvas.toDataURL();
       link.click();
     }
+  };
+
+  // 位置リセット
+  const handleReset = () => {
+    playClick();
+    setDragPos({ x: 0, y: 0 });
   };
 
   // ドラッグ開始
@@ -71,138 +87,161 @@ const Photo: React.FC = () => {
   };
 
   return (
-    <div className="main-container">
-      <h1>{texts.photo.title}</h1>
-      <div style={{ margin: '16px 0' }}>
-        <label>
-          拡大率
-          <input
-            type="range"
-            min={0.5}
-            max={2}
-            step={0.01}
-            value={scale}
-            onChange={e => setScale(Number(e.target.value))}
-          />
-          {scale}倍
-        </label>
-      </div>
-      <div
-        ref={photoRef}
-        style={{
-          position: 'relative',
-          width: 240,
-          height: 320,
-          background: '#eee',
-          margin: '0 auto',
-          overflow: 'hidden', // 追加
-        }}
-      >
-        {/* 背景（固定） */}
-        {selectedParts.background ? (
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              width: 240,
-              height: 320,
-              zIndex: 0,
-              backgroundImage: `url(${selectedParts.background.assetPath})`,
-              backgroundSize: 'cover',
-              backgroundRepeat: 'no-repeat',
-            }}
-          />
-        ) : (
-          <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>背景未選択</div>
-        )}
-        {/* パーツ重ね順: 後髪→衣装→顔→前髪 */}
+    <PageTransition>
+      <SparkleEffect />
+      <div className="main-container">
+        <h1>{t.photo.title}</h1>
+        <div style={{ margin: '16px 0' }}>
+          <label>
+            {t.photo.scaleLabel}
+            <input
+              type="range"
+              min={0.5}
+              max={2}
+              step={0.01}
+              value={scale}
+              onChange={e => setScale(Number(e.target.value))}
+            />
+            {scale}{t.photo.scaleSuffix}
+          </label>
+        </div>
         <div
+          ref={photoRef}
           style={{
-            position: 'absolute',
-            left: dragPos.x,
-            top: dragPos.y,
+            position: 'relative',
             width: 240,
             height: 320,
-            zIndex: 1,
-            transform: `scale(${scale})`,
-            transformOrigin: 'center center',
-            cursor: dragging ? 'grabbing' : 'grab',
-            touchAction: 'none',
+            background: '#eee',
+            margin: '0 auto',
+            overflow: 'hidden',
           }}
-          onMouseDown={handleDragStart}
-          onTouchStart={handleDragStart}
         >
-          {selectedParts.backHair && (
-            <div
+          {/* 背景（固定） */}
+          {selectedParts.background ? (
+            <img
+              src={selectedParts.background.assetPath}
+              alt="background"
+              crossOrigin="anonymous"
+              draggable={false}
               style={{
                 position: 'absolute',
                 left: 0,
                 top: 0,
                 width: 240,
                 height: 320,
-                zIndex: 1,
-                backgroundImage: `url(${selectedParts.backHair.assetPath})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
-              }}
-            />
-          )}
-          {selectedParts.costume ? (
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: 240,
-                height: 320,
-                zIndex: 2,
-                backgroundImage: `url(${selectedParts.costume.assetPath})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
+                zIndex: 0,
+                objectFit: 'cover',
+                pointerEvents: 'none',
+                userSelect: 'none',
               }}
             />
           ) : (
-            <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>衣装未選択</div>
+            <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noBackground}</div>
           )}
-          {selectedParts.face && (
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: 240,
-                height: 320,
-                zIndex: 3,
-                backgroundImage: `url(${selectedParts.face.assetPath})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
-              }}
-            />
-          )}
-          {selectedParts.frontHair && (
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: 240,
-                height: 320,
-                zIndex: 4,
-                backgroundImage: `url(${selectedParts.frontHair.assetPath})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
-              }}
-            />
-          )}
+          {/* パーツ重ね順: 後髪→衣装→顔→前髪 */}
+          <div
+            style={{
+              position: 'absolute',
+              left: dragPos.x,
+              top: dragPos.y,
+              width: 240,
+              height: 320,
+              zIndex: 1,
+              transform: `scale(${scale})`,
+              transformOrigin: 'center center',
+              cursor: dragging ? 'grabbing' : 'grab',
+              touchAction: 'none',
+            }}
+            onMouseDown={handleDragStart}
+            onTouchStart={handleDragStart}
+          >
+            {selectedParts.backHair && (
+              <img
+                src={selectedParts.backHair.assetPath}
+                alt="back hair"
+                crossOrigin="anonymous"
+                draggable={false}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  width: 240,
+                  height: 320,
+                  zIndex: 1,
+                  objectFit: 'contain',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                }}
+              />
+            )}
+            {selectedParts.costume ? (
+              <img
+                src={selectedParts.costume.assetPath}
+                alt="costume"
+                crossOrigin="anonymous"
+                draggable={false}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  width: 240,
+                  height: 320,
+                  zIndex: 2,
+                  objectFit: 'contain',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                }}
+              />
+            ) : (
+              <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noCostume}</div>
+            )}
+            {selectedParts.face && (
+              <img
+                src={selectedParts.face.assetPath}
+                alt="face"
+                crossOrigin="anonymous"
+                draggable={false}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  width: 240,
+                  height: 320,
+                  zIndex: 3,
+                  objectFit: 'contain',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                }}
+              />
+            )}
+            {selectedParts.frontHair && (
+              <img
+                src={selectedParts.frontHair.assetPath}
+                alt="front hair"
+                crossOrigin="anonymous"
+                draggable={false}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  width: 240,
+                  height: 320,
+                  zIndex: 4,
+                  objectFit: 'contain',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                }}
+              />
+            )}
+          </div>
         </div>
+        <button onClick={handleDownload}>{t.photo.saveButton}</button>
+        <button onClick={handleReset}>{t.photo.resetButton}</button>
+        <nav>
+          <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
+        </nav>
       </div>
-      <button onClick={handleDownload}>PNGで保存</button>
-      <button onClick={() => setDragPos({ x: 0, y: 0 })}>位置リセット</button>
-      <nav>
-        <Link to="/title">{texts.common.backToTitle}</Link>
-      </nav>
-    </div>
+    </PageTransition>
   );
 };
 

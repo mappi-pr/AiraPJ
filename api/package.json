@@ -5,9 +5,12 @@
   "type": "commonjs",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
-  "build": "tsc",
-  "postbuild": "mkdir -p dist/uploads/face dist/uploads/frontHair dist/uploads/backHair dist/uploads/bg dist/uploads/csm",
-  "start": "node dist/index.js"
+    "build": "tsc",
+    "postbuild": "mkdir -p dist/uploads/face dist/uploads/frontHair dist/uploads/backHair dist/uploads/bg dist/uploads/csm",
+    "start": "node dist/index.js",
+    "migrate": "node scripts/migrate.js migrate",
+    "migrate:status": "node scripts/migrate.js status",
+    "migrate:undo": "node scripts/migrate.js undo"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
@@ -15,16 +18,20 @@
     "dotenv": "^16.5.0",
     "express": "^4.18.2",
     "multer": "^2.0.1",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/connect": "^3.4.38",
+    "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.13",
     "@types/node": "^24.0.3",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "sequelize-cli": "^6.6.3",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.0"

@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css'
-import bgmpath from './assets/sound/bgm/main.mp3';
 import React, { useState, useRef } from 'react';
 import Title from './pages/Title';
 import CharacterPartsSelect from './pages/CharacterPartsSelect';
@@ -11,7 +10,11 @@ import History from './pages/History';
 import Settings from './pages/Settings';
 import Terms from './pages/Terms';
 import { PartsProvider } from './context/PartsContext';
-import texts from './locales/ja.json';
+import { LocaleProvider } from './context/LocaleContext';
+
+// BGM file path - place your MP3 file in src/assets/sound/bgm/main.mp3
+// Empty string disables BGM until file is added
+const bgmpath = '';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);
@@ -120,6 +123,7 @@ function App() {
   };
 
   return (
+  <LocaleProvider>
     <PartsProvider>
       <BrowserRouter>
         <audio ref={bgmRef} src={bgmpath} loop />
@@ -199,6 +203,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </PartsProvider>
+  </LocaleProvider>
   )
 }
 

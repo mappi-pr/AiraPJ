@@ -30,7 +30,13 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     }
     const { name } = req.body;
     const assetPath = `/uploads/frontHair/${req.file.filename}`;
-    const frontHair = await FrontHair.create({ name, assetPath });
+    
+    const maxOrderItem = await FrontHair.findOne({ 
+      order: [['sortOrder', 'DESC']] 
+    });
+    const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
+    
+    const frontHair = await FrontHair.create({ name, assetPath, sortOrder });
     res.json(frontHair);
   } catch (err) {
     console.error('FrontHair upload error:', err);
