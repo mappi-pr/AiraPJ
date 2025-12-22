@@ -20,11 +20,12 @@ function App() {
   }>({});
   
   // 初回訪問判定：localStorageにキーがない場合はモーダルを表示
-  const [showAudioModal, setShowAudioModal] = useState(localStorage.getItem('bgmOn') === null);
+  const bgmStorageValue = localStorage.getItem('bgmOn');
+  const [showAudioModal, setShowAudioModal] = useState(bgmStorageValue === null);
   
-  // BGM: 初回はモーダルで決定するためnullで初期化、それ以外はlocalStorageから取得
+  // BGM: 初回はモーダルで決定するためfalseで初期化、それ以外はlocalStorageから取得
   const [bgmOn, setBgmOn] = useState(
-    localStorage.getItem('bgmOn') === null ? false : localStorage.getItem('bgmOn') !== '0'
+    bgmStorageValue === null ? false : bgmStorageValue !== '0'
   );
   // SE: Default to OFF on first visit (opt-in for sound effects)
   const [seOn, setSeOn] = useState(localStorage.getItem('seOn') === '1');
