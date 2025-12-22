@@ -289,17 +289,17 @@ const CharacterPartsSelect: React.FC = () => {
     
     if (type === 'face') {
       setFaceIdx((faceIdx - 1 + faces.length) % faces.length);
-      // ボイス再生（ファイルが配置されている場合）
+      // ボイス再生（実装例 - ファイルを配置してインポート後、コメントを外してください）
       // playVoice(selectFaceVoice);
     }
     if (type === 'front') {
       setFrontIdx((frontIdx - 1 + frontHairs.length) % frontHairs.length);
-      // ボイス再生（ファイルが配置されている場合）
+      // ボイス再生（実装例 - ファイルを配置してインポート後、コメントを外してください）
       // playVoice(selectFrontHairVoice);
     }
     if (type === 'back') {
       setBackIdx((backIdx - 1 + backHairs.length) % backHairs.length);
-      // ボイス再生（ファイルが配置されている場合）
+      // ボイス再生（実装例 - ファイルを配置してインポート後、コメントを外してください）
       // playVoice(selectBackHairVoice);
     }
   };
@@ -309,17 +309,17 @@ const CharacterPartsSelect: React.FC = () => {
     
     if (type === 'face') {
       setFaceIdx((faceIdx + 1) % faces.length);
-      // ボイス再生（ファイルが配置されている場合）
+      // ボイス再生（実装例 - ファイルを配置してインポート後、コメントを外してください）
       // playVoice(selectFaceVoice);
     }
     if (type === 'front') {
       setFrontIdx((frontIdx + 1) % frontHairs.length);
-      // ボイス再生（ファイルが配置されている場合）
+      // ボイス再生（実装例 - ファイルを配置してインポート後、コメントを外してください）
       // playVoice(selectFrontHairVoice);
     }
     if (type === 'back') {
       setBackIdx((backIdx + 1) % backHairs.length);
-      // ボイス再生（ファイルが配置されている場合）
+      // ボイス再生（実装例 - ファイルを配置してインポート後、コメントを外してください）
       // playVoice(selectBackHairVoice);
     }
   };
@@ -328,10 +328,10 @@ const CharacterPartsSelect: React.FC = () => {
     e.preventDefault();
     playSuccess();
     
-    // 確定時のボイス再生（ファイルが配置されている場合）
+    // 確定時のボイス再生（実装例 - ファイルを配置してインポート後、コメントを外してください）
     // playVoice(confirmVoice);
     
-    // ボイス再生が完了するまで少し待ってから遷移（オプション）
+    // ボイス再生が完了するまで少し待ってから遷移する場合（オプション）
     // setTimeout(() => {
     //   navigate('/background');
     // }, 500);
