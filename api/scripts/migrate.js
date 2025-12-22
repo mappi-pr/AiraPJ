@@ -37,16 +37,15 @@ console.log(`Running: ${cmd}`);
 console.log('---');
 
 try {
-  // 必要な環境変数のみを渡す
-  const env = {
-    NODE_ENV: process.env.NODE_ENV,
-    DB_NAME: process.env.DB_NAME,
-    DB_USER: process.env.DB_USER,
-    DB_PASS: process.env.DB_PASS,
-    DB_HOST: process.env.DB_HOST,
-    DB_PORT: process.env.DB_PORT,
-    PATH: process.env.PATH,
-  };
+  // 必要な環境変数のみを渡す（undefinedを除外）
+  const env = {};
+  const requiredEnvVars = ['NODE_ENV', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_HOST', 'DB_PORT', 'PATH'];
+  
+  requiredEnvVars.forEach(key => {
+    if (process.env[key] !== undefined) {
+      env[key] = process.env[key];
+    }
+  });
   
   execSync(cmd, {
     cwd: path.join(__dirname, '..'),
