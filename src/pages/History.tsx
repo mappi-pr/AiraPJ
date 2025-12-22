@@ -115,12 +115,12 @@ const History: React.FC = () => {
                 {new Date(history.createdAt).toLocaleString('ja-JP')}
               </div>
               <div style={{ fontSize: '14px', marginBottom: '8px' }}>
-                <div>背景ID: {history.backgroundId || '未選択'}</div>
-                <div>衣装ID: {history.costumeId || '未選択'}</div>
-                <div>後髪ID: {history.backHairId || '未選択'}</div>
-                <div>顔ID: {history.faceId || '未選択'}</div>
-                <div>前髪ID: {history.frontHairId || '未選択'}</div>
-                <div>拡大率: {history.scale}倍</div>
+                <div>{texts.history.backgroundId}: {history.backgroundId || texts.history.notSelected}</div>
+                <div>{texts.history.costumeId}: {history.costumeId || texts.history.notSelected}</div>
+                <div>{texts.history.backHairId}: {history.backHairId || texts.history.notSelected}</div>
+                <div>{texts.history.faceId}: {history.faceId || texts.history.notSelected}</div>
+                <div>{texts.history.frontHairId}: {history.frontHairId || texts.history.notSelected}</div>
+                <div>{texts.history.scale}: {history.scale}{texts.history.scaleUnit}</div>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => handleRestore(history)} style={{ flex: 1, fontSize: '12px' }}>

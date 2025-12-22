@@ -45,7 +45,15 @@
     "deleteFail": "削除に失敗しました",
     "restore": "復元",
     "delete": "削除",
-    "restoreFail": "復元に失敗しました"
+    "restoreFail": "復元に失敗しました",
+    "backgroundId": "背景ID",
+    "costumeId": "衣装ID",
+    "backHairId": "後髪ID",
+    "faceId": "顔ID",
+    "frontHairId": "前髪ID",
+    "scale": "拡大率",
+    "scaleUnit": "倍",
+    "notSelected": "未選択"
   },
   "settings": {
     "title": "設定",
