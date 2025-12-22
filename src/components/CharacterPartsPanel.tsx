@@ -1,5 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import texts from '../locales/ja.json';
+
+// 画像トリミング時の透明度判定閾値（アルファ値がこの値以下のピクセルを透明とみなす）
+const ALPHA_THRESHOLD = 16;
+
 // 画像の余白（透明部分）をトリミングしてBase64で返す
 const trimImage = (src: string): Promise<string> => {
   return new Promise(resolve => {
@@ -18,7 +22,7 @@ const trimImage = (src: string): Promise<string> => {
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const idx = (y * width + x) * 4;
-          if (data[idx + 3] > 16) { // 透明度閾値
+          if (data[idx + 3] > ALPHA_THRESHOLD) {
             if (x < left) left = x;
             if (x > right) right = x;
             if (y < top) top = y;
@@ -196,7 +200,7 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
     <div style={panelStyle} ref={panelRef}>
       {/* API取得失敗時のみエラー表示 */}
       {fetchError && (
-        <div style={{ color: '#c00', fontSize: 13 }}>パーツ取得に失敗しました</div>
+        <div style={{ color: '#c00', fontSize: 13 }}>{texts.common.fetchError}</div>
       )}
       {parts.map(part => (
         <TrimmedButton
