@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth';
+import gameMasterRouter from './routes/gameMaster';
 import backgroundRouter from './routes/background';
 import backgroundUploadRouter from './routes/background-upload';
 import costumeRouter from './routes/costume';
@@ -37,6 +38,9 @@ app.get('/api/health', (req, res) => {
 
 // 認証ルート
 app.use('/api/auth', authRouter);
+
+// ゲームマスター管理API（システム管理者専用）
+app.use('/api/game-masters', gameMasterRouter);
 
 // 公開API（認証不要）
 app.use('/api/background', backgroundRouter);

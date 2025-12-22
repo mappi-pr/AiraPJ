@@ -1,12 +1,21 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from '../hooks/useTranslation';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
+import { useAuth } from '../context/AuthContext';
 
 const ITEMS_PER_PAGE = 12;
+
+interface GameMaster {
+  id: number;
+  email: string;
+  name: string | null;
+  createdAt: string;
+  createdBy: string | null;
+}
 
 const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
@@ -17,11 +26,15 @@ const Settings: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [currentPages, setCurrentPages] = useState<Record<string, number>>({});
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
+  const [gameMasters, setGameMasters] = useState<GameMaster[]>([]);
+  const [newGMEmail, setNewGMEmail] = useState('');
+  const [newGMName, setNewGMName] = useState('');
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
+  const { isSystemAdmin } = useAuth();
 
   // アップロード種別ごとのエンドポイント
   const uploadUrls: Record<string, string> = {
@@ -179,6 +192,77 @@ const Settings: React.FC = () => {
     setCurrentPages((prev) => ({ ...prev, [type]: 1 })); // 検索時は1ページ目に戻る
   };
 
+  // ゲームマスター一覧を取得
+  const fetchGameMasters = async () => {
+    if (!isSystemAdmin) return;
+    
+    try {
+      const res = await axios.get('/api/game-masters');
+      setGameMasters(res.data);
+    } catch (error) {
+      console.error('Error fetching game masters:', error);
+      setResult('ゲームマスターの取得に失敗しました');
+    }
+  };
+
+  // ゲームマスターを追加
+  const handleAddGameMaster = async (e: React.FormEvent) => {
+    e.preventDefault();
+    playClick();
+    
+    if (!newGMEmail) {
+      setResult('メールアドレスを入力してください');
+      return;
+    }
+
+    try {
+      await axios.post('/api/game-masters', {
+        email: newGMEmail,
+        name: newGMName || null,
+      });
+      
+      playSuccess();
+      setResult('ゲームマスターを追加しました');
+      setNewGMEmail('');
+      setNewGMName('');
+      await fetchGameMasters();
+    } catch (error: any) {
+      console.error('Error adding game master:', error);
+      if (error.response?.status === 409) {
+        setResult('このユーザーは既にゲームマスターです');
+      } else {
+        setResult('ゲームマスターの追加に失敗しました');
+      }
+    }
+  };
+
+  // ゲームマスターを削除
+  const handleRemoveGameMaster = async (id: number, email: string) => {
+    playClick();
+    
+    if (!window.confirm(`${email} をゲームマスターから削除しますか？`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/game-masters/${id}`);
+      playSuccess();
+      setResult('ゲームマスターを削除しました');
+      await fetchGameMasters();
+    } catch (error) {
+      console.error('Error removing game master:', error);
+      setResult('ゲームマスターの削除に失敗しました');
+    }
+  };
+
+  // 初回マウント時にゲームマスター一覧を取得
+  useEffect(() => {
+    if (isSystemAdmin) {
+      fetchGameMasters();
+    }
+    // eslint-disable-next-line
+  }, [isSystemAdmin]);
+
   return (
     <PageTransition>
       <SparkleEffect />
@@ -187,6 +271,82 @@ const Settings: React.FC = () => {
         <nav>
           <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>
+
+        {/* ゲームマスター管理（システム管理者専用） */}
+        {isSystemAdmin && (
+          <>
+            <h2 style={{ marginTop: '32px', color: '#FF6B6B' }}>🔑 ゲームマスター管理（システム管理者専用）</h2>
+            <div style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
+              <h3>ゲームマスターを追加</h3>
+              <form onSubmit={handleAddGameMaster} style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: '8px' }}>
+                  <label>
+                    メールアドレス: 
+                    <input
+                      type="email"
+                      value={newGMEmail}
+                      onChange={(e) => setNewGMEmail(e.target.value)}
+                      placeholder="user@example.com"
+                      required
+                      style={{ marginLeft: '8px', width: '300px' }}
+                    />
+                  </label>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                  <label>
+                    名前（任意）: 
+                    <input
+                      type="text"
+                      value={newGMName}
+                      onChange={(e) => setNewGMName(e.target.value)}
+                      placeholder="表示名"
+                      style={{ marginLeft: '8px', width: '300px' }}
+                    />
+                  </label>
+                </div>
+                <button type="submit" style={{ background: '#4CAF50', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                  追加
+                </button>
+              </form>
+
+              <h3>現在のゲームマスター一覧</h3>
+              {gameMasters.length === 0 ? (
+                <p>登録されているゲームマスターはいません</p>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #ddd' }}>
+                      <th style={{ padding: '8px', textAlign: 'left' }}>メールアドレス</th>
+                      <th style={{ padding: '8px', textAlign: 'left' }}>名前</th>
+                      <th style={{ padding: '8px', textAlign: 'left' }}>登録日時</th>
+                      <th style={{ padding: '8px', textAlign: 'left' }}>登録者</th>
+                      <th style={{ padding: '8px', textAlign: 'center' }}>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {gameMasters.map((gm) => (
+                      <tr key={gm.id} style={{ borderBottom: '1px solid #eee' }}>
+                        <td style={{ padding: '8px' }}>{gm.email}</td>
+                        <td style={{ padding: '8px' }}>{gm.name || '-'}</td>
+                        <td style={{ padding: '8px' }}>{new Date(gm.createdAt).toLocaleString('ja-JP')}</td>
+                        <td style={{ padding: '8px' }}>{gm.createdBy || '-'}</td>
+                        <td style={{ padding: '8px', textAlign: 'center' }}>
+                          <button
+                            onClick={() => handleRemoveGameMaster(gm.id, gm.email)}
+                            style={{ background: '#f44336', color: 'white', padding: '4px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                          >
+                            削除
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </>
+        )}
+
         <h2>{t.settings.uploadTitle}</h2>
         <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
           <label>

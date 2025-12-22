@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { verifyGoogleToken, isAdmin } from '../middleware/auth';
+import { verifyGoogleToken, getUserRole } from '../middleware/auth';
 
 const router = Router();
 
@@ -20,12 +20,18 @@ router.post('/verify', async (req, res) => {
       return;
     }
 
-    // ユーザー情報と管理者フラグを返す
+    // ユーザーの役割を取得
+    const role = await getUserRole(payload.email);
+
+    // ユーザー情報と役割フラグを返す
     res.json({
       email: payload.email,
       name: payload.name,
       picture: payload.picture,
-      isAdmin: isAdmin(payload.email),
+      role: role,
+      isSystemAdmin: role === 'system_admin',
+      isGameMaster: role === 'game_master',
+      isAdmin: role === 'system_admin' || role === 'game_master',
     });
   } catch (error) {
     console.error('Auth verify error:', error);

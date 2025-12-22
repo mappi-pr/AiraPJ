@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Title: React.FC = () => {
   const navigate = useNavigate();
-  const { user, login, logout, isAdmin } = useAuth();
+  const { user, login, logout, isAdmin, isSystemAdmin, isGameMaster } = useAuth();
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
 
@@ -60,7 +60,8 @@ const Title: React.FC = () => {
               <div>
                 <p>ようこそ、{user.name || 'ユーザー'}さん</p>
                 {user.picture && <img src={user.picture} alt="Profile" style={{ width: 48, height: 48, borderRadius: '50%' }} />}
-                {isAdmin && <p style={{ color: '#4CAF50', fontWeight: 'bold' }}>管理者権限</p>}
+                {isSystemAdmin && <p style={{ color: '#FF6B6B', fontWeight: 'bold' }}>🔑 システム管理者</p>}
+                {isGameMaster && !isSystemAdmin && <p style={{ color: '#4CAF50', fontWeight: 'bold' }}>⚔️ ゲームマスター</p>}
                 <button onClick={logout} style={{ marginTop: 8 }}>ログアウト</button>
               </div>
             ) : (

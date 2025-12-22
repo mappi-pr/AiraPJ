@@ -1,9 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+type UserRole = 'system_admin' | 'game_master' | 'user';
+
 interface User {
   email: string;
   name?: string;
   picture?: string;
+  role: UserRole;
+  isSystemAdmin: boolean;
+  isGameMaster: boolean;
   isAdmin: boolean;
 }
 
@@ -13,6 +18,8 @@ interface AuthContextType {
   login: (credential: string) => Promise<void>;
   logout: () => void;
   isAdmin: boolean;
+  isSystemAdmin: boolean;
+  isGameMaster: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -85,6 +92,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         isAdmin: user?.isAdmin || false,
+        isSystemAdmin: user?.isSystemAdmin || false,
+        isGameMaster: user?.isGameMaster || false,
       }}
     >
       {children}
