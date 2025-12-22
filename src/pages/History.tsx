@@ -17,6 +17,7 @@ interface GenerationHistoryItem {
   dragX: number;
   dragY: number;
   createdAt: string;
+  isAvailable?: boolean; // Track if all parts are still available
 }
 
 const History: React.FC = () => {
@@ -30,7 +31,32 @@ const History: React.FC = () => {
       try {
         const userId = getUserId();
         const response = await axios.get(`/api/generation-history?userId=${userId}`);
-        setHistories(response.data);
+        const historiesData = response.data;
+        
+        // Check availability of parts for each history
+        const historiesWithAvailability = await Promise.all(
+          historiesData.map(async (history: GenerationHistoryItem) => {
+            try {
+              // Check if all parts are still available (not deleted)
+              const checks = await Promise.all([
+                history.backgroundId ? axios.get(`/api/background/${history.backgroundId}`).catch(() => null) : Promise.resolve(true),
+                history.costumeId ? axios.get(`/api/costume/${history.costumeId}`).catch(() => null) : Promise.resolve(true),
+                history.backHairId ? axios.get(`/api/back-hair/${history.backHairId}`).catch(() => null) : Promise.resolve(true),
+                history.faceId ? axios.get(`/api/face/${history.faceId}`).catch(() => null) : Promise.resolve(true),
+                history.frontHairId ? axios.get(`/api/front-hair/${history.frontHairId}`).catch(() => null) : Promise.resolve(true),
+              ]);
+              
+              // History is available only if all parts that exist are not deleted
+              const isAvailable = checks.every(check => check !== null);
+              
+              return { ...history, isAvailable };
+            } catch {
+              return { ...history, isAvailable: false };
+            }
+          })
+        );
+        
+        setHistories(historiesWithAvailability);
       } catch (error) {
         console.error('Failed to fetch generation history:', error);
       } finally {
@@ -54,10 +80,16 @@ const History: React.FC = () => {
     }
   };
 
-  const handleRestore = async (history: GenerationHistoryItem) => {
+  const handleView = async (history: GenerationHistoryItem) => {
     if (!partsContext) return;
+    
+    // Don't allow viewing if parts are not available
+    if (!history.isAvailable) {
+      alert(texts.history.viewFail);
+      return;
+    }
 
-    // Load all parts data to restore
+    // Load all parts data to view
     try {
       const [backgrounds, costumes, backHairs, faces, frontHairs] = await Promise.all([
         history.backgroundId ? axios.get(`/api/background/${history.backgroundId}`) : null,
@@ -80,8 +112,8 @@ const History: React.FC = () => {
       // Navigate to photo page
       navigate('/photo');
     } catch (error) {
-      console.error('Failed to restore generation:', error);
-      alert(texts.history.restoreFail);
+      console.error('Failed to view generation:', error);
+      alert(texts.history.viewFail);
     }
   };
 
@@ -121,10 +153,19 @@ const History: React.FC = () => {
                 <div>{texts.history.faceId}: {history.faceId || texts.history.notSelected}</div>
                 <div>{texts.history.frontHairId}: {history.frontHairId || texts.history.notSelected}</div>
                 <div>{texts.history.scale}: {history.scale}{texts.history.scaleUnit}</div>
+                {!history.isAvailable && (
+                  <div style={{ color: 'red', fontWeight: 'bold', marginTop: '4px' }}>
+                    {texts.history.unavailable}
+                  </div>
+                )}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => handleRestore(history)} style={{ flex: 1, fontSize: '12px' }}>
-                  {texts.history.restore}
+                <button 
+                  onClick={() => handleView(history)} 
+                  style={{ flex: 1, fontSize: '12px' }}
+                  disabled={!history.isAvailable}
+                >
+                  {texts.history.view}
                 </button>
                 <button onClick={() => handleDelete(history.id)} style={{ flex: 1, fontSize: '12px' }}>
                   {texts.history.delete}
