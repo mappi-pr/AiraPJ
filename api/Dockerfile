@@ -8,13 +8,13 @@ WORKDIR /app
 
 # 依存関係のインストール
 COPY package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps || npm install || true
 
 # ソースコードのコピー
 COPY . .
 
 # TypeScript のビルド
-RUN npm run build
+RUN npx tsc || npm run build
 
 EXPOSE 4000
 

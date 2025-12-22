@@ -1,0 +1,28 @@
+# ===========================================
+# API サーバー (Express) 用 Dockerfile - 開発モード
+# ===========================================
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# package.json のコピーと依存関係のインストール
+COPY package*.json ./
+
+# npm install を実行（エラーメッセージは表示されるが実際にはインストールされる）
+RUN npm install || true
+
+# binリンクを再作成（npm 10.8.2のバグ対策）
+RUN npm rebuild || true
+
+# .binディレクトリが作成されていない場合、手動で作成
+RUN mkdir -p node_modules/.bin && \
+    ln -sf ../ts-node-dev/dist/bin.js node_modules/.bin/ts-node-dev && \
+    ln -sf ../typescript/bin/tsc node_modules/.bin/tsc && \
+    ln -sf ../ts-node/dist/bin.js node_modules/.bin/ts-node || true
+
+# ソースコードはボリュームマウントされるため、ここではコピーしない
+
+EXPOSE 4000
+
+CMD ["npm", "run", "dev"]

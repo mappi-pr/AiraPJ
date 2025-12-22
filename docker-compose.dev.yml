@@ -22,7 +22,7 @@ services:
   api:
     build:
       context: ./api
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: airapj-api-dev
     restart: unless-stopped
     environment:
@@ -34,15 +34,19 @@ services:
       PORT: 4000
       UPLOADS_DIR: /app/uploads
     volumes:
-      - ./api:/app
-      - /app/node_modules
+      # ソースコードのみマウント（node_modulesは除外）
+      - ./api/index.ts:/app/index.ts
+      - ./api/routes:/app/routes
+      - ./api/models:/app/models
+      - ./api/config:/app/config
+      - ./api/migrations:/app/migrations
+      - ./api/scripts:/app/scripts
       - uploads_data_dev:/app/uploads
     ports:
       - "4000:4000"
     depends_on:
       db:
         condition: service_healthy
-    command: npm run dev
 
   # フロントエンド (Vite 開発サーバー)
   frontend:
