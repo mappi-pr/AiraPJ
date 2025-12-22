@@ -34,9 +34,9 @@
     "noHistory": "まだ生成履歴がありません",
     "deleteConfirm": "この履歴を削除しますか？",
     "deleteFail": "削除に失敗しました",
-    "restore": "復元",
+    "view": "表示",
     "delete": "削除",
-    "restoreFail": "復元に失敗しました",
+    "viewFail": "表示に失敗しました",
     "backgroundId": "背景ID",
     "costumeId": "衣装ID",
     "backHairId": "後髪ID",
@@ -44,7 +44,8 @@
     "frontHairId": "前髪ID",
     "scale": "拡大率",
     "scaleUnit": "倍",
-    "notSelected": "未選択"
+    "notSelected": "未選択",
+    "unavailable": "表示不可"
   },
   "settings": {
     "title": "設定",
