@@ -21,14 +21,23 @@
   },
   "backgroundSelect": {
     "title": "背景選択",
-    "backToCharacter": "キャラクター選択へ戻る"
+    "backToCharacter": "キャラクター選択へ戻る",
+    "imageAlt": "背景画像"
   },
   "costumeSelect": {
     "title": "衣装選択",
-    "backToBackground": "背景選択へ戻る"
+    "backToBackground": "背景選択へ戻る",
+    "imageAlt": "衣装画像"
   },
   "photo": {
-    "title": "フリー撮影モード"
+    "title": "フリー撮影モード",
+    "scaleLabel": "拡大率",
+    "scaleSuffix": "倍",
+    "saveButton": "PNGで保存",
+    "resetButton": "位置リセット",
+    "noBackground": "背景未選択",
+    "noCostume": "衣装未選択",
+    "noPartsContext": "パーツ情報が取得できません"
   },
   "history": {
     "title": "履歴管理"
@@ -39,7 +48,9 @@
     "typeLabel": "アップロード種別:",
     "nameLabel": "名前:",
     "uploadBtn": "アップロード",
+    "uploadingBtn": "アップロード中...",
     "resultSuccess": "アップロード成功！",
+    "resultImage": "画像:",
     "resultFail": "アップロード失敗",
     "pngOnly": "PNG画像のみアップロード可能です。",
     "selectType": "種別を選択してください。",
@@ -53,7 +64,15 @@
     "deleteConfirm": "本当に削除しますか？（画像は物理削除・DBは論理削除されます）",
     "deleteSuccess": "削除しました",
     "deleteFail": "削除に失敗しました",
-    "noAsset": "アセットがありません"
+    "noAsset": "アセットがありません",
+    "noSearchResults": "検索結果がありません",
+    "moveUpBtn": "↑",
+    "moveDownBtn": "↓",
+    "moveUpTooltip": "上へ移動",
+    "moveDownTooltip": "下へ移動",
+    "deleteTooltip": "削除",
+    "sortOrderUpdateSuccess": "並び順を更新しました",
+    "sortOrderUpdateFail": "並び順の更新に失敗しました"
   },
   "terms": {
     "title": "規約・クレジット"

@@ -3,11 +3,12 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { Face } from '../models/face';
+import { getUploadsBasePath } from '../config/uploads';
 
 const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads/face');
+    const dir = path.join(getUploadsBasePath(), 'face');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -29,7 +30,14 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     }
     const { name } = req.body;
     const assetPath = `/uploads/face/${req.file.filename}`;
-    const face = await Face.create({ name, assetPath });
+    
+    // 最大のsortOrderを取得して+1
+    const maxOrderItem = await Face.findOne({ 
+      order: [['sortOrder', 'DESC']] 
+    });
+    const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
+    
+    const face = await Face.create({ name, assetPath, sortOrder });
     res.json(face);
   } catch (err) {
     console.error('Face upload error:', err);

@@ -3,11 +3,12 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { Costume } from '../models';
+import { getUploadsBasePath } from '../config/uploads';
 
 const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads/csm');
+    const dir = path.join(getUploadsBasePath(), 'csm');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -29,7 +30,13 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     }
     const { name } = req.body;
     const assetPath = `/uploads/csm/${req.file.filename}`;
-    const costume = await Costume.create({ name, assetPath });
+    
+    const maxOrderItem = await Costume.findOne({ 
+      order: [['sortOrder', 'DESC']] 
+    });
+    const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
+    
+    const costume = await Costume.create({ name, assetPath, sortOrder });
     res.json(costume);
   } catch (err) {
     console.error('Costume upload error:', err);

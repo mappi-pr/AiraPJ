@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import texts from '../locales/ja.json';
-import CharacterPartsPanel from '../components/CharacterPartsPanel';
-import type { PartInfo as PanelPartInfo } from '../components/CharacterPartsPanel';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from '../hooks/useTranslation';
+import { PartsContext } from '../context/PartsContextOnly';
+import type { PartInfo } from '../context/PartsContextOnly';
+import { useSound } from '../utils/useSound';
+import { PageTransition } from '../utils/PageTransition';
+import { SparkleEffect } from '../utils/SparkleEffect';
 
 const getPartUrl = (part: PanelPartInfo | null): string | null => {
   if (!part) return null;
@@ -24,6 +25,11 @@ const CharacterPartsSelect: React.FC = () => {
   const selectedFace = faces[faceIdx] || null;
   const selectedFrontHair = frontHairs[frontIdx] || null;
   const selectedBackHair = backHairs[backIdx] || null;
+  const navigate = useNavigate();
+  const partsContext = useContext(PartsContext);
+  const { playClick, playSuccess } = useSound();
+  const { t } = useTranslation();
+
   useEffect(() => {
     const loadParts = async () => {
       try {
@@ -182,3 +188,70 @@ const CharacterPartsSelect: React.FC = () => {
   };
   
   export default CharacterPartsSelect;
+  const handlePrev = (type: 'face' | 'front' | 'back') => {
+    playClick();
+    if (type === 'face') setFaceIdx((faceIdx - 1 + faces.length) % faces.length);
+    if (type === 'front') setFrontIdx((frontIdx - 1 + frontHairs.length) % frontHairs.length);
+    if (type === 'back') setBackIdx((backIdx - 1 + backHairs.length) % backHairs.length);
+  };
+  const handleNext = (type: 'face' | 'front' | 'back') => {
+    playClick();
+    if (type === 'face') setFaceIdx((faceIdx + 1) % faces.length);
+    if (type === 'front') setFrontIdx((frontIdx + 1) % frontHairs.length);
+    if (type === 'back') setBackIdx((backIdx + 1) % backHairs.length);
+  };
+  const handleNextPage = (e: React.FormEvent) => {
+    e.preventDefault();
+    playSuccess();
+    navigate('/background');
+  };
+
+  return (
+    <PageTransition>
+      <SparkleEffect />
+      <div className="main-container">
+        <h1>{t.characterPartsSelect.title}</h1>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 24, margin: '24px 0' }}>
+          <div>
+            <div>{t.characterPartsSelect.face}</div>
+            <button onClick={() => handlePrev('face')}>←</button>
+            <span style={{ minWidth: 60, display: 'inline-block' }}>{faces.length === 0 ? t.common.noData : (faces[faceIdx]?.name || '')}</span>
+            <button onClick={() => handleNext('face')}>→</button>
+          </div>
+          <div>
+            <div>{t.characterPartsSelect.frontHair}</div>
+            <button onClick={() => handlePrev('front')}>←</button>
+            <span style={{ minWidth: 60, display: 'inline-block' }}>{frontHairs.length === 0 ? t.common.noData : (frontHairs[frontIdx]?.name || '')}</span>
+            <button onClick={() => handleNext('front')}>→</button>
+          </div>
+          <div>
+            <div>{t.characterPartsSelect.backHair}</div>
+            <button onClick={() => handlePrev('back')}>←</button>
+            <span style={{ minWidth: 60, display: 'inline-block' }}>{backHairs.length === 0 ? t.common.noData : (backHairs[backIdx]?.name || '')}</span>
+            <button onClick={() => handleNext('back')}>→</button>
+          </div>
+        </div>
+        <div style={{ position: 'relative', width: 240, height: 320, margin: '0 auto' }}>
+          {/* 後髪 → 顔 → 前髪 の順で重ねる */}
+          {backHairs[backIdx] && (
+            <img src={backHairs[backIdx].assetPath} alt={t.characterPartsSelect.backHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
+          )}
+          {faces[faceIdx] && (
+            <img src={faces[faceIdx].assetPath} alt={t.characterPartsSelect.face} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
+          )}
+          {frontHairs[frontIdx] && (
+            <img src={frontHairs[frontIdx].assetPath} alt={t.characterPartsSelect.frontHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
+          )}
+        </div>
+        <form onSubmit={handleNextPage}>
+          <button type="submit">{t.common.next}</button>
+        </form>
+        <nav>
+          <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
+        </nav>
+      </div>
+    </PageTransition>
+  );
+};
+
+export default CharacterPartsSelect;

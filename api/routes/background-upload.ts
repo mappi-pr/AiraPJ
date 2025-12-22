@@ -3,11 +3,12 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { Background } from '../models';
+import { getUploadsBasePath } from '../config/uploads';
 
 const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads/bg');
+    const dir = path.join(getUploadsBasePath(), 'bg');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -29,7 +30,13 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     }
     const { name } = req.body;
     const assetPath = `/uploads/bg/${req.file.filename}`;
-    const background = await Background.create({ name, assetPath });
+    
+    const maxOrderItem = await Background.findOne({ 
+      order: [['sortOrder', 'DESC']] 
+    });
+    const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
+    
+    const background = await Background.create({ name, assetPath, sortOrder });
     res.json(background);
   } catch (err) {
     console.error('Background upload error:', err);

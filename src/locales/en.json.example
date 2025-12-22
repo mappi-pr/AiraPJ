@@ -1,0 +1,71 @@
+{
+  "common": {
+    "noData": "No data",
+    "next": "Next",
+    "backToTitle": "Back to Title",
+    "loading": "Loading..."
+  },
+  "title": {
+    "mainTitle": "Aira PJ",
+    "startBtn": "Start Game",
+    "favorites": "Favorites",
+    "settings": "Settings",
+    "terms": "Terms & Credits"
+  },
+  "characterPartsSelect": {
+    "title": "Character Parts Selection",
+    "face": "Face",
+    "frontHair": "Front Hair",
+    "backHair": "Back Hair"
+  },
+  "backgroundSelect": {
+    "title": "Background Selection",
+    "backToCharacter": "Back to Character Selection",
+    "imageAlt": "Background image"
+  },
+  "costumeSelect": {
+    "title": "Costume Selection",
+    "backToBackground": "Back to Background Selection",
+    "imageAlt": "Costume image"
+  },
+  "photo": {
+    "title": "Free Photo Mode",
+    "scaleLabel": "Scale",
+    "scaleSuffix": "x",
+    "saveButton": "Save as PNG",
+    "resetButton": "Reset Position",
+    "noBackground": "No background selected",
+    "noCostume": "No costume selected",
+    "noPartsContext": "Cannot retrieve parts information"
+  },
+  "history": {
+    "title": "History Management"
+  },
+  "settings": {
+    "title": "Settings",
+    "uploadTitle": "Upload Image Assets",
+    "typeLabel": "Upload Type:",
+    "nameLabel": "Name:",
+    "uploadBtn": "Upload",
+    "uploadingBtn": "Uploading...",
+    "resultSuccess": "Upload successful!",
+    "resultImage": "Image:",
+    "resultFail": "Upload failed",
+    "pngOnly": "Only PNG images can be uploaded.",
+    "selectType": "Please select a type.",
+    "assetListTitle": "Asset List & Delete",
+    "faceLabel": "Face Parts",
+    "frontHairLabel": "Front Hair Parts",
+    "backHairLabel": "Back Hair Parts",
+    "backgroundLabel": "Background",
+    "costumeLabel": "Costume",
+    "deleteBtn": "Delete",
+    "deleteConfirm": "Are you sure you want to delete? (Image will be physically deleted, DB record will be logically deleted)",
+    "deleteSuccess": "Deleted successfully",
+    "deleteFail": "Failed to delete",
+    "noAsset": "No assets available"
+  },
+  "terms": {
+    "title": "Terms & Credits"
+  }
+}

@@ -7,6 +7,7 @@ export class Face extends Model {
   public assetPath!: string;
   public deleted!: boolean;
   public deletedAt!: Date | null;
+  public sortOrder!: number;
 }
 
 Face.init(
@@ -16,6 +17,7 @@ Face.init(
     assetPath: { type: DataTypes.STRING, allowNull: false },
     deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deletedAt: { type: DataTypes.DATE, allowNull: true },
+    sortOrder: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
   },
   { sequelize, modelName: 'Face', tableName: 'faces', timestamps: false }
 );

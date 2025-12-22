@@ -3,11 +3,12 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { FrontHair } from '../models/frontHair';
+import { getUploadsBasePath } from '../config/uploads';
 
 const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads/frontHair');
+    const dir = path.join(getUploadsBasePath(), 'frontHair');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -29,7 +30,13 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     }
     const { name } = req.body;
     const assetPath = `/uploads/frontHair/${req.file.filename}`;
-    const frontHair = await FrontHair.create({ name, assetPath });
+    
+    const maxOrderItem = await FrontHair.findOne({ 
+      order: [['sortOrder', 'DESC']] 
+    });
+    const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
+    
+    const frontHair = await FrontHair.create({ name, assetPath, sortOrder });
     res.json(frontHair);
   } catch (err) {
     console.error('FrontHair upload error:', err);
