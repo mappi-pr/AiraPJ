@@ -2,7 +2,7 @@
 
 # AiraPJ 開発者ガイド
 
-このドキュメントは、AiraPJ（着せ替えゲームSPA）の開発環境構築とデプロイメントに関する包括的なガイドです。
+このドキュメントは、AiraPJ（着せ替えゲームエンジン）の開発環境構築とデプロイメントに関する包括的なガイドです。
 
 ## 目次
 
@@ -15,6 +15,7 @@
 - [スマートフォン実機での開発・テスト](#スマートフォン実機での開発テスト)
 - [トラブルシューティング](#トラブルシューティング)
 - [開発ガイドライン](#開発ガイドライン)
+- [関連ドキュメント](#関連ドキュメント)
 
 ---
 
@@ -796,11 +797,18 @@ AiraPJ/
   - `html2canvas` による画面キャプチャ方式（ステッカーも含む）
   - Canvas API による手動合成方式（高精度）
 
-### BGM/SE 管理
+### BGM/SE/ボイス管理
+
 - BGM は `App.tsx` で管理し、画面遷移しても継続再生
 - SE は各ページで必要に応じて再生
+- ボイスはキャラクター選択などで特定のタイミングで再生
 - 音声ファイルは `src/assets/sound/` 配下に配置
+  - BGM: `src/assets/sound/bgm/`
+  - SE: `src/assets/sound/se/`
+  - ボイス: `src/assets/sound/voice/`
   - 詳細な配置方法は `src/assets/sound/README.md` を参照
+
+**ボイス機能の実装**については、**[VOICE_IMPLEMENTATION.md](./VOICE_IMPLEMENTATION.md)** を参照してください。
 
 ### ビルドとデプロイ
 
@@ -964,6 +972,16 @@ export default defineConfig({
 openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
   -keyout localhost-key.pem -out localhost-cert.pem
 ```
+
+---
+
+## 関連ドキュメント
+
+AiraPJの機能別ドキュメント：
+
+- **[ボイス実装ガイド](./VOICE_IMPLEMENTATION.md)** - キャラクター選択画面などでのボイス機能の実装方法
+- **[CSSアーキテクチャ](./CSS.md)** - スタイル管理とデザインガイドライン
+- **[多言語対応](./MULTILINGUAL.md)** - 国際化対応の実装方法
 
 ---
 
