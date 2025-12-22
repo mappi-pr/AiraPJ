@@ -5,6 +5,11 @@ import type { PartInfo as PanelPartInfo } from '../components/CharacterPartsPane
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
+const getPartUrl = (part: PanelPartInfo | null): string | null => {
+  if (!part) return null;
+  return part.assetPath || part.imagePath || part.thumbUrl || part.imageUrl || null;
+};
+
 const CharacterPartsSelect: React.FC = () => {
   const [faces, setFaces] = useState<PanelPartInfo[]>([]);
   const [frontHairs, setFrontHairs] = useState<PanelPartInfo[]>([]);
@@ -53,10 +58,6 @@ const CharacterPartsSelect: React.FC = () => {
         setTrimmedPreviewUrl('');
         return;
       }
-      const getPartUrl = (part: PanelPartInfo | null): string | null => {
-        if (!part) return null;
-        return part.imageUrl || part.assetPath || part.thumbUrl || null;
-      };
       const images: string[] = [
         getPartUrl(selectedBackHair),
         getPartUrl(selectedFace),
