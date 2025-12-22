@@ -51,7 +51,7 @@ const Photo: React.FC = () => {
   const partsContext = useContext(PartsContext);
   const photoRef = useRef<HTMLDivElement>(null);
   if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
-  const { selectedParts, scale, setScale } = partsContext;
+  const { selectedParts, scale, setScale, dragPos, setDragPos } = partsContext;
 
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
