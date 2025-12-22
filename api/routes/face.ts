@@ -7,8 +7,13 @@ const router = Router();
 
 // GET /api/face
 router.get('/', async (req, res) => {
-  const faces = await Face.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-  res.json(faces);
+  try {
+    const faces = await Face.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    res.json(faces);
+  } catch (e) {
+    console.error('Error fetching faces:', e);
+    res.status(500).json({ error: 'Failed to fetch faces' });
+  }
 });
 
 // DELETE /api/face/:id
