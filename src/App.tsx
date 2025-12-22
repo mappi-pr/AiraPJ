@@ -21,14 +21,17 @@ function App() {
   
   // 初回訪問判定：localStorageにキーがない場合はモーダルを表示
   const bgmStorageValue = localStorage.getItem('bgmOn');
-  const [showAudioModal, setShowAudioModal] = useState(bgmStorageValue === null);
+  const seStorageValue = localStorage.getItem('seOn');
+  const [showAudioModal, setShowAudioModal] = useState(bgmStorageValue === null && seStorageValue === null);
   
   // BGM: 初回はモーダルで決定するためfalseで初期化、それ以外はlocalStorageから取得
   const [bgmOn, setBgmOn] = useState(
     bgmStorageValue === null ? false : bgmStorageValue !== '0'
   );
-  // SE: Default to OFF on first visit (opt-in for sound effects)
-  const [seOn, setSeOn] = useState(localStorage.getItem('seOn') === '1');
+  // SE: 初回はモーダルで決定するためfalseで初期化、それ以外はlocalStorageから取得
+  const [seOn, setSeOn] = useState(
+    seStorageValue === null ? false : seStorageValue !== '0'
+  );
 
   // BGM自動再生
   React.useEffect(() => {
@@ -106,10 +109,12 @@ function App() {
     localStorage.setItem('seOn', next ? '1' : '0');
   };
 
-  // モーダルでの音声設定
+  // モーダルでの音声設定（BGM/SE一括設定）
   const handleAudioChoice = (enableAudio: boolean) => {
     setBgmOn(enableAudio);
+    setSeOn(enableAudio);
     localStorage.setItem('bgmOn', enableAudio ? '1' : '0');
+    localStorage.setItem('seOn', enableAudio ? '1' : '0');
     setShowAudioModal(false);
   };
 
@@ -143,7 +148,7 @@ function App() {
               <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>音声設定</h2>
               <p style={{ marginBottom: '2rem', lineHeight: '1.6' }}>
                 このサイトでは、音声が流れるコンテンツが含まれます。<br />
-                音声をONにしますか？
+                音声（BGM・SE）をONにしますか？
               </p>
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                 <button 
