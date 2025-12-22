@@ -1151,7 +1151,7 @@ docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
 > SELECT * FROM "SequelizeMeta";
 
 # 3. 既に適用済みのマイグレーションを手動で記録（必要な場合）
-# 注: 実際のマイグレーションファイル名を使用してください
+# 重要: 以下は例です。実際のマイグレーションファイル名を確認してください
 # ファイル名を確認: ls api/migrations/
 > INSERT INTO "SequelizeMeta" (name) VALUES ('20250625_add_deleted_columns.js');
 > INSERT INTO "SequelizeMeta" (name) VALUES ('20251111_add_sort_order.js');

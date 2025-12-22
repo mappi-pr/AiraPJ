@@ -38,6 +38,8 @@ console.log('---');
 
 try {
   // 必要な環境変数のみを渡す（undefinedを除外）
+  // セキュリティのため、DB関連の変数とPATH（npm実行に必要）のみを渡す
+  // 追加の環境変数が必要な場合は、requiredEnvVarsに追加してください
   const env = {};
   // PATH はnpmコマンド実行に必要
   const requiredEnvVars = ['NODE_ENV', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_HOST', 'DB_PORT', 'PATH'];
