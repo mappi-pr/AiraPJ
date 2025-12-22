@@ -54,10 +54,19 @@ const CharacterPartsSelect: React.FC = () => {
         return;
       }
       const images: string[] = [];
-      if (selectedBackHair) images.push(selectedBackHair.imageUrl || selectedBackHair.assetPath || selectedBackHair.thumbUrl);
-      if (selectedFace) images.push(selectedFace.imageUrl || selectedFace.assetPath || selectedFace.thumbUrl);
-      if (selectedFrontHair) images.push(selectedFrontHair.imageUrl || selectedFrontHair.assetPath || selectedFrontHair.thumbUrl);
-      if (images.length === 0 || images.some(url => !url)) {
+      if (selectedBackHair) {
+        const url = selectedBackHair.imageUrl || selectedBackHair.assetPath || selectedBackHair.thumbUrl;
+        if (url) images.push(url);
+      }
+      if (selectedFace) {
+        const url = selectedFace.imageUrl || selectedFace.assetPath || selectedFace.thumbUrl;
+        if (url) images.push(url);
+      }
+      if (selectedFrontHair) {
+        const url = selectedFrontHair.imageUrl || selectedFrontHair.assetPath || selectedFrontHair.thumbUrl;
+        if (url) images.push(url);
+      }
+      if (images.length === 0) {
         setTrimmedPreviewUrl('');
         return;
       }
