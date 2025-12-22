@@ -41,7 +41,7 @@ docker compose up -d
 
 **データ永続化について**: データベースとアップロードファイルは Docker ボリューム（`postgres_data`, `uploads_data`）に保存されます。コンテナを停止・削除（`docker compose down`）してもデータは保持されます。データを完全に削除する場合のみ `docker compose down -v` を使用してください。
 
-### ローカル開発の場合（Docker なし）
+### ローカル開発の場合（アプリケーションのみローカル実行）
 
 ```sh
 # Node.js v20.x を使用
@@ -54,7 +54,11 @@ cd api && npm install && cd ..
 # API環境変数の設定
 cd api && cp .env.example .env && cd ..
 
-# PostgreSQL を起動（Docker推奨）
+# PostgreSQL のセットアップ
+# オプション1: ローカルにインストール済みの PostgreSQL を使用
+# - PostgreSQL 16.x をインストールして起動
+# - データベース 'airapj' を作成
+# オプション2: PostgreSQL のみ Docker で起動（軽量な選択肢）
 docker run -d --name airapj-postgres \
   -e POSTGRES_DB=airapj -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
