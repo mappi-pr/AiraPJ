@@ -12,6 +12,7 @@ import Terms from './pages/Terms';
 import { PartsProvider } from './context/PartsContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { NavigationButtonProvider } from './context/NavigationButtonContext';
+import texts from './locales/ja.json';
 
 // BGM file path - place your MP3 file in src/assets/sound/bgm/main.mp3
 // Empty string disables BGM until file is added
@@ -125,12 +126,13 @@ function App() {
 
   return (
   <LocaleProvider>
-    <PartsProvider>
-      <BrowserRouter>
-        <audio ref={bgmRef} src={bgmpath} loop />
-        
-        {/* 音声設定モーダル */}
-        {showAudioModal && (
+    <NavigationButtonProvider>
+      <PartsProvider>
+        <BrowserRouter>
+          <audio ref={bgmRef} src={bgmpath} loop />
+          
+          {/* 音声設定モーダル */}
+          {showAudioModal && (
           <div style={{
             position: 'fixed',
             top: 0,
@@ -245,6 +247,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </PartsProvider>
+    </NavigationButtonProvider>
   </LocaleProvider>
   )
 }
