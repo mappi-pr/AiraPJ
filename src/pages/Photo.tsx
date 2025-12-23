@@ -86,6 +86,9 @@ const Photo: React.FC = () => {
         const newScale = calculatePinchScale(currentDistance);
         setScale(newScale);
         e.preventDefault();
+      } else {
+        // 2本指でない場合はピンチモード終了
+        setIsPinching(false);
       }
     };
     const handleTouchEnd = () => {
@@ -148,7 +151,7 @@ const Photo: React.FC = () => {
   // ドラッグ開始
   const handleDragStart = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     // タッチイベントで2本指以上の場合はピンチズーム
-    if ('touches' in e && e.touches.length === 2) {
+    if ('touches' in e && e.touches.length >= 2) {
       handlePinchStart(e);
       return;
     }
@@ -163,7 +166,7 @@ const Photo: React.FC = () => {
 
   // ピンチズーム開始
   const handlePinchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length === 2) {
+    if (e.touches.length >= 2) {
       setIsPinching(true);
       setDragging(false); // ドラッグをキャンセル
       initialPinchDistance.current = getPinchDistance(e.touches);
