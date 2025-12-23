@@ -85,6 +85,7 @@
     "editSuccess": "Updated successfully",
     "editFail": "Update failed",
     "visualEditor": "Visual Editor",
+    "closeVisualEditor": "Close Editor",
     "dragToPosition": "Drag to adjust position",
     "centerBtn": "Center",
     "autoDetectSize": "Auto-detect size"

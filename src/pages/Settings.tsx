@@ -539,7 +539,7 @@ const Settings: React.FC = () => {
                                       style={{
                                         width: '100%',
                                         padding: '6px 12px',
-                                        backgroundColor: '#17a2b8',
+                                        backgroundColor: showVisualEditor ? '#6c757d' : '#17a2b8',
                                         color: 'white',
                                         border: 'none',
                                         borderRadius: '4px',
@@ -548,9 +548,24 @@ const Settings: React.FC = () => {
                                         fontWeight: 'bold',
                                       }}
                                     >
-                                      🎨 {t.settings.visualEditor}
+                                      {showVisualEditor ? '✖' : '🎨'} {showVisualEditor ? t.settings.closeVisualEditor : t.settings.visualEditor}
                                     </button>
                                   </div>
+                                  
+                                  {/* ビジュアルエディタをインライン表示 */}
+                                  {showVisualEditor && editingItem && (
+                                    <VisualPositionEditor
+                                      imagePath={editingItem.item.assetPath}
+                                      initialOffsetX={parseInt(editForm.offsetX) || 0}
+                                      initialOffsetY={parseInt(editForm.offsetY) || 0}
+                                      initialWidth={parseInt(editForm.width) || 240}
+                                      initialHeight={parseInt(editForm.height) || 320}
+                                      onPositionChange={handleVisualEditorPositionChange}
+                                      onClose={handleCloseVisualEditor}
+                                      onSave={handleVisualEditorSave}
+                                      t={t}
+                                    />
+                                  )}
                                   
                                   <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                                     <button
@@ -759,21 +774,6 @@ const Settings: React.FC = () => {
           );
         })}
       </div>
-      
-      {/* ビジュアルエディタ */}
-      {showVisualEditor && editingItem && (
-        <VisualPositionEditor
-          imagePath={editingItem.item.assetPath}
-          initialOffsetX={parseInt(editForm.offsetX) || 0}
-          initialOffsetY={parseInt(editForm.offsetY) || 0}
-          initialWidth={parseInt(editForm.width) || 240}
-          initialHeight={parseInt(editForm.height) || 320}
-          onPositionChange={handleVisualEditorPositionChange}
-          onClose={handleCloseVisualEditor}
-          onSave={handleVisualEditorSave}
-          t={t}
-        />
-      )}
     </div>
     </PageTransition>
   );

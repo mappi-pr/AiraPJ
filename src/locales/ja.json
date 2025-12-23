@@ -85,6 +85,7 @@
     "editSuccess": "更新しました",
     "editFail": "更新に失敗しました",
     "visualEditor": "ビジュアルエディタ",
+    "closeVisualEditor": "エディタを閉じる",
     "dragToPosition": "ドラッグして位置を調整",
     "centerBtn": "中央配置",
     "autoDetectSize": "サイズ自動検出"

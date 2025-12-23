@@ -71,33 +71,13 @@ const VisualPositionEditor: React.FC<VisualPositionEditorProps> = ({
   return (
     <div
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 9999,
-        overflowY: 'auto',
+        backgroundColor: '#f9f9f9',
+        padding: '20px',
+        borderRadius: '8px',
+        border: '2px solid #ddd',
+        marginTop: '15px',
       }}
-      onClick={onClose}
     >
-      <div
-        style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          maxWidth: '90vw',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-          margin: 'auto',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
         <h3 style={{ marginTop: 0 }}>{t.settings.visualEditor}</h3>
         <p style={{ color: '#666', fontSize: '14px' }}>{t.settings.dragToPosition}</p>
 
@@ -210,7 +190,6 @@ const VisualPositionEditor: React.FC<VisualPositionEditorProps> = ({
             {t.settings.cancelBtn}
           </button>
         </div>
-      </div>
     </div>
   );
 };
