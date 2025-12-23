@@ -207,6 +207,10 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
       {fetchError && (
         <div style={{ color: '#c00', fontSize: 13 }}>{texts.common.fetchError}</div>
       )}
+      {/* データなし時の表示 */}
+      {!loading && !fetchError && parts.length === 0 && (
+        <div style={{ color: '#888', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>{texts.common.noData}</div>
+      )}
       {parts.map(part => (
         <TrimmedButton
           key={part.id}
