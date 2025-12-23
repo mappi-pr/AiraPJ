@@ -4,8 +4,17 @@ import texts from '../locales/ja.json';
 // 画像トリミング時の透明度判定閾値（アルファ値がこの値以下のピクセルを透明とみなす）
 const ALPHA_THRESHOLD = 16;
 
-// 画像の余白（透明部分）をトリミングしてBase64で返す
+// トリミング結果のキャッシュ（URL → トリミング済みDataURL）
+const trimCache = new Map<string, string>();
+const MAX_TRIM_CACHE_SIZE = 100;
+
+// 画像の余白（透明部分）をトリミングしてBase64で返す（最適化版）
 const trimImage = (src: string): Promise<string> => {
+  // キャッシュチェック
+  if (trimCache.has(src)) {
+    return Promise.resolve(trimCache.get(src)!);
+  }
+
   return new Promise(resolve => {
     const img = new window.Image();
     img.crossOrigin = 'anonymous';
@@ -18,19 +27,55 @@ const trimImage = (src: string): Promise<string> => {
       ctx.drawImage(img, 0, 0);
       const imageData = ctx.getImageData(0, 0, img.width, img.height);
       const { data, width, height } = imageData;
+      
       let top = height, left = width, right = 0, bottom = 0;
-      for (let y = 0; y < height; y++) {
+      
+      // 最適化: 上から下へスキャンしてtopを見つける（早期終了）
+      topLoop: for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const idx = (y * width + x) * 4;
           if (data[idx + 3] > ALPHA_THRESHOLD) {
-            if (x < left) left = x;
-            if (x > right) right = x;
-            if (y < top) top = y;
-            if (y > bottom) bottom = y;
+            top = y;
+            break topLoop;
           }
         }
       }
+      
+      // 最適化: 下から上へスキャンしてbottomを見つける（早期終了）
+      bottomLoop: for (let y = height - 1; y >= top; y--) {
+        for (let x = 0; x < width; x++) {
+          const idx = (y * width + x) * 4;
+          if (data[idx + 3] > ALPHA_THRESHOLD) {
+            bottom = y;
+            break bottomLoop;
+          }
+        }
+      }
+      
+      // 最適化: 左から右へスキャンしてleftを見つける（早期終了）
+      leftLoop: for (let x = 0; x < width; x++) {
+        for (let y = top; y <= bottom; y++) {
+          const idx = (y * width + x) * 4;
+          if (data[idx + 3] > ALPHA_THRESHOLD) {
+            left = x;
+            break leftLoop;
+          }
+        }
+      }
+      
+      // 最適化: 右から左へスキャンしてrightを見つける（早期終了）
+      rightLoop: for (let x = width - 1; x >= left; x--) {
+        for (let y = top; y <= bottom; y++) {
+          const idx = (y * width + x) * 4;
+          if (data[idx + 3] > ALPHA_THRESHOLD) {
+            right = x;
+            break rightLoop;
+          }
+        }
+      }
+      
       if (right < left || bottom < top) return resolve(src); // 全部透明
+      
       const w = right - left + 1;
       const h = bottom - top + 1;
       const trimCanvas = document.createElement('canvas');
@@ -39,7 +84,17 @@ const trimImage = (src: string): Promise<string> => {
       const trimCtx = trimCanvas.getContext('2d');
       if (!trimCtx) return resolve(src);
       trimCtx.drawImage(canvas, left, top, w, h, 0, 0, w, h);
-      resolve(trimCanvas.toDataURL());
+      const result = trimCanvas.toDataURL();
+      
+      // キャッシュに保存（サイズ制限付き）
+      if (trimCache.size >= MAX_TRIM_CACHE_SIZE) {
+        // 最も古いエントリを削除（先頭）
+        const firstKey = trimCache.keys().next().value;
+        if (firstKey) trimCache.delete(firstKey);
+      }
+      trimCache.set(src, result);
+      
+      resolve(result);
     };
     img.onerror = () => resolve(src);
     img.src = src;
@@ -232,12 +287,21 @@ interface TrimmedButtonProps {
 }
 const TrimmedButton: React.FC<TrimmedButtonProps> = ({ part, selected, onSelect }) => {
   const [trimmedSrc, setTrimmedSrc] = useState<string>('');
+  const [isTrimming, setIsTrimming] = useState(true);
+  
   useEffect(() => {
     let mounted = true;
     const src = getImageSrc(part);
-    trimImage(src).then(dataUrl => { if (mounted) setTrimmedSrc(dataUrl); });
+    setIsTrimming(true);
+    trimImage(src).then(dataUrl => { 
+      if (mounted) {
+        setTrimmedSrc(dataUrl);
+        setIsTrimming(false);
+      }
+    });
     return () => { mounted = false; };
   }, [part]);
+  
   return (
     <button
       type="button"
@@ -255,10 +319,35 @@ const TrimmedButton: React.FC<TrimmedButtonProps> = ({ part, selected, onSelect 
         maxHeight: 120,
         display: 'block',
         boxSizing: 'border-box',
+        position: 'relative',
       }}
       onClick={(e) => { e.preventDefault(); onSelect(part); }}
       title={part.name}
     >
+      {isTrimming && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: 6,
+          zIndex: 1,
+        }}>
+          <div style={{
+            width: 20,
+            height: 20,
+            border: '2px solid #646cff',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+        </div>
+      )}
       <img
         src={trimmedSrc || getImageSrc(part)}
         alt=""
