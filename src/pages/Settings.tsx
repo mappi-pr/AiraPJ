@@ -397,6 +397,141 @@ const Settings: React.FC = () => {
                               }}>
                                 {item.name}
                               </span>
+                              
+                              {/* 編集フォーム（展開式） */}
+                              {editingItem && editingItem.type === key && editingItem.item.id === item.id ? (
+                                <div style={{ 
+                                  width: '100%', 
+                                  padding: '12px', 
+                                  backgroundColor: '#f8f9fa', 
+                                  borderRadius: '4px',
+                                  border: '1px solid #dee2e6',
+                                }}>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                      名前:
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={editForm.name}
+                                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                      style={{
+                                        width: '100%',
+                                        padding: '4px 8px',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {t.settings.offsetX}:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={editForm.offsetX}
+                                        onChange={(e) => setEditForm({ ...editForm, offsetX: e.target.value })}
+                                        style={{
+                                          width: '100%',
+                                          padding: '4px 8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '12px',
+                                        }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {t.settings.offsetY}:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={editForm.offsetY}
+                                        onChange={(e) => setEditForm({ ...editForm, offsetY: e.target.value })}
+                                        style={{
+                                          width: '100%',
+                                          padding: '4px 8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '12px',
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                  
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {t.settings.width}:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={editForm.width}
+                                        onChange={(e) => setEditForm({ ...editForm, width: e.target.value })}
+                                        style={{
+                                          width: '100%',
+                                          padding: '4px 8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '12px',
+                                        }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {t.settings.height}:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={editForm.height}
+                                        onChange={(e) => setEditForm({ ...editForm, height: e.target.value })}
+                                        style={{
+                                          width: '100%',
+                                          padding: '4px 8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '12px',
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                  
+                                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                                    <button
+                                      onClick={handleEditCancel}
+                                      style={{
+                                        padding: '4px 12px',
+                                        backgroundColor: '#6c757d',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                      }}
+                                    >
+                                      {t.settings.cancelBtn}
+                                    </button>
+                                    <button
+                                      onClick={handleEditSave}
+                                      style={{
+                                        padding: '4px 12px',
+                                        backgroundColor: '#28a745',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                      }}
+                                    >
+                                      {t.settings.saveBtn}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : null}
+                              
                               <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
                                 <button
                                   onClick={() => handleReorder(key, item.id, 'up')}
@@ -435,7 +570,6 @@ const Settings: React.FC = () => {
                                   style={{
                                     padding: '4px 8px',
                                     backgroundColor: '#28a745',
-                                    color: 'white',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: 'pointer',
@@ -451,7 +585,6 @@ const Settings: React.FC = () => {
                                   style={{
                                     padding: '4px 8px',
                                     backgroundColor: '#dc3545',
-                                    color: 'white',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: 'pointer',
@@ -573,148 +706,6 @@ const Settings: React.FC = () => {
           );
         })}
       </div>
-
-      {/* 編集モーダル */}
-      {editingItem && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '24px',
-            borderRadius: '8px',
-            maxWidth: '500px',
-            width: '90%',
-            maxHeight: '80vh',
-            overflow: 'auto',
-          }}>
-            <h3 style={{ marginTop: 0 }}>アセット編集: {editingItem.item.name}</h3>
-            
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                名前:
-              </label>
-              <input
-                type="text"
-                value={editForm.name}
-                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                {t.settings.offsetX}:
-              </label>
-              <input
-                type="number"
-                value={editForm.offsetX}
-                onChange={(e) => setEditForm({ ...editForm, offsetX: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                {t.settings.offsetY}:
-              </label>
-              <input
-                type="number"
-                value={editForm.offsetY}
-                onChange={(e) => setEditForm({ ...editForm, offsetY: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                {t.settings.width}:
-              </label>
-              <input
-                type="number"
-                value={editForm.width}
-                onChange={(e) => setEditForm({ ...editForm, width: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                {t.settings.height}:
-              </label>
-              <input
-                type="number"
-                value={editForm.height}
-                onChange={(e) => setEditForm({ ...editForm, height: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={handleEditCancel}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-              >
-                {t.settings.cancelBtn}
-              </button>
-              <button
-                onClick={handleEditSave}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#28a745',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-              >
-                {t.settings.saveBtn}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
     </PageTransition>
   );
