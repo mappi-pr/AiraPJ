@@ -48,6 +48,9 @@ const trimImage = (src: string): Promise<string> => {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
+// Placeholder image for broken/missing images
+const PLACEHOLDER_IMAGE_DATA_URL = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIvPg==';
+
 // パーツ型
 export type PartInfo = {
   id: number;
@@ -261,7 +264,7 @@ const TrimmedButton: React.FC<TrimmedButtonProps> = ({ part, selected, onSelect 
           const img = e.currentTarget;
           img.onerror = null;
           // Set a safe placeholder image instead of an empty src to avoid further error events.
-          img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIvPg==';
+          img.src = PLACEHOLDER_IMAGE_DATA_URL;
           img.style.background = '#ccc';
         }}
       />

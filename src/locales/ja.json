@@ -17,7 +17,8 @@
     "title": "キャラクターパーツ選択",
     "face": "顔",
     "frontHair": "前髪",
-    "backHair": "後髪"
+    "backHair": "後髪",
+    "compositePreview": "合成プレビュー"
   },
   "backgroundSelect": {
     "title": "背景選択",
