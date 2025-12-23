@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from '../hooks/useTranslation';
@@ -18,7 +18,6 @@ const Settings: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [currentPages, setCurrentPages] = useState<Record<string, number>>({});
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
-  const [navButtonImages, setNavButtonImages] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const [navResult, setNavResult] = useState<string>('');
   const [navResultType, setNavResultType] = useState<'success' | 'error' | null>(null);
   const prevButtonFileRef = useRef<HTMLInputElement>(null);
@@ -186,11 +185,6 @@ const Settings: React.FC = () => {
     setCurrentPages((prev) => ({ ...prev, [type]: 1 })); // 検索時は1ページ目に戻る
   };
 
-  // ナビゲーションボタンの画像を同期
-  useEffect(() => {
-    setNavButtonImages(buttonImages);
-  }, [buttonImages]);
-
   // ナビゲーションボタン画像のアップロード
   const handleNavButtonUpload = async (buttonType: 'prev' | 'next') => {
     const fileRef = buttonType === 'prev' ? prevButtonFileRef : nextButtonFileRef;
@@ -259,9 +253,9 @@ const Settings: React.FC = () => {
             <h3>{t.settings.prevButtonLabel}</h3>
             <div style={{ marginBottom: '12px' }}>
               <strong>{t.settings.currentImage}</strong>{' '}
-              {navButtonImages.prev ? (
+              {buttonImages.prev ? (
                 <img 
-                  src={navButtonImages.prev} 
+                  src={buttonImages.prev} 
                   alt="←" 
                   style={{ maxWidth: 40, maxHeight: 40, marginLeft: '8px', verticalAlign: 'middle' }} 
                 />
@@ -290,7 +284,7 @@ const Settings: React.FC = () => {
               >
                 {t.settings.uploadNavBtn}
               </button>
-              {navButtonImages.prev && (
+              {buttonImages.prev && (
                 <button 
                   type="button" 
                   onClick={() => handleNavButtonReset('prev')}
@@ -314,9 +308,9 @@ const Settings: React.FC = () => {
             <h3>{t.settings.nextButtonLabel}</h3>
             <div style={{ marginBottom: '12px' }}>
               <strong>{t.settings.currentImage}</strong>{' '}
-              {navButtonImages.next ? (
+              {buttonImages.next ? (
                 <img 
-                  src={navButtonImages.next} 
+                  src={buttonImages.next} 
                   alt="→" 
                   style={{ maxWidth: 40, maxHeight: 40, marginLeft: '8px', verticalAlign: 'middle' }} 
                 />
@@ -345,7 +339,7 @@ const Settings: React.FC = () => {
               >
                 {t.settings.uploadNavBtn}
               </button>
-              {navButtonImages.next && (
+              {buttonImages.next && (
                 <button 
                   type="button" 
                   onClick={() => handleNavButtonReset('next')}
