@@ -95,10 +95,11 @@ const Settings: React.FC = () => {
     const formData = new FormData();
     formData.append('name', name || '');
     formData.append('asset', file);
-    if (offsetX) formData.append('offsetX', offsetX);
-    if (offsetY) formData.append('offsetY', offsetY);
-    if (width) formData.append('width', width);
-    if (height) formData.append('height', height);
+    // Always append position/size values (backend will use defaults if not provided)
+    if (offsetX !== undefined && offsetX !== '') formData.append('offsetX', offsetX);
+    if (offsetY !== undefined && offsetY !== '') formData.append('offsetY', offsetY);
+    if (width !== undefined && width !== '') formData.append('width', width);
+    if (height !== undefined && height !== '') formData.append('height', height);
     const url = uploadUrls[type];
     setUploading(true);
     try {

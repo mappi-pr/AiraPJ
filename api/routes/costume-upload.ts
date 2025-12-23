@@ -31,11 +31,11 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     const { name, offsetX, offsetY, width, height } = req.body;
     const assetPath = `/uploads/csm/${req.file.filename}`;
     
-    // Parse and validate numeric parameters
-    const parsedOffsetX = offsetX ? parseInt(offsetX) : 0;
-    const parsedOffsetY = offsetY ? parseInt(offsetY) : 0;
-    const parsedWidth = width ? parseInt(width) : 240;
-    const parsedHeight = height ? parseInt(height) : 320;
+    // Parse and validate numeric parameters (handle '0' as valid value)
+    const parsedOffsetX = offsetX !== undefined && offsetX !== '' ? parseInt(offsetX) : 0;
+    const parsedOffsetY = offsetY !== undefined && offsetY !== '' ? parseInt(offsetY) : 0;
+    const parsedWidth = width !== undefined && width !== '' ? parseInt(width) : 240;
+    const parsedHeight = height !== undefined && height !== '' ? parseInt(height) : 320;
     
     // Validate ranges (allow negative offsets but reasonable limits)
     if (parsedOffsetX < -1000 || parsedOffsetX > 1000) {
