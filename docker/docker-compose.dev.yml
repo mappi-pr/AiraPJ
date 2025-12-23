@@ -20,11 +20,10 @@ services:
 
   # API サーバー (Express) - 開発モード
   api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
+    image: node:20-alpine
     container_name: airapj-api-dev
     restart: unless-stopped
+    working_dir: /app
     environment:
       DB_NAME: ${DB_NAME:-airapj}
       DB_USER: ${DB_USER:-postgres}
@@ -34,15 +33,15 @@ services:
       PORT: 4000
       UPLOADS_DIR: /app/uploads
     volumes:
-      - ./api:/app
-      - /app/node_modules
+      - ../api:/app
+      - api_node_modules:/app/node_modules
       - uploads_data_dev:/app/uploads
     ports:
       - "4000:4000"
     depends_on:
       db:
         condition: service_healthy
-    command: npm run dev
+    command: sh -c "npm install && npm run dev"
 
   # フロントエンド (Vite 開発サーバー)
   frontend:
@@ -52,8 +51,10 @@ services:
     working_dir: /app
     environment:
       VITE_API_BASE_URL: http://localhost:4000
+      # Docker環境ではAPIサービス名を使用（デフォルトはhttp://api:4000）
+      # VITE_API_PROXY: http://localhost:4000  # ローカル開発時のみ設定
     volumes:
-      - .:/app
+      - ..:/app
       - /app/node_modules
       - /app/api
       - /app/docker
@@ -66,3 +67,4 @@ services:
 volumes:
   postgres_data_dev:
   uploads_data_dev:
+  api_node_modules:
