@@ -20,6 +20,10 @@ const Settings: React.FC = () => {
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
+  const offsetXRef = useRef<HTMLInputElement>(null);
+  const offsetYRef = useRef<HTMLInputElement>(null);
+  const widthRef = useRef<HTMLInputElement>(null);
+  const heightRef = useRef<HTMLInputElement>(null);
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
 
@@ -76,6 +80,10 @@ const Settings: React.FC = () => {
     const type = assetTypeRef.current?.value;
     const name = assetNameRef.current?.value;
     const file = assetFileRef.current?.files?.[0];
+    const offsetX = offsetXRef.current?.value;
+    const offsetY = offsetYRef.current?.value;
+    const width = widthRef.current?.value;
+    const height = heightRef.current?.value;
     if (!file || file.type !== 'image/png') {
       setResult(t.settings.pngOnly);
       return;
@@ -87,6 +95,10 @@ const Settings: React.FC = () => {
     const formData = new FormData();
     formData.append('name', name || '');
     formData.append('asset', file);
+    if (offsetX) formData.append('offsetX', offsetX);
+    if (offsetY) formData.append('offsetY', offsetY);
+    if (width) formData.append('width', width);
+    if (height) formData.append('height', height);
     const url = uploadUrls[type];
     setUploading(true);
     try {
@@ -204,6 +216,28 @@ const Settings: React.FC = () => {
           <br />
           <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
           <br />
+          <details style={{ margin: '12px 0' }}>
+            <summary style={{ cursor: 'pointer', userSelect: 'none' }}>位置・サイズ設定 (オプション)</summary>
+            <div style={{ marginLeft: '20px', marginTop: '8px' }}>
+              <label>
+                X オフセット: <input type="number" name="offsetX" ref={offsetXRef} defaultValue="0" style={{ width: '80px' }} />
+              </label>
+              <br />
+              <label>
+                Y オフセット: <input type="number" name="offsetY" ref={offsetYRef} defaultValue="0" style={{ width: '80px' }} />
+              </label>
+              <br />
+              <label>
+                幅: <input type="number" name="width" ref={widthRef} defaultValue="240" style={{ width: '80px' }} />
+              </label>
+              <br />
+              <label>
+                高さ: <input type="number" name="height" ref={heightRef} defaultValue="320" style={{ width: '80px' }} />
+              </label>
+              <br />
+              <small style={{ color: '#666' }}>※ 未入力時のデフォルト値: オフセット(0,0)、サイズ(240×320)</small>
+            </div>
+          </details>
           <button type="submit" disabled={uploading}>
             {uploading ? t.settings.uploadingBtn : t.settings.uploadBtn}
           </button>

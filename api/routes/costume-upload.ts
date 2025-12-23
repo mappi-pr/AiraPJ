@@ -28,7 +28,7 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
       res.status(400).json({ error: 'No file uploaded' });
       return;
     }
-    const { name } = req.body;
+    const { name, offsetX, offsetY, width, height } = req.body;
     const assetPath = `/uploads/csm/${req.file.filename}`;
     
     const maxOrderItem = await Costume.findOne({ 
@@ -36,7 +36,15 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     });
     const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
     
-    const costume = await Costume.create({ name, assetPath, sortOrder });
+    const costume = await Costume.create({ 
+      name, 
+      assetPath, 
+      sortOrder,
+      offsetX: offsetX ? parseInt(offsetX) : 0,
+      offsetY: offsetY ? parseInt(offsetY) : 0,
+      width: width ? parseInt(width) : 240,
+      height: height ? parseInt(height) : 320,
+    });
     res.json(costume);
   } catch (err) {
     console.error('Costume upload error:', err);

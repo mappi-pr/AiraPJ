@@ -28,7 +28,7 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
       res.status(400).json({ error: 'No file uploaded' });
       return;
     }
-    const { name } = req.body;
+    const { name, offsetX, offsetY, width, height } = req.body;
     const assetPath = `/uploads/face/${req.file.filename}`;
     
     // 最大のsortOrderを取得して+1
@@ -37,7 +37,15 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     });
     const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
     
-    const face = await Face.create({ name, assetPath, sortOrder });
+    const face = await Face.create({ 
+      name, 
+      assetPath, 
+      sortOrder,
+      offsetX: offsetX ? parseInt(offsetX) : 0,
+      offsetY: offsetY ? parseInt(offsetY) : 0,
+      width: width ? parseInt(width) : 240,
+      height: height ? parseInt(height) : 320,
+    });
     res.json(face);
   } catch (err) {
     console.error('Face upload error:', err);

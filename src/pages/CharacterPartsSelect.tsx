@@ -83,13 +83,49 @@ const CharacterPartsSelect: React.FC = () => {
         <div style={{ position: 'relative', width: 240, height: 320, margin: '0 auto' }}>
           {/* 後髪 → 顔 → 前髪 の順で重ねる */}
           {backHairs[backIdx] && (
-            <img src={backHairs[backIdx].assetPath} alt={t.characterPartsSelect.backHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 0, width: 240, height: 320 }} />
+            <img 
+              src={backHairs[backIdx].assetPath} 
+              alt={t.characterPartsSelect.backHair} 
+              style={{ 
+                position: 'absolute', 
+                left: backHairs[backIdx].offsetX || 0, 
+                top: backHairs[backIdx].offsetY || 0, 
+                zIndex: 0, 
+                width: backHairs[backIdx].width || 240, 
+                height: backHairs[backIdx].height || 320,
+                objectFit: 'contain',
+              }} 
+            />
           )}
           {faces[faceIdx] && (
-            <img src={faces[faceIdx].assetPath} alt={t.characterPartsSelect.face} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, width: 240, height: 320 }} />
+            <img 
+              src={faces[faceIdx].assetPath} 
+              alt={t.characterPartsSelect.face} 
+              style={{ 
+                position: 'absolute', 
+                left: faces[faceIdx].offsetX || 0, 
+                top: faces[faceIdx].offsetY || 0, 
+                zIndex: 1, 
+                width: faces[faceIdx].width || 240, 
+                height: faces[faceIdx].height || 320,
+                objectFit: 'contain',
+              }} 
+            />
           )}
           {frontHairs[frontIdx] && (
-            <img src={frontHairs[frontIdx].assetPath} alt={t.characterPartsSelect.frontHair} style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, width: 240, height: 320 }} />
+            <img 
+              src={frontHairs[frontIdx].assetPath} 
+              alt={t.characterPartsSelect.frontHair} 
+              style={{ 
+                position: 'absolute', 
+                left: frontHairs[frontIdx].offsetX || 0, 
+                top: frontHairs[frontIdx].offsetY || 0, 
+                zIndex: 2, 
+                width: frontHairs[frontIdx].width || 240, 
+                height: frontHairs[frontIdx].height || 320,
+                objectFit: 'contain',
+              }} 
+            />
           )}
         </div>
         <form onSubmit={handleNextPage}>

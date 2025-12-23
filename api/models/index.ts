@@ -19,6 +19,10 @@ export class Background extends Model {
   public deleted!: boolean;
   public deletedAt!: Date | null;
   public sortOrder!: number;
+  public offsetX!: number;
+  public offsetY!: number;
+  public width!: number;
+  public height!: number;
 }
 Background.init(
   {
@@ -28,6 +32,10 @@ Background.init(
     deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deletedAt: { type: DataTypes.DATE, allowNull: true },
     sortOrder: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    offsetX: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    offsetY: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    width: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 240 },
+    height: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 320 },
   },
   { sequelize, modelName: 'Background', tableName: 'backgrounds', timestamps: false }
 );
@@ -39,6 +47,10 @@ export class Costume extends Model {
   public deleted!: boolean;
   public deletedAt!: Date | null;
   public sortOrder!: number;
+  public offsetX!: number;
+  public offsetY!: number;
+  public width!: number;
+  public height!: number;
 }
 Costume.init(
   {
@@ -48,6 +60,10 @@ Costume.init(
     deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deletedAt: { type: DataTypes.DATE, allowNull: true },
     sortOrder: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    offsetX: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    offsetY: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    width: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 240 },
+    height: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 320 },
   },
   { sequelize, modelName: 'Costume', tableName: 'costumes', timestamps: false }
 );
