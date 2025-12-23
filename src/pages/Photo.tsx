@@ -36,6 +36,7 @@ const Photo: React.FC = () => {
 
   // スケール計算の共通関数
   const calculatePinchScale = (currentDistance: number) => {
+    if (initialPinchDistance.current === 0) return 1;
     const scaleChange = currentDistance / initialPinchDistance.current;
     let newScale = initialScale.current * scaleChange;
     // スケールを0.5～2の範囲に制限
@@ -171,24 +172,6 @@ const Photo: React.FC = () => {
     }
   };
 
-  // ピンチズーム中
-  const handlePinchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (isPinching && e.touches.length === 2) {
-      const currentDistance = getPinchDistance(e.touches);
-      const newScale = calculatePinchScale(currentDistance);
-      setScale(newScale);
-      e.preventDefault();
-    }
-  };
-
-  // ピンチズーム終了
-  const handlePinchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (isPinching) {
-      setIsPinching(false);
-      e.preventDefault();
-    }
-  };
-
   return (
     <PageTransition>
       <SparkleEffect />
@@ -258,8 +241,6 @@ const Photo: React.FC = () => {
             }}
             onMouseDown={handleDragStart}
             onTouchStart={handleDragStart}
-            onTouchMove={handlePinchMove}
-            onTouchEnd={handlePinchEnd}
           >
             {selectedParts.backHair && (
               <img
