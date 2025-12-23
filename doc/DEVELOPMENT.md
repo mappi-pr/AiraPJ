@@ -438,7 +438,7 @@ npm run migrate:undo
 docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
 
 # 本番モード
-docker compose exec api npm run migrate
+docker compose -f docker/docker-compose.yml exec api npm run migrate
 ```
 
 詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」セクションを参照してください。
@@ -1027,7 +1027,7 @@ api/migrations/
 docker compose -f docker/docker-compose.dev.yml up
 
 # 本番モード
-docker compose up
+docker compose -f docker/docker-compose.yml up
 
 # マイグレーションは不要（sequelize.sync() が最新スキーマでテーブルを作成）
 ```
@@ -1083,8 +1083,8 @@ docker compose -f docker/docker-compose.dev.yml exec api npm run migrate:status
 docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
 
 # 本番モード
-docker compose exec api npm run migrate:status
-docker compose exec api npm run migrate
+docker compose -f docker/docker-compose.yml exec api npm run migrate:status
+docker compose -f docker/docker-compose.yml exec api npm run migrate
 ```
 
 ### よくある問題と解決方法
@@ -1182,7 +1182,7 @@ npm run migrate:undo         # 最後のマイグレーションを取り消す
 
 # データベース接続
 docker compose -f docker/docker-compose.dev.yml exec db psql -U postgres -d airapj  # 開発モード
-docker compose exec db psql -U postgres -d airapj  # 本番モード
+docker compose -f docker/docker-compose.yml exec db psql -U postgres -d airapj  # 本番モード
 ```
 
 ---

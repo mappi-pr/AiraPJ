@@ -14,7 +14,7 @@ Express APIサーバーと連携し、キャラクター・背景・衣装の着
 cp .env.example .env
 
 # 開発用コンテナの起動（Vite dev server + API + PostgreSQL）
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up
+docker compose -f docker/docker-compose.dev.yml up
 
 # アクセス
 # フロントエンド: http://localhost:5173 (Vite dev server with HMR)
