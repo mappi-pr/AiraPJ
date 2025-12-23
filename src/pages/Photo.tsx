@@ -6,10 +6,11 @@ import html2canvas from 'html2canvas';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
+import { getUserId } from '../utils/user';
+import axios from 'axios';
 
 const Photo: React.FC = () => {
   // ドラッグ用state
-  const [dragPos, setDragPos] = React.useState({ x: 0, y: 0 });
   const [dragging, setDragging] = React.useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
   const { playClick, playSuccess } = useSound();
@@ -27,10 +28,12 @@ const Photo: React.FC = () => {
         clientX = e.clientX;
         clientY = e.clientY;
       }
-      setDragPos({
-        x: clientX - dragOffset.current.x,
-        y: clientY - dragOffset.current.y,
-      });
+      if (partsContext) {
+        partsContext.setDragPos({
+          x: clientX - dragOffset.current.x,
+          y: clientY - dragOffset.current.y,
+        });
+      }
     };
     const handleUp = () => setDragging(false);
     window.addEventListener('mousemove', handleMove);
@@ -48,7 +51,7 @@ const Photo: React.FC = () => {
   const partsContext = useContext(PartsContext);
   const photoRef = useRef<HTMLDivElement>(null);
   if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
-  const { selectedParts, scale, setScale } = partsContext;
+  const { selectedParts, scale, setScale, dragPos, setDragPos } = partsContext;
 
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
@@ -66,6 +69,25 @@ const Photo: React.FC = () => {
       link.download = 'my_character.png';
       link.href = canvas.toDataURL();
       link.click();
+
+      // Save generation history
+      try {
+        const userId = getUserId();
+        await axios.post('/api/generation-history', {
+          userId,
+          backgroundId: selectedParts.background?.id || null,
+          costumeId: selectedParts.costume?.id || null,
+          backHairId: selectedParts.backHair?.id || null,
+          faceId: selectedParts.face?.id || null,
+          frontHairId: selectedParts.frontHair?.id || null,
+          scale,
+          dragX: dragPos.x,
+          dragY: dragPos.y,
+        });
+        console.log('Generation history saved');
+      } catch (error) {
+        console.error('Failed to save generation history:', error);
+      }
     }
   };
 

@@ -8,9 +8,8 @@ export default defineConfig({
     host: '0.0.0.0', // すべてのネットワークインターフェースでリッスン（スマホ実機アクセス用）
     port: 5173,
     proxy: {
-      // Docker環境ではサービス名を使用、ローカル開発では環境変数で切り替え可能
-      '/api': process.env.VITE_API_PROXY || 'http://api:4000',
-      '/uploads': process.env.VITE_API_PROXY || 'http://api:4000',
+      '/api': 'http://localhost:4000',
+      '/uploads': 'http://localhost:4000',
     },
   },
 })

@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { FrontHair } from '../models/frontHair';
@@ -7,12 +7,18 @@ const router = Router();
 
 // GET /api/front-hair
 router.get('/', async (req, res) => {
+  const frontHairs = await FrontHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+  res.json(frontHairs);
+});
+
+// GET /api/front-hair/:id
+router.get('/:id', async (req, res) => {
   try {
-    const frontHairs = await FrontHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-    res.json(frontHairs);
-  } catch (e) {
-    console.error('Error fetching front hair:', e);
-    res.status(500).json({ error: 'Failed to fetch front hair' });
+    const frontHair = await FrontHair.findByPk(req.params.id);
+    if (!frontHair || frontHair.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(frontHair);
+  } catch {
+    res.status(500).json({ error: 'Fetch failed' });
   }
 });
 
@@ -32,7 +38,7 @@ router.delete('/:id', async (req, res) => {
     frontHair.deletedAt = new Date();
     await frontHair.save();
     res.json({ success: true });
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: 'Delete failed' });
   }
 });

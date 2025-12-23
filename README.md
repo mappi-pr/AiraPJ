@@ -14,7 +14,7 @@ Express APIサーバーと連携し、キャラクター・背景・衣装の着
 cp .env.example .env
 
 # 開発用コンテナの起動（Vite dev server + API + PostgreSQL）
-docker compose -f docker/docker-compose.dev.yml up
+docker compose -f docker-compose.dev.yml up
 
 # アクセス
 # フロントエンド: http://localhost:5173 (Vite dev server with HMR)
@@ -32,7 +32,7 @@ docker compose -f docker/docker-compose.dev.yml up
 cp .env.example .env
 
 # 本番用コンテナの起動（nginx + API + PostgreSQL）
-docker compose -f docker/docker-compose.yml up -d
+docker compose up -d
 
 # アクセス
 # フロントエンド: http://localhost (nginx)
@@ -110,8 +110,7 @@ AiraPJ/
 │   ├── routes/          # API ルーティング
 │   ├── models/          # Sequelize モデル
 │   └── uploads/         # アップロードファイル
-├── docker/              # Docker設定（Dockerfile、docker-compose.yml等）
-├── scripts/             # 補助スクリプト（WSLポートフォワーディング等）
+├── docker/              # Docker設定
 ├── doc/                 # ドキュメント
 └── public/              # 静的ファイル
 ```

@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { Background } from '../models';
@@ -7,12 +7,18 @@ const router = Router();
 
 // GET /api/background
 router.get('/', async (req, res) => {
+  const backgrounds = await Background.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+  res.json(backgrounds);
+});
+
+// GET /api/background/:id
+router.get('/:id', async (req, res) => {
   try {
-    const backgrounds = await Background.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-    res.json(backgrounds);
-  } catch (e) {
-    console.error('Error fetching backgrounds:', e);
-    res.status(500).json({ error: 'Failed to fetch backgrounds' });
+    const background = await Background.findByPk(req.params.id);
+    if (!background || background.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(background);
+  } catch {
+    res.status(500).json({ error: 'Fetch failed' });
   }
 });
 
@@ -32,7 +38,7 @@ router.delete('/:id', async (req, res) => {
     background.deletedAt = new Date();
     await background.save();
     res.json({ success: true });
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: 'Delete failed' });
   }
 });

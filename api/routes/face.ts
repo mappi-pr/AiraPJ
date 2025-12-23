@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { Face } from '../models/face';
@@ -7,12 +7,18 @@ const router = Router();
 
 // GET /api/face
 router.get('/', async (req, res) => {
+  const faces = await Face.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+  res.json(faces);
+});
+
+// GET /api/face/:id
+router.get('/:id', async (req, res) => {
   try {
-    const faces = await Face.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-    res.json(faces);
-  } catch (e) {
-    console.error('Error fetching faces:', e);
-    res.status(500).json({ error: 'Failed to fetch faces' });
+    const face = await Face.findByPk(req.params.id);
+    if (!face || face.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(face);
+  } catch {
+    res.status(500).json({ error: 'Fetch failed' });
   }
 });
 
@@ -34,7 +40,7 @@ router.delete('/:id', async (req, res) => {
     face.deletedAt = new Date();
     await face.save();
     res.json({ success: true });
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: 'Delete failed' });
   }
 });
