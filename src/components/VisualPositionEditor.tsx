@@ -76,13 +76,12 @@ const VisualPositionEditor: React.FC<VisualPositionEditorProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        width: '100vw',
-        height: '100vh',
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 9999,
+        overflowY: 'auto',
       }}
       onClick={onClose}
     >
@@ -95,6 +94,7 @@ const VisualPositionEditor: React.FC<VisualPositionEditorProps> = ({
           maxHeight: '90vh',
           overflow: 'auto',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+          margin: 'auto',
         }}
         onClick={(e) => e.stopPropagation()}
       >
