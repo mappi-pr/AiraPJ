@@ -31,6 +31,30 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     const { name, offsetX, offsetY, width, height } = req.body;
     const assetPath = `/uploads/bg/${req.file.filename}`;
     
+    // Parse and validate numeric parameters
+    const parsedOffsetX = offsetX ? parseInt(offsetX) : 0;
+    const parsedOffsetY = offsetY ? parseInt(offsetY) : 0;
+    const parsedWidth = width ? parseInt(width) : 240;
+    const parsedHeight = height ? parseInt(height) : 320;
+    
+    // Validate ranges (allow negative offsets but reasonable limits)
+    if (parsedOffsetX < -1000 || parsedOffsetX > 1000) {
+      res.status(400).json({ error: 'offsetX must be between -1000 and 1000' });
+      return;
+    }
+    if (parsedOffsetY < -1000 || parsedOffsetY > 1000) {
+      res.status(400).json({ error: 'offsetY must be between -1000 and 1000' });
+      return;
+    }
+    if (parsedWidth < 1 || parsedWidth > 2000) {
+      res.status(400).json({ error: 'width must be between 1 and 2000' });
+      return;
+    }
+    if (parsedHeight < 1 || parsedHeight > 2000) {
+      res.status(400).json({ error: 'height must be between 1 and 2000' });
+      return;
+    }
+    
     const maxOrderItem = await Background.findOne({ 
       order: [['sortOrder', 'DESC']] 
     });
@@ -40,10 +64,10 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
       name, 
       assetPath, 
       sortOrder,
-      offsetX: offsetX ? parseInt(offsetX) : 0,
-      offsetY: offsetY ? parseInt(offsetY) : 0,
-      width: width ? parseInt(width) : 240,
-      height: height ? parseInt(height) : 320,
+      offsetX: parsedOffsetX,
+      offsetY: parsedOffsetY,
+      width: parsedWidth,
+      height: parsedHeight,
     });
     res.json(background);
   } catch (err) {
