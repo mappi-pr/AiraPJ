@@ -287,11 +287,19 @@ interface TrimmedButtonProps {
 }
 const TrimmedButton: React.FC<TrimmedButtonProps> = ({ part, selected, onSelect }) => {
   const [trimmedSrc, setTrimmedSrc] = useState<string>('');
-  const [isTrimming, setIsTrimming] = useState(true);
+  const [isTrimming, setIsTrimming] = useState(false);
   
   useEffect(() => {
     let mounted = true;
     const src = getImageSrc(part);
+    
+    // Check if already cached before showing spinner
+    if (trimCache.has(src)) {
+      setTrimmedSrc(trimCache.get(src)!);
+      setIsTrimming(false);
+      return;
+    }
+    
     setIsTrimming(true);
     trimImage(src).then(dataUrl => { 
       if (mounted) {
