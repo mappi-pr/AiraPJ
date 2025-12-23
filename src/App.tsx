@@ -11,6 +11,7 @@ import Settings from './pages/Settings';
 import Terms from './pages/Terms';
 import { PartsProvider } from './context/PartsContext';
 import { LocaleProvider } from './context/LocaleContext';
+import { NavigationButtonProvider } from './context/NavigationButtonContext';
 
 // BGM file path - place your MP3 file in src/assets/sound/bgm/main.mp3
 // Empty string disables BGM until file is added
@@ -97,26 +98,28 @@ function App() {
 
   return (
     <LocaleProvider>
-      <PartsProvider>
-        <BrowserRouter>
-          { <audio ref={bgmRef} src={bgmpath} loop /> }
-          <div id="sound-toggle" style={{ position: 'absolute', right: 16, top: 16, zIndex: 2, display: 'flex', gap: 8 }}>
-            <button type="button" onClick={toggleBgm}>BGM: {bgmOn ? 'ON' : 'OFF'}</button>
-            <button type="button" onClick={toggleSe}>SE: {seOn ? 'ON' : 'OFF'}</button>
-          </div>
-          <Routes>
-            <Route path="/" element={<Title />} />
-            <Route path="/title" element={<Title />} />
-            <Route path="/character" element={<CharacterPartsSelect />} />
-            <Route path="/background" element={<BackgroundSelect />} />
-            <Route path="/costume" element={<CostumeSelect />} />
-            <Route path="/photo" element={<Photo />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/terms" element={<Terms />} />
-          </Routes>
-        </BrowserRouter>
-      </PartsProvider>
+      <NavigationButtonProvider>
+        <PartsProvider>
+          <BrowserRouter>
+            { <audio ref={bgmRef} src={bgmpath} loop /> }
+            <div id="sound-toggle" style={{ position: 'absolute', right: 16, top: 16, zIndex: 2, display: 'flex', gap: 8 }}>
+              <button type="button" onClick={toggleBgm}>BGM: {bgmOn ? 'ON' : 'OFF'}</button>
+              <button type="button" onClick={toggleSe}>SE: {seOn ? 'ON' : 'OFF'}</button>
+            </div>
+            <Routes>
+              <Route path="/" element={<Title />} />
+              <Route path="/title" element={<Title />} />
+              <Route path="/character" element={<CharacterPartsSelect />} />
+              <Route path="/background" element={<BackgroundSelect />} />
+              <Route path="/costume" element={<CostumeSelect />} />
+              <Route path="/photo" element={<Photo />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/terms" element={<Terms />} />
+            </Routes>
+          </BrowserRouter>
+        </PartsProvider>
+      </NavigationButtonProvider>
     </LocaleProvider>
   )
 }

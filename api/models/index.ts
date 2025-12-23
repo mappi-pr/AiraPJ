@@ -45,4 +45,5 @@ Costume.init(
 import './user';
 import './generationHistory';
 
+export { NavigationButton } from './navigationButton';
 export { sequelize };
