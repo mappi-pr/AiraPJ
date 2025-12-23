@@ -7,6 +7,10 @@ import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 
+// フォトエリアの固定サイズ (3:4のアスペクト比)
+const PHOTO_WIDTH = 240;
+const PHOTO_HEIGHT = 320;
+
 const Photo: React.FC = () => {
   // ドラッグ用state
   const [dragPos, setDragPos] = React.useState({ x: 0, y: 0 });
@@ -135,8 +139,8 @@ const Photo: React.FC = () => {
         useCORS: true, 
         background: undefined,
         scale: window.devicePixelRatio * 2,
-        width: 240,
-        height: 320
+        width: PHOTO_WIDTH,
+        height: PHOTO_HEIGHT
       } as any );
       const link = document.createElement('a');
       link.download = 'my_character.png';
@@ -201,8 +205,8 @@ const Photo: React.FC = () => {
           ref={photoRef}
           style={{
             position: 'relative',
-            width: 240,
-            height: 320,
+            width: PHOTO_WIDTH,
+            height: PHOTO_HEIGHT,
             background: '#eee',
             margin: '0 auto',
             overflow: 'hidden',
@@ -219,8 +223,8 @@ const Photo: React.FC = () => {
                 position: 'absolute',
                 left: 0,
                 top: 0,
-                width: 240,
-                height: 320,
+                width: PHOTO_WIDTH,
+                height: PHOTO_HEIGHT,
                 zIndex: 0,
                 objectFit: 'cover',
                 pointerEvents: 'none',
@@ -228,7 +232,7 @@ const Photo: React.FC = () => {
               }}
             />
           ) : (
-            <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noBackground}</div>
+            <div style={{position:'absolute',left:0,top:0,width:PHOTO_WIDTH,height:PHOTO_HEIGHT,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noBackground}</div>
           )}
           {/* パーツ重ね順: 後髪→衣装→顔→前髪 */}
           <div
@@ -237,8 +241,8 @@ const Photo: React.FC = () => {
               position: 'absolute',
               left: dragPos.x,
               top: dragPos.y,
-              width: 240,
-              height: 320,
+              width: PHOTO_WIDTH,
+              height: PHOTO_HEIGHT,
               zIndex: 1,
               transform: `scale(${scale})`,
               transformOrigin: 'center center',
@@ -258,8 +262,8 @@ const Photo: React.FC = () => {
                   position: 'absolute',
                   left: 0,
                   top: 0,
-                  width: 240,
-                  height: 320,
+                  width: PHOTO_WIDTH,
+                  height: PHOTO_HEIGHT,
                   zIndex: 1,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -277,8 +281,8 @@ const Photo: React.FC = () => {
                   position: 'absolute',
                   left: 0,
                   top: 0,
-                  width: 240,
-                  height: 320,
+                  width: PHOTO_WIDTH,
+                  height: PHOTO_HEIGHT,
                   zIndex: 2,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -286,7 +290,7 @@ const Photo: React.FC = () => {
                 }}
               />
             ) : (
-              <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noCostume}</div>
+              <div style={{position:'absolute',left:0,top:0,width:PHOTO_WIDTH,height:PHOTO_HEIGHT,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noCostume}</div>
             )}
             {selectedParts.face && (
               <img
@@ -298,8 +302,8 @@ const Photo: React.FC = () => {
                   position: 'absolute',
                   left: 0,
                   top: 0,
-                  width: 240,
-                  height: 320,
+                  width: PHOTO_WIDTH,
+                  height: PHOTO_HEIGHT,
                   zIndex: 3,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -317,8 +321,8 @@ const Photo: React.FC = () => {
                   position: 'absolute',
                   left: 0,
                   top: 0,
-                  width: 240,
-                  height: 320,
+                  width: PHOTO_WIDTH,
+                  height: PHOTO_HEIGHT,
                   zIndex: 4,
                   objectFit: 'contain',
                   pointerEvents: 'none',
