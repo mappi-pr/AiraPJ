@@ -144,7 +144,7 @@ const Photo: React.FC = () => {
       
       // 正しいアスペクト比(3:4)でリサイズ
       const targetCanvas = document.createElement('canvas');
-      const targetScale = 2; // 高解像度出力用
+      const targetScale = 2; // 固定2倍で高解像度出力（デバイスに依存せず一貫した品質）
       targetCanvas.width = PHOTO_WIDTH * targetScale;
       targetCanvas.height = PHOTO_HEIGHT * targetScale;
       
@@ -154,7 +154,7 @@ const Photo: React.FC = () => {
         return;
       }
       
-      // ソースキャンバスを正しいアスペクト比で描画
+      // ソースキャンバスをターゲットサイズに拡大縮小して正しいアスペクト比で描画
       ctx.drawImage(sourceCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
       
       const link = document.createElement('a');
