@@ -161,7 +161,7 @@ const CharacterPartsSelect: React.FC = () => {
           <div style={{ textAlign: 'center', margin: '32px 0', fontSize: 18, color: '#888' }}>{t.common.loading}</div>
         ) : (
           <>
-            <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
               <div style={{ position: 'relative', width: 80, height: 80 }}>
                 {trimmedPreviewUrl ? (
                   <img src={trimmedPreviewUrl} alt={t.characterPartsSelect.compositePreview} style={{ width: 80, height: 80, borderRadius: 16 }} />
