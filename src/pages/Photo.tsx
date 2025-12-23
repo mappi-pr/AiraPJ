@@ -135,16 +135,28 @@ const Photo: React.FC = () => {
   const handleDownload = async () => {
     playSuccess();
     if (photoRef.current) {
-      const canvas = await html2canvas(photoRef.current, { 
+      // html2canvasで一旦キャプチャ
+      const sourceCanvas = await html2canvas(photoRef.current, { 
         useCORS: true, 
         background: undefined,
-        scale: window.devicePixelRatio * 2,
-        width: PHOTO_WIDTH,
-        height: PHOTO_HEIGHT
+        scale: window.devicePixelRatio * 2
       } as any );
+      
+      // 正しいアスペクト比(3:4)でリサイズ
+      const targetCanvas = document.createElement('canvas');
+      const targetScale = 2; // 高解像度出力用
+      targetCanvas.width = PHOTO_WIDTH * targetScale;
+      targetCanvas.height = PHOTO_HEIGHT * targetScale;
+      
+      const ctx = targetCanvas.getContext('2d');
+      if (ctx) {
+        // ソースキャンバスを正しいアスペクト比で描画
+        ctx.drawImage(sourceCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
+      }
+      
       const link = document.createElement('a');
       link.download = 'my_character.png';
-      link.href = canvas.toDataURL();
+      link.href = targetCanvas.toDataURL();
       link.click();
     }
   };
