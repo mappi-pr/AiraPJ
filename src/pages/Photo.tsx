@@ -192,7 +192,7 @@ const Photo: React.FC = () => {
               value={scale}
               onChange={e => setScale(Number(e.target.value))}
             />
-            {scale}{t.photo.scaleSuffix}
+            {scale.toFixed(2)}{t.photo.scaleSuffix}
           </label>
         </div>
         <div
