@@ -198,19 +198,24 @@ const CharacterPartsSelect: React.FC = () => {
       const trimmedWidth = bounds.right - bounds.left + 1;
       const trimmedHeight = bounds.bottom - bounds.top + 1;
       
-      // Create a new canvas for the trimmed content
+      // Calculate aspect ratio and scale to fit within 80px width while preserving aspect ratio
+      const maxWidth = 80;
+      const aspectRatio = trimmedHeight / trimmedWidth;
+      const finalWidth = maxWidth;
+      const finalHeight = Math.round(maxWidth * aspectRatio);
+      
+      // Create a new canvas for the trimmed content with preserved aspect ratio
       const trimmedCanvas = document.createElement('canvas');
-      const finalSize = 80;
-      trimmedCanvas.width = finalSize;
-      trimmedCanvas.height = finalSize;
+      trimmedCanvas.width = finalWidth;
+      trimmedCanvas.height = finalHeight;
       const trimmedCtx = trimmedCanvas.getContext('2d');
       if (!trimmedCtx) return;
       
-      // Draw the trimmed content scaled to fit the final size
+      // Draw the trimmed content scaled to fit the final size while preserving aspect ratio
       trimmedCtx.drawImage(
         canvas,
         bounds.left, bounds.top, trimmedWidth, trimmedHeight,
-        0, 0, finalSize, finalSize
+        0, 0, finalWidth, finalHeight
       );
       
       const dataUrl = trimmedCanvas.toDataURL();
@@ -250,9 +255,9 @@ const CharacterPartsSelect: React.FC = () => {
         ) : (
           <>
             <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
-              <div style={{ position: 'relative', width: 80, height: 80 }}>
+              <div style={{ position: 'relative', width: 80, minHeight: 80 }}>
                 {trimmedPreviewUrl ? (
-                  <img src={trimmedPreviewUrl} alt={t.characterPartsSelect.compositePreview} style={{ width: 80, height: 80, borderRadius: 16 }} />
+                  <img src={trimmedPreviewUrl} alt={t.characterPartsSelect.compositePreview} style={{ width: 80, height: 'auto', borderRadius: 16 }} />
                 ) : (
                   <div style={{ width: 80, height: 80, background: '#eee', borderRadius: 16 }} />
                 )}
