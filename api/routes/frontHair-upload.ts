@@ -37,6 +37,12 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     const parsedWidth = width !== undefined && width !== '' ? parseInt(width) : 240;
     const parsedHeight = height !== undefined && height !== '' ? parseInt(height) : 320;
     
+    // Check for NaN values
+    if (isNaN(parsedOffsetX) || isNaN(parsedOffsetY) || isNaN(parsedWidth) || isNaN(parsedHeight)) {
+      res.status(400).json({ error: 'Invalid numeric values provided' });
+      return;
+    }
+    
     // Validate ranges (allow negative offsets but reasonable limits)
     if (parsedOffsetX < -1000 || parsedOffsetX > 1000) {
       res.status(400).json({ error: 'offsetX must be between -1000 and 1000' });
