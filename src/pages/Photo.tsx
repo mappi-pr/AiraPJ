@@ -135,11 +135,11 @@ const Photo: React.FC = () => {
   const handleDownload = async () => {
     playSuccess();
     if (photoRef.current) {
-      // html2canvasでキャプチャ（明示的にwidth/heightを指定して正確な出力を保証）
+      // 高解像度でキャプチャ（scale=3で720x960の高画質出力）
       const canvas = await html2canvas(photoRef.current, { 
         useCORS: true, 
         background: undefined,
-        scale: 1,
+        scale: 3,  // 3倍解像度で高画質出力
         width: PHOTO_WIDTH,
         height: PHOTO_HEIGHT,
         windowWidth: PHOTO_WIDTH,
