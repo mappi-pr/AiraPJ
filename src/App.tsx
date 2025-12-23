@@ -137,22 +137,36 @@ function App() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: 'rgba(15, 52, 96, 0.85)',
+            backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 9999
           }}>
             <div style={{
-              backgroundColor: '#1a1a1a',
-              padding: '2rem',
-              borderRadius: '12px',
-              maxWidth: '400px',
+              background: 'linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%)',
+              padding: '2.5rem',
+              borderRadius: '16px',
+              maxWidth: '420px',
               textAlign: 'center',
-              border: '1px solid #646cff'
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
             }}>
-              <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>{texts.audioModal.title}</h2>
-              <p style={{ marginBottom: '2rem', lineHeight: '1.6' }}>
+              <h2 style={{ 
+                marginTop: 0, 
+                marginBottom: '1.5rem',
+                color: '#ffffff',
+                fontSize: '1.5rem',
+                fontWeight: '600',
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+              }}>{texts.audioModal.title}</h2>
+              <p style={{ 
+                marginBottom: '2rem', 
+                lineHeight: '1.6',
+                color: 'rgba(255, 255, 255, 0.9)',
+                fontSize: '0.95rem'
+              }}>
                 {texts.audioModal.message}<br />
                 {texts.audioModal.question}
               </p>
@@ -161,11 +175,24 @@ function App() {
                   type="button" 
                   onClick={() => handleAudioChoice(true)}
                   style={{
-                    backgroundColor: '#646cff',
+                    background: 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)',
                     color: 'white',
-                    padding: '0.75rem 1.5rem',
+                    padding: '0.75rem 2rem',
                     fontSize: '1rem',
-                    fontWeight: 'bold'
+                    fontWeight: '600',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(74, 144, 226, 0.3)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(74, 144, 226, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(74, 144, 226, 0.3)';
                   }}
                 >
                   {texts.audioModal.enableButton}
@@ -174,10 +201,24 @@ function App() {
                   type="button" 
                   onClick={() => handleAudioChoice(false)}
                   style={{
-                    backgroundColor: '#2a2a2a',
-                    color: 'rgba(255, 255, 255, 0.87)',
-                    padding: '0.75rem 1.5rem',
-                    fontSize: '1rem'
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    padding: '0.75rem 2rem',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
                   {texts.audioModal.disableButton}
