@@ -29,6 +29,7 @@ const Photo: React.FC = () => {
 
   // ピンチズーム距離計算
   const getPinchDistance = (touches: React.TouchList | TouchList) => {
+    if (touches.length < 2) return 0;
     const dx = touches[0].clientX - touches[1].clientX;
     const dy = touches[0].clientY - touches[1].clientY;
     return Math.sqrt(dx * dx + dy * dy);
@@ -81,13 +82,13 @@ const Photo: React.FC = () => {
   React.useEffect(() => {
     if (!isPinching) return;
     const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
+      if (e.touches.length >= 2) {
         const currentDistance = getPinchDistance(e.touches);
         const newScale = calculatePinchScale(currentDistance);
         setScale(newScale);
         e.preventDefault();
       } else {
-        // 2本指でない場合はピンチモード終了
+        // 2本指未満の場合はピンチモード終了
         setIsPinching(false);
       }
     };
@@ -121,7 +122,7 @@ const Photo: React.FC = () => {
     return () => {
       characterElement.removeEventListener('wheel', handleWheel);
     };
-  }, [setScale]);
+  }, []);
 
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
