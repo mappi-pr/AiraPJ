@@ -14,11 +14,34 @@ const Photo: React.FC = () => {
   const dragOffset = useRef({ x: 0, y: 0 });
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
+  
+  // ピンチズーム用state
+  const [isPinching, setIsPinching] = React.useState(false);
+  const initialPinchDistance = useRef<number>(0);
+  const initialScale = useRef<number>(1);
+  const characterRef = useRef<HTMLDivElement>(null);
+  
+  // Context取得
+  const partsContext = useContext(PartsContext);
+  const photoRef = useRef<HTMLDivElement>(null);
+  if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
+  const { selectedParts, scale, setScale } = partsContext;
+
+  // ピンチズーム距離計算
+  const getPinchDistance = (touches: React.TouchList | TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
 
   // ドラッグ中のグローバルイベント監視
   React.useEffect(() => {
     if (!dragging) return;
     const handleMove = (e: MouseEvent | TouchEvent) => {
+      if (e instanceof TouchEvent && e.touches.length > 1) {
+        // 2本指以上の場合はドラッグ処理をスキップ
+        return;
+      }
       let clientX, clientY;
       if (e instanceof TouchEvent) {
         clientX = e.touches[0]?.clientX ?? 0;
@@ -45,10 +68,30 @@ const Photo: React.FC = () => {
     };
   }, [dragging]);
 
-  const partsContext = useContext(PartsContext);
-  const photoRef = useRef<HTMLDivElement>(null);
-  if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
-  const { selectedParts, scale, setScale } = partsContext;
+  // ピンチズーム用のグローバルイベント監視
+  React.useEffect(() => {
+    if (!isPinching) return;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        const currentDistance = getPinchDistance(e.touches);
+        const scaleChange = currentDistance / initialPinchDistance.current;
+        let newScale = initialScale.current * scaleChange;
+        // スケールを0.5～2の範囲に制限
+        newScale = Math.max(0.5, Math.min(2, newScale));
+        setScale(newScale);
+        e.preventDefault();
+      }
+    };
+    const handleTouchEnd = () => {
+      setIsPinching(false);
+    };
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPinching, scale, setScale]);
 
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
@@ -77,6 +120,11 @@ const Photo: React.FC = () => {
 
   // ドラッグ開始
   const handleDragStart = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    // タッチイベントで2本指以上の場合はピンチズーム
+    if ('touches' in e && e.touches.length === 2) {
+      handlePinchStart(e);
+      return;
+    }
     setDragging(true);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -84,6 +132,48 @@ const Photo: React.FC = () => {
       x: clientX - dragPos.x,
       y: clientY - dragPos.y,
     };
+  };
+
+  // ピンチズーム開始
+  const handlePinchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 2) {
+      setIsPinching(true);
+      setDragging(false); // ドラッグをキャンセル
+      initialPinchDistance.current = getPinchDistance(e.touches);
+      initialScale.current = scale;
+      e.preventDefault();
+    }
+  };
+
+  // ピンチズーム中
+  const handlePinchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isPinching && e.touches.length === 2) {
+      const currentDistance = getPinchDistance(e.touches);
+      const scaleChange = currentDistance / initialPinchDistance.current;
+      let newScale = initialScale.current * scaleChange;
+      // スケールを0.5～2の範囲に制限
+      newScale = Math.max(0.5, Math.min(2, newScale));
+      setScale(newScale);
+      e.preventDefault();
+    }
+  };
+
+  // ピンチズーム終了
+  const handlePinchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isPinching) {
+      setIsPinching(false);
+      e.preventDefault();
+    }
+  };
+
+  // マウスホイールでズーム（キャラクターにフォーカスがある場合）
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    let newScale = scale + delta;
+    // スケールを0.5～2の範囲に制限
+    newScale = Math.max(0.5, Math.min(2, newScale));
+    setScale(newScale);
   };
 
   return (
@@ -140,6 +230,7 @@ const Photo: React.FC = () => {
           )}
           {/* パーツ重ね順: 後髪→衣装→顔→前髪 */}
           <div
+            ref={characterRef}
             style={{
               position: 'absolute',
               left: dragPos.x,
@@ -154,6 +245,9 @@ const Photo: React.FC = () => {
             }}
             onMouseDown={handleDragStart}
             onTouchStart={handleDragStart}
+            onTouchMove={handlePinchMove}
+            onTouchEnd={handlePinchEnd}
+            onWheel={handleWheel}
           >
             {selectedParts.backHair && (
               <img
