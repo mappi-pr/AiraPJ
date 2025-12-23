@@ -200,23 +200,27 @@ const CharacterPartsSelect: React.FC = () => {
       const trimmedWidth = bounds.right - bounds.left + 1;
       const trimmedHeight = bounds.bottom - bounds.top + 1;
       
-      // Calculate aspect ratio and scale to fit within PREVIEW_WIDTH while preserving aspect ratio
-      const aspectRatio = trimmedHeight / trimmedWidth;
-      const finalWidth = PREVIEW_WIDTH;
-      const finalHeight = Math.round(PREVIEW_WIDTH * aspectRatio);
+      // Calculate scale to fit within PREVIEW_WIDTH x PREVIEW_WIDTH while preserving aspect ratio
+      const scale = Math.min(PREVIEW_WIDTH / trimmedWidth, PREVIEW_WIDTH / trimmedHeight);
+      const finalWidth = Math.round(trimmedWidth * scale);
+      const finalHeight = Math.round(trimmedHeight * scale);
       
-      // Create a new canvas for the trimmed content with preserved aspect ratio
+      // Create a square canvas for the preview
       const trimmedCanvas = document.createElement('canvas');
-      trimmedCanvas.width = finalWidth;
-      trimmedCanvas.height = finalHeight;
+      trimmedCanvas.width = PREVIEW_WIDTH;
+      trimmedCanvas.height = PREVIEW_WIDTH;
       const trimmedCtx = trimmedCanvas.getContext('2d');
       if (!trimmedCtx) return;
       
-      // Draw the trimmed content scaled to fit the final size while preserving aspect ratio
+      // Center the scaled content in the canvas
+      const offsetX = Math.round((PREVIEW_WIDTH - finalWidth) / 2);
+      const offsetY = Math.round((PREVIEW_WIDTH - finalHeight) / 2);
+      
+      // Draw the trimmed content scaled and centered while preserving aspect ratio
       trimmedCtx.drawImage(
         canvas,
         bounds.left, bounds.top, trimmedWidth, trimmedHeight,
-        0, 0, finalWidth, finalHeight
+        offsetX, offsetY, finalWidth, finalHeight
       );
       
       const dataUrl = trimmedCanvas.toDataURL();
@@ -256,9 +260,9 @@ const CharacterPartsSelect: React.FC = () => {
         ) : (
           <>
             <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
-              <div style={{ position: 'relative', width: PREVIEW_WIDTH, minHeight: PREVIEW_WIDTH }}>
+              <div style={{ position: 'relative', width: PREVIEW_WIDTH, height: PREVIEW_WIDTH }}>
                 {trimmedPreviewUrl ? (
-                  <img src={trimmedPreviewUrl} alt={t.characterPartsSelect.compositePreview} style={{ width: PREVIEW_WIDTH, height: 'auto', borderRadius: 16 }} />
+                  <img src={trimmedPreviewUrl} alt={t.characterPartsSelect.compositePreview} style={{ width: PREVIEW_WIDTH, height: PREVIEW_WIDTH, borderRadius: 16 }} />
                 ) : (
                   <div style={{ width: PREVIEW_WIDTH, height: PREVIEW_WIDTH, background: '#eee', borderRadius: 16 }} />
                 )}
