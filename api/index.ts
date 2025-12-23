@@ -29,8 +29,15 @@ async function initializeDatabase(retries = 5, delay = 5000): Promise<void> {
       console.log(`Attempting to connect to database (attempt ${i + 1}/${retries})...`);
       await sequelize.authenticate();
       console.log('Database connection established successfully.');
-      await sequelize.sync();
-      console.log('DB sync complete');
+      
+      // Use alter: true to automatically add missing columns to existing tables
+      // This ensures new fields from model updates are added to the database
+      const syncOptions = process.env.NODE_ENV === 'production' 
+        ? {} 
+        : { alter: true };
+      
+      await sequelize.sync(syncOptions);
+      console.log('DB sync complete (alter mode:', syncOptions.alter !== undefined ? 'enabled' : 'disabled', ')');
       dbReady = true;
       return;
     } catch (err) {
