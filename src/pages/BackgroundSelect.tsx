@@ -6,6 +6,7 @@ import type { PartInfo } from '../context/PartsContextOnly';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
+import { NavigationButton } from '../components/NavigationButton';
 
 const BackgroundSelect: React.FC = () => {
   const [backgrounds, setBackgrounds] = useState<PartInfo[]>([]);
@@ -53,12 +54,12 @@ const BackgroundSelect: React.FC = () => {
         <div className="select-container">
           {backgrounds.length > 0 ? (
             <>
-              <button onClick={handlePrev}>←</button>
+              <NavigationButton direction="prev" onClick={handlePrev} />
               <div id="background-info">
                 <img src={backgrounds[idx].assetPath} alt={t.backgroundSelect.imageAlt} style={{ maxWidth: 200, maxHeight: 200 }} />
                 <div>{backgrounds[idx].name}</div>
               </div>
-              <button onClick={handleNext}>→</button>
+              <NavigationButton direction="next" onClick={handleNext} />
             </>
           ) : (
             <div>{t.common.noData}</div>

@@ -52,4 +52,5 @@ Costume.init(
   { sequelize, modelName: 'Costume', tableName: 'costumes', timestamps: false }
 );
 
+export { NavigationButton } from './navigationButton';
 export { sequelize };
