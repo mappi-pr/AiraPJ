@@ -22,12 +22,6 @@ const Photo: React.FC = () => {
   const initialScale = useRef<number>(1);
   const characterRef = useRef<HTMLDivElement>(null);
   
-  // Context取得
-  const partsContext = useContext(PartsContext);
-  const photoRef = useRef<HTMLDivElement>(null);
-  if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
-  const { selectedParts, scale, setScale } = partsContext;
-
   // ピンチズーム距離計算
   const getPinchDistance = (touches: React.TouchList | TouchList) => {
     if (touches.length < 2) return 0;
