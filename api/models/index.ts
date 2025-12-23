@@ -1,4 +1,6 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
+import './user';
+import './generationHistory';
 
 const sequelize = new Sequelize(
   process.env.DB_NAME || 'airapj',
