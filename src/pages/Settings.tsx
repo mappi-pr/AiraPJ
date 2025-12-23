@@ -20,6 +20,7 @@ const Settings: React.FC = () => {
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
   const [navButtonImages, setNavButtonImages] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const [navResult, setNavResult] = useState<string>('');
+  const [navResultType, setNavResultType] = useState<'success' | 'error' | null>(null);
   const prevButtonFileRef = useRef<HTMLInputElement>(null);
   const nextButtonFileRef = useRef<HTMLInputElement>(null);
   const assetTypeRef = useRef<HTMLSelectElement>(null);
@@ -197,6 +198,7 @@ const Settings: React.FC = () => {
     
     if (!file || file.type !== 'image/png') {
       setNavResult(t.settings.pngOnly);
+      setNavResultType('error');
       return;
     }
     
@@ -208,6 +210,7 @@ const Settings: React.FC = () => {
       await axios.post('/api/navigation-buttons/upload', formData);
       playSuccess();
       setNavResult(t.settings.navUploadSuccess);
+      setNavResultType('success');
       await refreshButtonImages();
       // ファイル選択をリセット
       if (fileRef.current) {
@@ -215,6 +218,7 @@ const Settings: React.FC = () => {
       }
     } catch {
       setNavResult(t.settings.navUploadFail);
+      setNavResultType('error');
     }
   };
 
@@ -224,9 +228,11 @@ const Settings: React.FC = () => {
       await axios.delete(`/api/navigation-buttons/${buttonType}/reset`);
       playSuccess();
       setNavResult(t.settings.navResetSuccess);
+      setNavResultType('success');
       await refreshButtonImages();
     } catch {
       setNavResult(t.settings.navResetFail);
+      setNavResultType('error');
     }
   };
 
@@ -362,10 +368,10 @@ const Settings: React.FC = () => {
             <div style={{ 
               marginTop: '16px', 
               padding: '12px', 
-              backgroundColor: navResult.includes('成功') || navResult.includes('戻し') ? '#d4edda' : '#f8d7da',
-              border: `1px solid ${navResult.includes('成功') || navResult.includes('戻し') ? '#c3e6cb' : '#f5c6cb'}`,
+              backgroundColor: navResultType === 'success' ? '#d4edda' : '#f8d7da',
+              border: `1px solid ${navResultType === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
               borderRadius: '4px',
-              color: navResult.includes('成功') || navResult.includes('戻し') ? '#155724' : '#721c24',
+              color: navResultType === 'success' ? '#155724' : '#721c24',
             }}>
               {navResult}
             </div>
