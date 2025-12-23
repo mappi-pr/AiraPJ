@@ -135,12 +135,17 @@ const Photo: React.FC = () => {
   const handleDownload = async () => {
     playSuccess();
     if (photoRef.current) {
-      // ブラウザ表示通りにキャプチャ（scaleを1に固定して正確なアスペクト比を保持）
+      // html2canvasでキャプチャ（明示的にwidth/heightを指定して正確な出力を保証）
       const canvas = await html2canvas(photoRef.current, { 
         useCORS: true, 
         background: undefined,
-        scale: 1
+        scale: 1,
+        width: PHOTO_WIDTH,
+        height: PHOTO_HEIGHT,
+        windowWidth: PHOTO_WIDTH,
+        windowHeight: PHOTO_HEIGHT
       } as any );
+      
       const link = document.createElement('a');
       link.download = 'my_character.png';
       link.href = canvas.toDataURL();
