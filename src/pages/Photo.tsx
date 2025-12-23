@@ -149,10 +149,13 @@ const Photo: React.FC = () => {
       targetCanvas.height = PHOTO_HEIGHT * targetScale;
       
       const ctx = targetCanvas.getContext('2d');
-      if (ctx) {
-        // ソースキャンバスを正しいアスペクト比で描画
-        ctx.drawImage(sourceCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
+      if (!ctx) {
+        console.error('Failed to get 2d context');
+        return;
       }
+      
+      // ソースキャンバスを正しいアスペクト比で描画
+      ctx.drawImage(sourceCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
       
       const link = document.createElement('a');
       link.download = 'my_character.png';
