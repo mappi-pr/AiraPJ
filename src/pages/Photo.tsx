@@ -93,6 +93,26 @@ const Photo: React.FC = () => {
     };
   }, [isPinching, scale, setScale]);
 
+  // マウスホイールイベント用のグローバルイベント監視
+  React.useEffect(() => {
+    const characterElement = characterRef.current;
+    if (!characterElement) return;
+    
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      let newScale = scale + delta;
+      // スケールを0.5～2の範囲に制限
+      newScale = Math.max(0.5, Math.min(2, newScale));
+      setScale(newScale);
+    };
+    
+    characterElement.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      characterElement.removeEventListener('wheel', handleWheel);
+    };
+  }, [scale, setScale]);
+
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
 
@@ -166,16 +186,6 @@ const Photo: React.FC = () => {
     }
   };
 
-  // マウスホイールでズーム（キャラクターにフォーカスがある場合）
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-    let newScale = scale + delta;
-    // スケールを0.5～2の範囲に制限
-    newScale = Math.max(0.5, Math.min(2, newScale));
-    setScale(newScale);
-  };
-
   return (
     <PageTransition>
       <SparkleEffect />
@@ -247,7 +257,6 @@ const Photo: React.FC = () => {
             onTouchStart={handleDragStart}
             onTouchMove={handlePinchMove}
             onTouchEnd={handlePinchEnd}
-            onWheel={handleWheel}
           >
             {selectedParts.backHair && (
               <img
