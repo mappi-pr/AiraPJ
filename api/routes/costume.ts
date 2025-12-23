@@ -7,8 +7,13 @@ const router = Router();
 
 // GET /api/costume
 router.get('/', async (req, res) => {
-  const costumes = await Costume.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-  res.json(costumes);
+  try {
+    const costumes = await Costume.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    res.json(costumes);
+  } catch (e) {
+    console.error('Error fetching costumes:', e);
+    res.status(500).json({ error: 'Failed to fetch costumes' });
+  }
 });
 
 // GET /api/costume/:id

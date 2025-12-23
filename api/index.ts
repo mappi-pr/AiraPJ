@@ -20,19 +20,67 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// サンプルAPI
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+// データベース接続状態を管理
+let dbReady = false;
+
+// データベース接続とテーブル初期化（リトライ機能付き）
+async function initializeDatabase(retries = 5, delay = 5000): Promise<void> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      console.log(`Attempting to connect to database (attempt ${i + 1}/${retries})...`);
+      await sequelize.authenticate();
+      console.log('Database connection established successfully.');
+      await sequelize.sync();
+      console.log('DB sync complete');
+      dbReady = true;
+      return;
+    } catch (err) {
+      console.error(`DB connection failed (attempt ${i + 1}/${retries}):`, err);
+      if (i < retries - 1) {
+        console.log(`Retrying in ${delay / 1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.error('Failed to connect to database after all retries');
+        throw err;
+      }
+    }
+  }
+}
+
+// ヘルスチェックAPI（DB接続状態も含む）
+app.get('/api/health', async (req, res) => {
+  if (!dbReady) {
+    return res.status(503).json({ 
+      status: 'unavailable', 
+      message: 'Database not ready' 
+    });
+  }
+  
+  try {
+    await sequelize.authenticate();
+    res.json({ status: 'ok', database: 'connected' });
+  } catch (err) {
+    res.status(503).json({ 
+      status: 'degraded', 
+      database: 'disconnected',
+      message: 'Database connection lost'
+    });
+  }
 });
 
-(async () => {
-  try {
-    await sequelize.sync();
-    console.log('DB sync complete');
-  } catch (err) {
-    console.error('DB sync error:', err);
+// DBが準備できていない場合のミドルウェア
+app.use('/api/*', (req, res, next) => {
+  if (req.path === '/health') {
+    return next();
   }
-})();
+  if (!dbReady) {
+    return res.status(503).json({ 
+      error: 'Service temporarily unavailable',
+      message: 'Database is initializing, please try again in a moment' 
+    });
+  }
+  next();
+});
 
 app.use('/api/background', backgroundRouter);
 app.use('/api/background', backgroundUploadRouter);
@@ -66,6 +114,20 @@ const PORT = Number(process.env.PORT) || 4000;
 // 開発環境: '0.0.0.0' でDocker/スマホ実機からアクセス可能
 // 本番環境: リバースプロキシ経由での利用を推奨
 const HOST = process.env.HOST || '0.0.0.0';
-app.listen(PORT, HOST, () => {
-  console.log(`API server running on ${HOST}:${PORT}`);
-});
+
+// サーバー起動とDB初期化を並行して実行
+async function startServer() {
+  // サーバーを先に起動（ヘルスチェックエンドポイントのため）
+  app.listen(PORT, HOST, () => {
+    console.log(`API server running on ${HOST}:${PORT}`);
+  });
+
+  // データベースの初期化（バックグラウンドで実行）
+  try {
+    await initializeDatabase();
+  } catch (err) {
+    console.error('Database initialization failed. Server is running but API endpoints will return 503.');
+  }
+}
+
+startServer();

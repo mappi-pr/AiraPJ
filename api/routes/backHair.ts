@@ -7,8 +7,13 @@ const router = Router();
 
 // GET /api/back-hair
 router.get('/', async (req, res) => {
-  const backHairs = await BackHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-  res.json(backHairs);
+  try {
+    const backHairs = await BackHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    res.json(backHairs);
+  } catch (e) {
+    console.error('Error fetching back hairs:', e);
+    res.status(500).json({ error: 'Failed to fetch back hairs' });
+  }
 });
 
 // GET /api/back-hair/:id
