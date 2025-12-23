@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { Face } from '../models/face';
