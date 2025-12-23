@@ -134,7 +134,9 @@ const Photo: React.FC = () => {
       const canvas = await html2canvas(photoRef.current, { 
         useCORS: true, 
         background: undefined,
-        scale: window.devicePixelRatio * 2
+        scale: window.devicePixelRatio * 2,
+        width: 240,
+        height: 320
       } as any );
       const link = document.createElement('a');
       link.download = 'my_character.png';
