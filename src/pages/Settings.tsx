@@ -410,7 +410,7 @@ const Settings: React.FC = () => {
                                 }}>
                                   <div style={{ marginBottom: '8px' }}>
                                     <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
-                                      名前:
+                                      {t.settings.nameLabel}
                                     </label>
                                     <input
                                       type="text"
