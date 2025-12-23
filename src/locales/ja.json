@@ -48,7 +48,18 @@
     "noPartsContext": "パーツ情報が取得できません"
   },
   "history": {
-    "title": "履歴管理"
+    "title": "履歴表示",
+    "noHistory": "まだ生成履歴がありません",
+    "view": "表示",
+    "viewFail": "表示に失敗しました",
+    "backgroundId": "背景ID",
+    "costumeId": "衣装ID",
+    "backHairId": "後髪ID",
+    "faceId": "顔ID",
+    "frontHairId": "前髪ID",
+    "scale": "拡大率",
+    "scaleUnit": "倍",
+    "notSelected": "未選択"
   },
   "settings": {
     "title": "設定",

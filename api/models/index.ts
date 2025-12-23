@@ -1,16 +1,5 @@
-import { Sequelize, DataTypes, Model } from 'sequelize';
-
-const sequelize = new Sequelize(
-  process.env.DB_NAME || 'airapj',
-  process.env.DB_USER || 'postgres',
-  process.env.DB_PASS || '',
-  {
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT) || 5432,
-    dialect: 'postgres',
-    logging: false,
-  }
-);
+import { DataTypes, Model } from 'sequelize';
+import { sequelize } from './sequelize';
 
 export class Background extends Model {
   public id!: number;
@@ -51,6 +40,10 @@ Costume.init(
   },
   { sequelize, modelName: 'Costume', tableName: 'costumes', timestamps: false }
 );
+
+// Import and initialize User and GenerationHistory models after sequelize is defined
+import './user';
+import './generationHistory';
 
 export { NavigationButton } from './navigationButton';
 export { sequelize };

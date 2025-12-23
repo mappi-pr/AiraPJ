@@ -12,6 +12,7 @@ import frontHairRouter from './routes/frontHair';
 import frontHairUploadRouter from './routes/frontHair-upload';
 import backHairRouter from './routes/backHair';
 import backHairUploadRouter from './routes/backHair-upload';
+import generationHistoryRouter from './routes/generation-history';
 import navigationButtonRouter from './routes/navigationButton';
 import navigationButtonUploadRouter from './routes/navigationButton-upload';
 import { sequelize, NavigationButton } from './models';
@@ -108,6 +109,7 @@ app.use('/api/front-hair', frontHairRouter);
 app.use('/api/front-hair', frontHairUploadRouter);
 app.use('/api/back-hair', backHairRouter);
 app.use('/api/back-hair', backHairUploadRouter);
+app.use('/api/generation-history', generationHistoryRouter);
 app.use('/api/navigation-buttons', navigationButtonRouter);
 app.use('/api/navigation-buttons', navigationButtonUploadRouter);
 

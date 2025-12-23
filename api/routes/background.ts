@@ -16,6 +16,17 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/background/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const background = await Background.findByPk(req.params.id);
+    if (!background || background.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(background);
+  } catch (e) {
+    res.status(500).json({ error: 'Fetch failed' });
+  }
+});
+
 // DELETE /api/background/:id
 router.delete('/:id', async (req, res) => {
   try {

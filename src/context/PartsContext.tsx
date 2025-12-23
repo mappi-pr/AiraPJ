@@ -13,9 +13,10 @@ export const PartsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     frontHair: null,
   });
   const [scale, setScale] = useState(1);
+  const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
 
   return (
-    <PartsContext.Provider value={{ selectedParts, setSelectedParts, scale, setScale }}>
+    <PartsContext.Provider value={{ selectedParts, setSelectedParts, scale, setScale, dragPos, setDragPos }}>
       {children}
     </PartsContext.Provider>
   );
