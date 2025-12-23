@@ -34,6 +34,14 @@ const Photo: React.FC = () => {
     return Math.sqrt(dx * dx + dy * dy);
   };
 
+  // スケール計算の共通関数
+  const calculatePinchScale = (currentDistance: number) => {
+    const scaleChange = currentDistance / initialPinchDistance.current;
+    let newScale = initialScale.current * scaleChange;
+    // スケールを0.5～2の範囲に制限
+    return Math.max(0.5, Math.min(2, newScale));
+  };
+
   // ドラッグ中のグローバルイベント監視
   React.useEffect(() => {
     if (!dragging) return;
@@ -74,10 +82,7 @@ const Photo: React.FC = () => {
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length === 2) {
         const currentDistance = getPinchDistance(e.touches);
-        const scaleChange = currentDistance / initialPinchDistance.current;
-        let newScale = initialScale.current * scaleChange;
-        // スケールを0.5～2の範囲に制限
-        newScale = Math.max(0.5, Math.min(2, newScale));
+        const newScale = calculatePinchScale(currentDistance);
         setScale(newScale);
         e.preventDefault();
       }
@@ -91,7 +96,7 @@ const Photo: React.FC = () => {
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isPinching, scale, setScale]);
+  }, [isPinching, setScale]);
 
   // マウスホイールイベント用のグローバルイベント監視
   React.useEffect(() => {
@@ -100,18 +105,19 @@ const Photo: React.FC = () => {
     
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.1 : 0.1;
-      let newScale = scale + delta;
-      // スケールを0.5～2の範囲に制限
-      newScale = Math.max(0.5, Math.min(2, newScale));
-      setScale(newScale);
+      setScale(currentScale => {
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        let newScale = currentScale + delta;
+        // スケールを0.5～2の範囲に制限
+        return Math.max(0.5, Math.min(2, newScale));
+      });
     };
     
     characterElement.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
       characterElement.removeEventListener('wheel', handleWheel);
     };
-  }, [scale, setScale]);
+  }, [setScale]);
 
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
@@ -169,10 +175,7 @@ const Photo: React.FC = () => {
   const handlePinchMove = (e: React.TouchEvent<HTMLDivElement>) => {
     if (isPinching && e.touches.length === 2) {
       const currentDistance = getPinchDistance(e.touches);
-      const scaleChange = currentDistance / initialPinchDistance.current;
-      let newScale = initialScale.current * scaleChange;
-      // スケールを0.5～2の範囲に制限
-      newScale = Math.max(0.5, Math.min(2, newScale));
+      const newScale = calculatePinchScale(currentDistance);
       setScale(newScale);
       e.preventDefault();
     }
