@@ -1,0 +1,20 @@
+# ===========================================
+# API サーバー (Express) 用 Dockerfile - 開発モード
+# ===========================================
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# package.json のコピーと依存関係のインストール
+COPY package*.json ./
+
+# npm install を実行（エラーメッセージは無視）
+RUN npm install 2>&1 || true
+
+# ソースコードはボリュームマウントされるため、ここではコピーしない
+
+EXPOSE 4000
+
+# npx を使用して ts-node-dev を実行（.bin シンボリンク問題を回避）
+CMD ["npx", "ts-node-dev", "--respawn", "--transpile-only", "index.ts"]
