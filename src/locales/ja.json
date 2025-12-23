@@ -77,7 +77,13 @@
     "offsetY": "Y オフセット",
     "width": "幅",
     "height": "高さ",
-    "defaultValuesHint": "※ 未入力時のデフォルト値: オフセット(0,0)、サイズ(240×320)"
+    "defaultValuesHint": "※ 未入力時のデフォルト値: オフセット(0,0)、サイズ(240×320)",
+    "editBtn": "編集",
+    "editTooltip": "位置・サイズを編集",
+    "saveBtn": "保存",
+    "cancelBtn": "キャンセル",
+    "editSuccess": "更新しました",
+    "editFail": "更新に失敗しました"
   },
   "terms": {
     "title": "規約・クレジット"

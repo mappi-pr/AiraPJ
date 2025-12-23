@@ -17,6 +17,15 @@ const Settings: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [currentPages, setCurrentPages] = useState<Record<string, number>>({});
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [editingItem, setEditingItem] = useState<{type: string, item: any} | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    offsetX: '0',
+    offsetY: '0',
+    width: '240',
+    height: '320',
+  });
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
@@ -150,6 +159,41 @@ const Settings: React.FC = () => {
       setResult(t.settings.sortOrderUpdateSuccess);
     } catch {
       setResult(t.settings.sortOrderUpdateFail);
+    }
+  };
+
+  // 編集開始
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleEditStart = (type: string, item: any) => {
+    playClick();
+    setEditingItem({ type, item });
+    setEditForm({
+      name: item.name || '',
+      offsetX: String(item.offsetX ?? 0),
+      offsetY: String(item.offsetY ?? 0),
+      width: String(item.width ?? 240),
+      height: String(item.height ?? 320),
+    });
+  };
+
+  // 編集キャンセル
+  const handleEditCancel = () => {
+    playClick();
+    setEditingItem(null);
+  };
+
+  // 編集保存
+  const handleEditSave = async () => {
+    if (!editingItem) return;
+    playClick();
+    try {
+      await axios.put(`${uploadUrls[editingItem.type].replace('/upload', '')}/${editingItem.item.id}`, editForm);
+      await refreshAssetsForType(editingItem.type);
+      setEditingItem(null);
+      setResult(t.settings.editSuccess);
+      playSuccess();
+    } catch {
+      setResult(t.settings.editFail);
     }
   };
 
@@ -387,10 +431,27 @@ const Settings: React.FC = () => {
                                   {t.settings.moveDownBtn}
                                 </button>
                                 <button 
+                                  onClick={() => handleEditStart(key, item)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    backgroundColor: '#28a745',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                  }}
+                                  title={t.settings.editTooltip}
+                                >
+                                  {t.settings.editBtn}
+                                </button>
+                                <button 
                                   onClick={() => handleDelete(key, item.id)}
                                   style={{
                                     padding: '4px 8px',
                                     backgroundColor: '#dc3545',
+                                    color: 'white',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: 'pointer',
@@ -512,6 +573,148 @@ const Settings: React.FC = () => {
           );
         })}
       </div>
+
+      {/* 編集モーダル */}
+      {editingItem && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '8px',
+            maxWidth: '500px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto',
+          }}>
+            <h3 style={{ marginTop: 0 }}>アセット編集: {editingItem.item.name}</h3>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                名前:
+              </label>
+              <input
+                type="text"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                {t.settings.offsetX}:
+              </label>
+              <input
+                type="number"
+                value={editForm.offsetX}
+                onChange={(e) => setEditForm({ ...editForm, offsetX: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                {t.settings.offsetY}:
+              </label>
+              <input
+                type="number"
+                value={editForm.offsetY}
+                onChange={(e) => setEditForm({ ...editForm, offsetY: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                {t.settings.width}:
+              </label>
+              <input
+                type="number"
+                value={editForm.width}
+                onChange={(e) => setEditForm({ ...editForm, width: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                {t.settings.height}:
+              </label>
+              <input
+                type="number"
+                value={editForm.height}
+                onChange={(e) => setEditForm({ ...editForm, height: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleEditCancel}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                {t.settings.cancelBtn}
+              </button>
+              <button
+                onClick={handleEditSave}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                {t.settings.saveBtn}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </PageTransition>
   );
