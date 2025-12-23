@@ -12,6 +12,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // 画像トリミング時の透明度判定閾値（アルファ値がこの値以下のピクセルを透明とみなす）
 const ALPHA_THRESHOLD = 16;
+// プレビュー画像の幅（縦横比は保持される）
+const PREVIEW_WIDTH = 80;
 
 const getPartUrl = (part: PanelPartInfo | null): string | null => {
   if (!part) return null;
@@ -198,11 +200,10 @@ const CharacterPartsSelect: React.FC = () => {
       const trimmedWidth = bounds.right - bounds.left + 1;
       const trimmedHeight = bounds.bottom - bounds.top + 1;
       
-      // Calculate aspect ratio and scale to fit within 80px width while preserving aspect ratio
-      const maxWidth = 80;
+      // Calculate aspect ratio and scale to fit within PREVIEW_WIDTH while preserving aspect ratio
       const aspectRatio = trimmedHeight / trimmedWidth;
-      const finalWidth = maxWidth;
-      const finalHeight = Math.round(maxWidth * aspectRatio);
+      const finalWidth = PREVIEW_WIDTH;
+      const finalHeight = Math.round(PREVIEW_WIDTH * aspectRatio);
       
       // Create a new canvas for the trimmed content with preserved aspect ratio
       const trimmedCanvas = document.createElement('canvas');
@@ -255,11 +256,11 @@ const CharacterPartsSelect: React.FC = () => {
         ) : (
           <>
             <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
-              <div style={{ position: 'relative', width: 80, minHeight: 80 }}>
+              <div style={{ position: 'relative', width: PREVIEW_WIDTH, minHeight: PREVIEW_WIDTH }}>
                 {trimmedPreviewUrl ? (
-                  <img src={trimmedPreviewUrl} alt={t.characterPartsSelect.compositePreview} style={{ width: 80, height: 'auto', borderRadius: 16 }} />
+                  <img src={trimmedPreviewUrl} alt={t.characterPartsSelect.compositePreview} style={{ width: PREVIEW_WIDTH, height: 'auto', borderRadius: 16 }} />
                 ) : (
-                  <div style={{ width: 80, height: 80, background: '#eee', borderRadius: 16 }} />
+                  <div style={{ width: PREVIEW_WIDTH, height: PREVIEW_WIDTH, background: '#eee', borderRadius: 16 }} />
                 )}
               </div>
             </div>
