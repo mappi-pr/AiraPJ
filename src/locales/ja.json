@@ -6,6 +6,13 @@
     "loading": "読み込み中...",
     "fetchError": "パーツ取得に失敗しました"
   },
+  "audioModal": {
+    "title": "音声設定",
+    "message": "このサイトでは、音声が流れるコンテンツが含まれます。",
+    "question": "音声（BGM・SE）をONにしますか？",
+    "enableButton": "ONにする",
+    "disableButton": "OFFにする"
+  },
   "title": {
     "mainTitle": "Aira PJ",
     "startBtn": "ゲームをはじめる",
