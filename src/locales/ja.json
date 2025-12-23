@@ -3,7 +3,8 @@
     "noData": "未登録です",
     "next": "つぎへ",
     "backToTitle": "タイトルへ戻る",
-    "loading": "読み込み中..."
+    "loading": "読み込み中...",
+    "fetchError": "パーツ取得に失敗しました"
   },
   "audioModal": {
     "title": "音声設定",
@@ -23,7 +24,8 @@
     "title": "キャラクターパーツ選択",
     "face": "顔",
     "frontHair": "前髪",
-    "backHair": "後髪"
+    "backHair": "後髪",
+    "compositePreview": "合成プレビュー"
   },
   "backgroundSelect": {
     "title": "背景選択",
@@ -78,7 +80,19 @@
     "moveDownTooltip": "下へ移動",
     "deleteTooltip": "削除",
     "sortOrderUpdateSuccess": "並び順を更新しました",
-    "sortOrderUpdateFail": "並び順の更新に失敗しました"
+    "sortOrderUpdateFail": "並び順の更新に失敗しました",
+    "navigationButtonsTitle": "ナビゲーションボタン画像設定",
+    "navigationButtonsDesc": "← / → ボタンの画像をカスタマイズできます",
+    "prevButtonLabel": "← (前へ) ボタン",
+    "nextButtonLabel": "→ (次へ) ボタン",
+    "currentImage": "現在の画像:",
+    "defaultText": "デフォルト (テキスト)",
+    "uploadNavBtn": "画像をアップロード",
+    "resetNavBtn": "デフォルトに戻す",
+    "navUploadSuccess": "ナビゲーションボタン画像を更新しました",
+    "navUploadFail": "アップロードに失敗しました",
+    "navResetSuccess": "デフォルトに戻しました",
+    "navResetFail": "リセットに失敗しました"
   },
   "terms": {
     "title": "規約・クレジット"
