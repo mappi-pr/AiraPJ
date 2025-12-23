@@ -51,6 +51,8 @@ services:
     working_dir: /app
     environment:
       VITE_API_BASE_URL: http://localhost:4000
+      # Docker環境ではAPIサービス名を使用（デフォルトはhttp://api:4000）
+      # VITE_API_PROXY: http://localhost:4000  # ローカル開発時のみ設定
     volumes:
       - .:/app
       - /app/node_modules
