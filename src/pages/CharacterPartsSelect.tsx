@@ -30,7 +30,7 @@ const convertToContextPartInfo = (part: PanelPartInfo | null) => {
 // 画像の透明部分の境界を検出して、内容部分の矩形を返す
 const detectContentBounds = (imageData: ImageData): { left: number; top: number; right: number; bottom: number } | null => {
   const { data, width, height } = imageData;
-  let top = height, left = width, right = 0, bottom = 0;
+  let top = -1, left = -1, right = -1, bottom = -1;
   
   // 上から下へスキャンしてtopを見つける
   topLoop: for (let y = 0; y < height; y++) {
@@ -42,6 +42,8 @@ const detectContentBounds = (imageData: ImageData): { left: number; top: number;
       }
     }
   }
+  
+  if (top === -1) return null; // 全部透明
   
   // 下から上へスキャンしてbottomを見つける
   bottomLoop: for (let y = height - 1; y >= top; y--) {
@@ -76,7 +78,7 @@ const detectContentBounds = (imageData: ImageData): { left: number; top: number;
     }
   }
   
-  if (right < left || bottom < top) return null; // 全部透明
+  if (left === -1 || right === -1 || bottom === -1) return null;
   
   return { left, top, right, bottom };
 };
