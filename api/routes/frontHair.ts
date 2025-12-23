@@ -7,8 +7,13 @@ const router = Router();
 
 // GET /api/front-hair
 router.get('/', async (req, res) => {
-  const frontHairs = await FrontHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-  res.json(frontHairs);
+  try {
+    const frontHairs = await FrontHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    res.json(frontHairs);
+  } catch (e) {
+    console.error('Error fetching front hair:', e);
+    res.status(500).json({ error: 'Failed to fetch front hair' });
+  }
 });
 
 // DELETE /api/front-hair/:id
