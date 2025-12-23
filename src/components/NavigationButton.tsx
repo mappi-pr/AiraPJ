@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigationButtons } from '../context/NavigationButtonContext';
+import './NavigationButton.css';
 
 interface NavigationButtonProps {
   direction: 'prev' | 'next';
@@ -17,7 +18,11 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
   const defaultText = direction === 'prev' ? '←' : '→';
 
   return (
-    <button onClick={onClick} disabled={disabled}>
+    <button 
+      onClick={onClick} 
+      disabled={disabled}
+      className={imageSrc ? 'nav-button-image' : 'nav-button-text'}
+    >
       {imageSrc ? (
         <img 
           src={imageSrc} 
