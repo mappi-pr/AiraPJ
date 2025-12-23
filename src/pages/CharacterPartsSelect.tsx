@@ -8,7 +8,7 @@ import { SparkleEffect } from '../utils/SparkleEffect';
 import CharacterPartsPanel from '../components/CharacterPartsPanel';
 import type { PartInfo as PanelPartInfo } from '../components/CharacterPartsPanel';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const getPartUrl = (part: PanelPartInfo | null): string | null => {
   if (!part) return null;
