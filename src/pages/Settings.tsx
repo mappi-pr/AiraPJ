@@ -218,25 +218,25 @@ const Settings: React.FC = () => {
           <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
           <br />
           <details style={{ margin: '12px 0' }}>
-            <summary style={{ cursor: 'pointer', userSelect: 'none' }}>位置・サイズ設定 (オプション) {/* Position & Size Settings (Optional) */}</summary>
+            <summary style={{ cursor: 'pointer', userSelect: 'none' }}>{t.settings.positionSizeSettings}</summary>
             <div style={{ marginLeft: '20px', marginTop: '8px' }}>
               <label>
-                X オフセット: <input type="number" name="offsetX" ref={offsetXRef} defaultValue="0" style={{ width: '80px' }} />
+                {t.settings.offsetX}: <input type="number" name="offsetX" ref={offsetXRef} defaultValue="0" style={{ width: '80px' }} />
               </label>
               <br />
               <label>
-                Y オフセット: <input type="number" name="offsetY" ref={offsetYRef} defaultValue="0" style={{ width: '80px' }} />
+                {t.settings.offsetY}: <input type="number" name="offsetY" ref={offsetYRef} defaultValue="0" style={{ width: '80px' }} />
               </label>
               <br />
               <label>
-                幅: <input type="number" name="width" ref={widthRef} defaultValue="240" style={{ width: '80px' }} />
+                {t.settings.width}: <input type="number" name="width" ref={widthRef} defaultValue="240" style={{ width: '80px' }} />
               </label>
               <br />
               <label>
-                高さ: <input type="number" name="height" ref={heightRef} defaultValue="320" style={{ width: '80px' }} />
+                {t.settings.height}: <input type="number" name="height" ref={heightRef} defaultValue="320" style={{ width: '80px' }} />
               </label>
               <br />
-              <small style={{ color: '#666' }}>※ 未入力時のデフォルト値: オフセット(0,0)、サイズ(240×320) {/* Default values if left empty: Offset(0,0), Size(240×320) */}</small>
+              <small style={{ color: '#666' }}>{t.settings.defaultValuesHint}</small>
             </div>
           </details>
           <button type="submit" disabled={uploading}>

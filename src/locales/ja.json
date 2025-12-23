@@ -71,7 +71,13 @@
     "moveDownTooltip": "下へ移動",
     "deleteTooltip": "削除",
     "sortOrderUpdateSuccess": "並び順を更新しました",
-    "sortOrderUpdateFail": "並び順の更新に失敗しました"
+    "sortOrderUpdateFail": "並び順の更新に失敗しました",
+    "positionSizeSettings": "位置・サイズ設定 (オプション)",
+    "offsetX": "X オフセット",
+    "offsetY": "Y オフセット",
+    "width": "幅",
+    "height": "高さ",
+    "defaultValuesHint": "※ 未入力時のデフォルト値: オフセット(0,0)、サイズ(240×320)"
   },
   "terms": {
     "title": "規約・クレジット"
