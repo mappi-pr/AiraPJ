@@ -14,7 +14,7 @@ import backHairRouter from './routes/backHair';
 import backHairUploadRouter from './routes/backHair-upload';
 import navigationButtonRouter from './routes/navigationButton';
 import navigationButtonUploadRouter from './routes/navigationButton-upload';
-import { sequelize } from './models';
+import { sequelize, NavigationButton } from './models';
 import { getUploadsBasePath } from './config/uploads';
 
 const app = express();
@@ -33,6 +33,20 @@ async function initializeDatabase(retries = 5, delay = 5000): Promise<void> {
       console.log('Database connection established successfully.');
       await sequelize.sync();
       console.log('DB sync complete');
+      
+      // Initialize navigation button defaults if they don't exist
+      const prevButton = await NavigationButton.findOne({ where: { buttonType: 'prev' } });
+      const nextButton = await NavigationButton.findOne({ where: { buttonType: 'next' } });
+      
+      if (!prevButton) {
+        await NavigationButton.create({ buttonType: 'prev', assetPath: null });
+        console.log('Initialized default prev navigation button');
+      }
+      if (!nextButton) {
+        await NavigationButton.create({ buttonType: 'next', assetPath: null });
+        console.log('Initialized default next navigation button');
+      }
+      
       dbReady = true;
       return;
     } catch (err) {
