@@ -105,10 +105,10 @@ FRONTEND_PORT=5173
 
 ```bash
 # Vite dev server でフロントエンドを起動
-docker compose -f docker-compose.dev.yml up
+docker compose -f docker/docker-compose.dev.yml up
 
 # バックグラウンドで起動する場合
-docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker/docker-compose.dev.yml up -d
 ```
 
 **重要:** 初回起動時は `sequelize.sync()` によってテーブルが自動作成されます。マイグレーション実行は不要です。
@@ -128,7 +128,7 @@ docker compose -f docker-compose.dev.yml up -d
 **5. コンテナの停止**
 
 ```bash
-docker compose -f docker-compose.dev.yml down
+docker compose -f docker/docker-compose.dev.yml down
 ```
 
 #### コード変更後のリビルド・再デプロイ（開発モード）
@@ -141,17 +141,17 @@ docker compose -f docker-compose.dev.yml down
 
 ```bash
 # API の依存関係を変更した場合
-docker compose -f docker-compose.dev.yml restart api
+docker compose -f docker/docker-compose.dev.yml restart api
 
 # フロントエンドの依存関係を変更した場合
-docker compose -f docker-compose.dev.yml restart frontend
+docker compose -f docker/docker-compose.dev.yml restart frontend
 ```
 
 **Dockerfileや環境変数を変更した場合:**
 
 ```bash
 # 変更を反映してコンテナを再起動
-docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker/docker-compose.dev.yml up -d --build
 ```
 
 **Git で別のブランチやコミットに切り替えた場合:**
@@ -161,10 +161,10 @@ docker compose -f docker-compose.dev.yml up -d --build
 git checkout feature-branch
 
 # 依存関係が変更されている可能性があるため、コンテナを再起動
-docker compose -f docker-compose.dev.yml restart
+docker compose -f docker/docker-compose.dev.yml restart
 
 # Dockerfile や docker-compose の設定が変更されている場合はリビルド
-docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker/docker-compose.dev.yml up -d --build
 ```
 
 #### 開発時のワークフロー（開発モード）
@@ -173,14 +173,14 @@ docker compose -f docker-compose.dev.yml up -d --build
 
 ```bash
 # 開発サーバーを起動（コード変更は自動反映）
-docker compose -f docker-compose.dev.yml up
+docker compose -f docker/docker-compose.dev.yml up
 
 # バックグラウンドで起動
-docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker/docker-compose.dev.yml up -d
 
 # ログを確認
-docker compose -f docker-compose.dev.yml logs -f frontend
-docker compose -f docker-compose.dev.yml logs -f api
+docker compose -f docker/docker-compose.dev.yml logs -f frontend
+docker compose -f docker/docker-compose.dev.yml logs -f api
 ```
 
 **コードの変更:**
@@ -191,23 +191,23 @@ docker compose -f docker-compose.dev.yml logs -f api
 
 ```bash
 # データベースを含むすべてのデータを削除
-docker compose -f docker-compose.dev.yml down -v
+docker compose -f docker/docker-compose.dev.yml down -v
 
 # 再起動（データベースが初期化される）
-docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker/docker-compose.dev.yml up -d
 ```
 
 **コンテナ内でのコマンド実行:**
 
 ```bash
 # API コンテナ内でシェルを実行
-docker compose -f docker-compose.dev.yml exec api sh
+docker compose -f docker/docker-compose.dev.yml exec api sh
 
 # データベースに接続
-docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj
+docker compose -f docker/docker-compose.dev.yml exec db psql -U postgres -d airapj
 
 # npm コマンドの実行例
-docker compose -f docker-compose.dev.yml exec api npm install axios
+docker compose -f docker/docker-compose.dev.yml exec api npm install axios
 ```
 
 ---
@@ -259,7 +259,7 @@ docker compose up
 
 ```bash
 # コンテナを停止
-docker compose down
+docker compose -f docker/docker-compose.yml down
 
 # イメージを再ビルドして起動
 docker compose up -d --build
@@ -272,7 +272,7 @@ docker compose up -d --build
 git checkout main
 
 # 既存のコンテナを停止
-docker compose down
+docker compose -f docker/docker-compose.yml down
 
 # イメージを再ビルドして起動
 docker compose up -d --build
@@ -435,7 +435,7 @@ npm run migrate:undo
 
 ```bash
 # 開発モード
-docker compose -f docker-compose.dev.yml exec api npm run migrate
+docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
 
 # 本番モード
 docker compose exec api npm run migrate
@@ -736,12 +736,15 @@ AiraPJ/
 │   ├── uploads/             # アップロードファイル保存先
 │   └── index.ts             # APIサーバーエントリ
 ├── docker/                   # Docker 関連設定
-│   └── nginx/               # nginx 設定
+│   ├── nginx/               # nginx 設定
+│   ├── Dockerfile           # フロントエンド用 Dockerfile
+│   ├── docker-compose.yml   # 本番用 Docker Compose 設定
+│   └── docker-compose.dev.yml # 開発用 Docker Compose 設定
+├── scripts/                  # 補助スクリプト
+│   └── setup-wsl-port-forwarding.ps1  # WSL2ポートフォワーディング設定
 ├── doc/                      # ドキュメント
 ├── public/                   # 静的ファイル
 ├── .env.example             # Docker Compose 環境変数テンプレート
-├── docker-compose.yml       # Docker Compose 設定
-├── Dockerfile               # フロントエンド用 Dockerfile
 └── README.md                # プロジェクト概要
 ```
 
@@ -929,7 +932,7 @@ netsh interface portproxy add v4tov4 listenport=4000 listenaddress=0.0.0.0 conne
 netsh interface portproxy show v4tov4
 ```
 
-**自動化スクリプト** (`setup-wsl-port-forwarding.ps1`):
+**自動化スクリプト** (`scripts/setup-wsl-port-forwarding.ps1`):
 ```powershell
 # WSL2再起動時に実行
 $wsl_ip = (wsl hostname -I).trim()
@@ -945,7 +948,7 @@ Write-Host "`nSetup complete!"
 netsh interface portproxy show v4tov4
 ```
 
-実行: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned; .\setup-wsl-port-forwarding.ps1`
+実行: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned; .\scripts\setup-wsl-port-forwarding.ps1`
 
 #### 5. スマートフォンからアクセス
 
@@ -1021,7 +1024,7 @@ api/migrations/
 
 ```bash
 # 開発モード
-docker compose -f docker-compose.dev.yml up
+docker compose -f docker/docker-compose.dev.yml up
 
 # 本番モード
 docker compose up
@@ -1076,8 +1079,8 @@ npm run migrate:undo
 
 ```bash
 # 開発モード
-docker compose -f docker-compose.dev.yml exec api npm run migrate:status
-docker compose -f docker-compose.dev.yml exec api npm run migrate
+docker compose -f docker/docker-compose.dev.yml exec api npm run migrate:status
+docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
 
 # 本番モード
 docker compose exec api npm run migrate:status
@@ -1104,7 +1107,7 @@ cd api
 npm run migrate:status
 
 # データベースで SequelizeMeta テーブルを確認
-docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj -c "SELECT * FROM \"SequelizeMeta\";"
+docker compose -f docker/docker-compose.dev.yml exec db psql -U postgres -d airapj -c "SELECT * FROM \"SequelizeMeta\";"
 
 # 既に適用済みのマイグレーションを手動で記録（必要な場合のみ）
 # 注意: 実際のマイグレーションファイル名を確認してください（ls api/migrations/）
@@ -1116,7 +1119,7 @@ docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj -c "
 
 ```bash
 # データベースの状態を確認
-docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj -c "\d faces"
+docker compose -f docker/docker-compose.dev.yml exec db psql -U postgres -d airapj -c "\d faces"
 
 # 必要に応じてロールバック
 cd api
@@ -1178,7 +1181,7 @@ npm run migrate:status       # マイグレーション状態を確認
 npm run migrate:undo         # 最後のマイグレーションを取り消す
 
 # データベース接続
-docker compose -f docker-compose.dev.yml exec db psql -U postgres -d airapj  # 開発モード
+docker compose -f docker/docker-compose.dev.yml exec db psql -U postgres -d airapj  # 開発モード
 docker compose exec db psql -U postgres -d airapj  # 本番モード
 ```
 
