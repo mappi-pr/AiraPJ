@@ -83,7 +83,11 @@
     "saveBtn": "Save",
     "cancelBtn": "Cancel",
     "editSuccess": "Updated successfully",
-    "editFail": "Update failed"
+    "editFail": "Update failed",
+    "visualEditor": "Visual Editor",
+    "dragToPosition": "Drag to adjust position",
+    "centerBtn": "Center",
+    "autoDetectSize": "Auto-detect size"
   },
   "terms": {
     "title": "Terms & Credits"

@@ -5,6 +5,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
+import VisualPositionEditor from '../components/VisualPositionEditor';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -26,6 +27,7 @@ const Settings: React.FC = () => {
     width: '240',
     height: '320',
   });
+  const [showVisualEditor, setShowVisualEditor] = useState(false);
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
@@ -195,6 +197,31 @@ const Settings: React.FC = () => {
     } catch {
       setResult(t.settings.editFail);
     }
+  };
+
+  // ビジュアルエディタを開く
+  const handleOpenVisualEditor = () => {
+    setShowVisualEditor(true);
+  };
+
+  // ビジュアルエディタを閉じる
+  const handleCloseVisualEditor = () => {
+    setShowVisualEditor(false);
+  };
+
+  // ビジュアルエディタで位置変更
+  const handleVisualEditorPositionChange = (offsetX: number, offsetY: number) => {
+    setEditForm({
+      ...editForm,
+      offsetX: String(offsetX),
+      offsetY: String(offsetY),
+    });
+  };
+
+  // ビジュアルエディタで保存
+  const handleVisualEditorSave = async () => {
+    setShowVisualEditor(false);
+    await handleEditSave();
   };
 
   // フィルタリングされたアセット取得
@@ -505,6 +532,26 @@ const Settings: React.FC = () => {
                                     </div>
                                   </div>
                                   
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <button
+                                      onClick={handleOpenVisualEditor}
+                                      type="button"
+                                      style={{
+                                        width: '100%',
+                                        padding: '6px 12px',
+                                        backgroundColor: '#17a2b8',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                      }}
+                                    >
+                                      🎨 {t.settings.visualEditor}
+                                    </button>
+                                  </div>
+                                  
                                   <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                                     <button
                                       onClick={handleEditCancel}
@@ -712,6 +759,21 @@ const Settings: React.FC = () => {
           );
         })}
       </div>
+      
+      {/* ビジュアルエディタ */}
+      {showVisualEditor && editingItem && (
+        <VisualPositionEditor
+          imagePath={editingItem.item.assetPath}
+          initialOffsetX={parseInt(editForm.offsetX) || 0}
+          initialOffsetY={parseInt(editForm.offsetY) || 0}
+          initialWidth={parseInt(editForm.width) || 240}
+          initialHeight={parseInt(editForm.height) || 320}
+          onPositionChange={handleVisualEditorPositionChange}
+          onClose={handleCloseVisualEditor}
+          onSave={handleVisualEditorSave}
+          t={t}
+        />
+      )}
     </div>
     </PageTransition>
   );

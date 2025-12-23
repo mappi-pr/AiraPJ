@@ -83,7 +83,11 @@
     "saveBtn": "保存",
     "cancelBtn": "キャンセル",
     "editSuccess": "更新しました",
-    "editFail": "更新に失敗しました"
+    "editFail": "更新に失敗しました",
+    "visualEditor": "ビジュアルエディタ",
+    "dragToPosition": "ドラッグして位置を調整",
+    "centerBtn": "中央配置",
+    "autoDetectSize": "サイズ自動検出"
   },
   "terms": {
     "title": "規約・クレジット"
