@@ -401,7 +401,8 @@ const Settings: React.FC = () => {
                               {/* 編集フォーム（展開式） */}
                               {editingItem && editingItem.type === key && editingItem.item.id === item.id ? (
                                 <div style={{ 
-                                  width: '100%', 
+                                  width: '100%',
+                                  boxSizing: 'border-box',
                                   padding: '12px', 
                                   backgroundColor: '#f8f9fa', 
                                   borderRadius: '4px',
@@ -417,6 +418,7 @@ const Settings: React.FC = () => {
                                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                                       style={{
                                         width: '100%',
+                                        boxSizing: 'border-box',
                                         padding: '4px 8px',
                                         border: '1px solid #ddd',
                                         borderRadius: '4px',
@@ -436,6 +438,7 @@ const Settings: React.FC = () => {
                                         onChange={(e) => setEditForm({ ...editForm, offsetX: e.target.value })}
                                         style={{
                                           width: '100%',
+                                          boxSizing: 'border-box',
                                           padding: '4px 8px',
                                           border: '1px solid #ddd',
                                           borderRadius: '4px',
@@ -453,6 +456,7 @@ const Settings: React.FC = () => {
                                         onChange={(e) => setEditForm({ ...editForm, offsetY: e.target.value })}
                                         style={{
                                           width: '100%',
+                                          boxSizing: 'border-box',
                                           padding: '4px 8px',
                                           border: '1px solid #ddd',
                                           borderRadius: '4px',
@@ -473,6 +477,7 @@ const Settings: React.FC = () => {
                                         onChange={(e) => setEditForm({ ...editForm, width: e.target.value })}
                                         style={{
                                           width: '100%',
+                                          boxSizing: 'border-box',
                                           padding: '4px 8px',
                                           border: '1px solid #ddd',
                                           borderRadius: '4px',
@@ -490,6 +495,7 @@ const Settings: React.FC = () => {
                                         onChange={(e) => setEditForm({ ...editForm, height: e.target.value })}
                                         style={{
                                           width: '100%',
+                                          boxSizing: 'border-box',
                                           padding: '4px 8px',
                                           border: '1px solid #ddd',
                                           borderRadius: '4px',
