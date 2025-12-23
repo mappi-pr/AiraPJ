@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
     const costume = await Costume.findByPk(req.params.id);
     if (!costume || costume.deleted) return res.status(404).json({ error: 'Not found' });
     res.json(costume);
-  } catch {
+  } catch (e) {
     res.status(500).json({ error: 'Fetch failed' });
   }
 });
@@ -43,7 +43,7 @@ router.delete('/:id', async (req, res) => {
     costume.deletedAt = new Date();
     await costume.save();
     res.json({ success: true });
-  } catch {
+  } catch (e) {
     res.status(500).json({ error: 'Delete failed' });
   }
 });

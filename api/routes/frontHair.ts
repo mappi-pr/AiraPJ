@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
     const frontHair = await FrontHair.findByPk(req.params.id);
     if (!frontHair || frontHair.deleted) return res.status(404).json({ error: 'Not found' });
     res.json(frontHair);
-  } catch {
+  } catch (e) {
     res.status(500).json({ error: 'Fetch failed' });
   }
 });
@@ -43,7 +43,7 @@ router.delete('/:id', async (req, res) => {
     frontHair.deletedAt = new Date();
     await frontHair.save();
     res.json({ success: true });
-  } catch {
+  } catch (e) {
     res.status(500).json({ error: 'Delete failed' });
   }
 });

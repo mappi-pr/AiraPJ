@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
     const background = await Background.findByPk(req.params.id);
     if (!background || background.deleted) return res.status(404).json({ error: 'Not found' });
     res.json(background);
-  } catch {
+  } catch (e) {
     res.status(500).json({ error: 'Fetch failed' });
   }
 });
@@ -43,7 +43,7 @@ router.delete('/:id', async (req, res) => {
     background.deletedAt = new Date();
     await background.save();
     res.json({ success: true });
-  } catch {
+  } catch (e) {
     res.status(500).json({ error: 'Delete failed' });
   }
 });

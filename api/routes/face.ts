@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
     const face = await Face.findByPk(req.params.id);
     if (!face || face.deleted) return res.status(404).json({ error: 'Not found' });
     res.json(face);
-  } catch {
+  } catch (e) {
     res.status(500).json({ error: 'Fetch failed' });
   }
 });
@@ -45,7 +45,7 @@ router.delete('/:id', async (req, res) => {
     face.deletedAt = new Date();
     await face.save();
     res.json({ success: true });
-  } catch {
+  } catch (e) {
     res.status(500).json({ error: 'Delete failed' });
   }
 });
