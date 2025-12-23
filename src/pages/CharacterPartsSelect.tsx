@@ -29,6 +29,7 @@ const CharacterPartsSelect: React.FC = () => {
   const [faces, setFaces] = useState<PanelPartInfo[]>([]);
   const [frontHairs, setFrontHairs] = useState<PanelPartInfo[]>([]);
   const [backHairs, setBackHairs] = useState<PanelPartInfo[]>([]);
+  const [loading, setLoading] = useState(true);
   const [faceIdx, setFaceIdx] = useState(0);
   const [frontIdx, setFrontIdx] = useState(0);
   const [backIdx, setBackIdx] = useState(0);
@@ -66,6 +67,8 @@ const CharacterPartsSelect: React.FC = () => {
         setBackHairs(backHairData);
       } catch (error) {
         console.error('Failed to load character parts:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -154,7 +157,7 @@ const CharacterPartsSelect: React.FC = () => {
       <SparkleEffect />
       <div className="main-container">
         <h1>{t.characterPartsSelect.title}</h1>
-        {(faces.length === 0 || frontHairs.length === 0 || backHairs.length === 0) ? (
+        {loading ? (
           <div style={{ textAlign: 'center', margin: '32px 0', fontSize: 18, color: '#888' }}>{t.common.loading}</div>
         ) : (
           <>
