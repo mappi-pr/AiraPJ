@@ -39,14 +39,13 @@ const Settings: React.FC = () => {
       fontSize: '14px',
       fontWeight: '600' as const,
       transition: 'all 0.3s ease',
+      color: 'black',
     },
     primary: {
       backgroundColor: '#007bff',
-      color: 'white',
     },
     danger: {
       backgroundColor: '#dc3545',
-      color: 'white',
     },
     disabled: {
       backgroundColor: '#ccc',
@@ -55,7 +54,6 @@ const Settings: React.FC = () => {
     },
     pagination: {
       backgroundColor: 'white',
-      color: 'black',
       border: '1px solid #ddd',
     },
     paginationActive: {
@@ -282,29 +280,39 @@ const Settings: React.FC = () => {
         </nav>
 
         <h2>{t.settings.uploadTitle}</h2>
-        <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
-          <label>
-            {t.settings.typeLabel}
-            <select name="type" ref={assetTypeRef}>
-              {assetTypes.map(({ key, label }) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-          </label>
-          <br />
-          <label>
-            {t.settings.nameLabel} <input type="text" name="name" ref={assetNameRef} required />
-          </label>
-          <br />
-          <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
-          <br />
-          <button type="submit" disabled={uploading}>
-            {uploading ? t.settings.uploadingBtn : t.settings.uploadBtn}
-          </button>
-        </form>
-        <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
+        <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.uploadDesc}</p>
+        <div style={{ 
+          border: '1px solid #ddd', 
+          borderRadius: '8px', 
+          padding: '20px', 
+          marginBottom: '32px',
+          backgroundColor: '#f9f9f9'
+        }}>
+          <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
+            <label>
+              {t.settings.typeLabel}
+              <select name="type" ref={assetTypeRef}>
+                {assetTypes.map(({ key, label }) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+            </label>
+            <br />
+            <label>
+              {t.settings.nameLabel} <input type="text" name="name" ref={assetNameRef} required />
+            </label>
+            <br />
+            <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
+            <br />
+            <button type="submit" disabled={uploading}>
+              {uploading ? t.settings.uploadingBtn : t.settings.uploadBtn}
+            </button>
+          </form>
+          <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
+        </div>
 
         <h2>{t.settings.assetListTitle}</h2>
+        <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.assetListDesc}</p>
       <div className="asset-sections">
         {assetTypes.map(({ key, label }) => {
           const isExpanded = expandedSections[key];
