@@ -760,20 +760,44 @@ const Settings: React.FC = () => {
 
         {/* ④ゲームマスター管理（システム管理者専用） */}
         {isSystemAdmin && (
-          <>
-            <h2 style={{ marginTop: '32px', color: '#FF6B6B' }}>{t.settings.gameMasterTitle}</h2>
-            <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.gameMasterDesc}</p>
+          <div style={{
+            marginTop: '32px',
+            backgroundColor: '#1a1a1a',
+            border: '3px solid #FF6B6B',
+            borderRadius: '12px',
+            padding: '24px',
+            marginBottom: '32px'
+          }}>
             <div style={{ 
-              border: '1px solid #ddd', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px',
+              marginBottom: '8px'
+            }}>
+              <span style={{ fontSize: '20px' }}>⚠️</span>
+              <h2 style={{ margin: 0, color: '#FF6B6B' }}>{t.settings.gameMasterTitle}</h2>
+              <span style={{ 
+                fontSize: '12px', 
+                backgroundColor: '#FF6B6B', 
+                color: 'white', 
+                padding: '2px 8px', 
+                borderRadius: '4px',
+                fontWeight: 'bold'
+              }}>
+                システム管理者専用
+              </span>
+            </div>
+            <p style={{ color: '#ccc', marginBottom: '16px' }}>{t.settings.gameMasterDesc}</p>
+            <div style={{ 
+              border: '1px solid #444', 
               borderRadius: '8px', 
               padding: '20px', 
-              marginBottom: '32px',
-              backgroundColor: '#f9f9f9'
+              backgroundColor: '#2a2a2a'
             }}>
-              <h3>{t.settings.addGameMaster}</h3>
+              <h3 style={{ color: '#fff' }}>{t.settings.addGameMaster}</h3>
               <form onSubmit={handleAddGameMaster} style={{ marginBottom: '24px' }}>
                 <div style={{ marginBottom: '12px' }}>
-                  <label>
+                  <label style={{ color: '#eee' }}>
                     {t.settings.emailLabel}
                     <input
                       type="email"
@@ -781,19 +805,19 @@ const Settings: React.FC = () => {
                       onChange={(e) => setNewGMEmail(e.target.value)}
                       placeholder={t.settings.emailPlaceholder}
                       required
-                      style={{ marginLeft: '8px', padding: '8px', width: '300px', borderRadius: '4px', border: '1px solid #ddd' }}
+                      style={{ marginLeft: '8px', padding: '8px', width: '300px', borderRadius: '4px', border: '1px solid #555', backgroundColor: '#333', color: '#fff' }}
                     />
                   </label>
                 </div>
                 <div style={{ marginBottom: '12px' }}>
-                  <label>
+                  <label style={{ color: '#eee' }}>
                     {t.settings.displayNameLabel}
                     <input
                       type="text"
                       value={newGMName}
                       onChange={(e) => setNewGMName(e.target.value)}
                       placeholder={t.settings.displayNamePlaceholder}
-                      style={{ marginLeft: '8px', padding: '8px', width: '300px', borderRadius: '4px', border: '1px solid #ddd' }}
+                      style={{ marginLeft: '8px', padding: '8px', width: '300px', borderRadius: '4px', border: '1px solid #555', backgroundColor: '#333', color: '#fff' }}
                     />
                   </label>
                 </div>
@@ -809,27 +833,27 @@ const Settings: React.FC = () => {
                 </button>
               </form>
 
-              <h3>{t.settings.gameMasterList}</h3>
+              <h3 style={{ color: '#fff' }}>{t.settings.gameMasterList}</h3>
               {gameMasters.length === 0 ? (
-                <p style={{ color: '#666', padding: '16px', textAlign: 'center' }}>{t.settings.noGameMasters}</p>
+                <p style={{ color: '#999', padding: '16px', textAlign: 'center' }}>{t.settings.noGameMasters}</p>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px' }}>
                   <thead>
-                    <tr style={{ borderBottom: '2px solid #ddd', backgroundColor: '#f5f5f5' }}>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>{t.settings.emailHeader}</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>{t.settings.nameHeader}</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>{t.settings.createdAtHeader}</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>{t.settings.createdByHeader}</th>
-                      <th style={{ padding: '12px', textAlign: 'center' }}>{t.settings.actionsHeader}</th>
+                    <tr style={{ borderBottom: '2px solid #555', backgroundColor: '#333' }}>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#fff' }}>{t.settings.emailHeader}</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#fff' }}>{t.settings.nameHeader}</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#fff' }}>{t.settings.createdAtHeader}</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#fff' }}>{t.settings.createdByHeader}</th>
+                      <th style={{ padding: '12px', textAlign: 'center', color: '#fff' }}>{t.settings.actionsHeader}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {gameMasters.map((gm) => (
-                      <tr key={gm.id} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: '12px' }}>{gm.email}</td>
-                        <td style={{ padding: '12px' }}>{gm.name || '-'}</td>
-                        <td style={{ padding: '12px' }}>{new Date(gm.createdAt).toLocaleString('ja-JP')}</td>
-                        <td style={{ padding: '12px' }}>{gm.createdBy || '-'}</td>
+                      <tr key={gm.id} style={{ borderBottom: '1px solid #444' }}>
+                        <td style={{ padding: '12px', color: '#eee' }}>{gm.email}</td>
+                        <td style={{ padding: '12px', color: '#eee' }}>{gm.name || '-'}</td>
+                        <td style={{ padding: '12px', color: '#eee' }}>{new Date(gm.createdAt).toLocaleString('ja-JP')}</td>
+                        <td style={{ padding: '12px', color: '#eee' }}>{gm.createdBy || '-'}</td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           <button
                             onClick={() => handleRemoveGameMaster(gm.id, gm.email)}
@@ -848,7 +872,7 @@ const Settings: React.FC = () => {
                 </table>
               )}
             </div>
-          </>
+          </div>
         )}
     </div>
     </PageTransition>
