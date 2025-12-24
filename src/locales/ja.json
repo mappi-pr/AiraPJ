@@ -110,7 +110,7 @@
     "closeVisualEditor": "エディタを閉じる",
     "dragToPosition": "ドラッグして位置を調整",
     "centerBtn": "中央配置",
-    "autoDetectSize": "サイズ自動検出"
+    "autoDetectSize": "サイズ自動検出",
     "navigationButtonsTitle": "ナビゲーションボタン画像設定",
     "navigationButtonsDesc": "← / → ボタンの画像をカスタマイズできます",
     "prevButtonLabel": "← (前へ) ボタン",
