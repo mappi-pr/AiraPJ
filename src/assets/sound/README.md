@@ -22,13 +22,10 @@ sound/
 1. 背景音楽のMP3ファイルを `bgm/main.mp3` に配置します
 2. `src/config/audio.ts` を更新してファイルパスを指定します：
    ```typescript
-   export const BGM_PATH = '/src/assets/sound/bgm/main.mp3';
-   ```
-   または、ファイルをインポートする場合：
-   ```typescript
    import bgmFile from '../assets/sound/bgm/main.mp3';
    export const BGM_PATH = bgmFile;
    ```
+   ファイルを配置していない場合は、空文字列のままにしてください（BGMが無効になります）。
 
 ## SEの追加方法
 
