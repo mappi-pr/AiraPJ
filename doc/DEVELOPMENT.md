@@ -433,27 +433,13 @@ npm run migrate:undo
 
 #### Docker 環境でのマイグレーション実行
 
-**方法1: Docker Compose を使用（プロジェクトルートから実行）**
-
 ```bash
-# 開発モード
-docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
-
-# 本番モード
-docker compose -f docker/docker-compose.yml exec api npm run migrate
-```
-
-**方法2: docker exec を使用（任意のディレクトリから実行可能）**
-
-```bash
-# 開発モード
+# 開発モード - マイグレーション実行
 docker exec -it airapj-api-dev npm run migrate
 
-# 本番モード
+# 本番モード - マイグレーション実行
 docker exec -it airapj-api npm run migrate
 ```
-
-**注意**: 方法1で「service is not running」エラーが出る場合は、コンテナが起動していないか、docker compose 管理外で起動されています。コンテナ名の競合エラーが出る場合は、既存コンテナを削除してから docker compose で起動し直すか、方法2を使用してください。
 
 詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」セクションを参照してください。
 
@@ -1091,69 +1077,48 @@ npm run migrate:undo
 
 ### Docker 環境でのマイグレーション実行
 
-**方法1: Docker Compose を使用（推奨）**
-
-プロジェクトルートディレクトリから実行：
+**推奨コマンド（開発モード）:**
 
 ```bash
-# 開発モード
-docker compose -f docker/docker-compose.dev.yml exec api npm run migrate:status
-docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
+# マイグレーション状態確認
+docker exec -it airapj-api-dev npm run migrate:status
 
-# 本番モード
-docker compose -f docker/docker-compose.yml exec api npm run migrate:status
-docker compose -f docker/docker-compose.yml exec api npm run migrate
+# マイグレーション実行
+docker exec -it airapj-api-dev npm run migrate
 ```
 
-**方法2: docker exec を使用（任意のディレクトリから実行可能）**
+**本番モード:**
 
 ```bash
-# 開発モード
-docker exec -it airapj-api-dev npm run migrate:status
-docker exec -it airapj-api-dev npm run migrate
-
-# 本番モード
+# マイグレーション状態確認
 docker exec -it airapj-api npm run migrate:status
+
+# マイグレーション実行
 docker exec -it airapj-api npm run migrate
 ```
 
-**注意**: 方法1はプロジェクトルートで実行する必要がありますが、docker-compose.ymlの設定を利用できます。方法2は任意のディレクトリから実行できますが、コンテナ名を直接指定する必要があります。
+<details>
+<summary>エラーが出る場合のトラブルシューティング（クリックして展開）</summary>
 
-**⚠️ "service is not running" エラーが発生する場合**
+**"No such container" エラーの場合:**
 
-`docker compose exec` で「service "api" is not running」エラーが出る場合、以下を確認してください：
-
-**ケース1: コンテナが docker compose で起動されていない**
-
-```bash
-# コンテナの状態を確認
-docker compose -f docker/docker-compose.dev.yml ps
-
-# 何も表示されない場合、docker compose でコンテナを起動
-docker compose -f docker/docker-compose.dev.yml up -d
-
-# 起動後にマイグレーションを実行
-docker compose -f docker/docker-compose.dev.yml exec api npm run migrate:status
-```
-
-**ケース2: コンテナは起動しているが docker compose 管理外**
-
-`docker ps` でコンテナが見えるのに `docker compose ps` で見えない場合、コンテナが docker compose 以外の方法（`docker run` など）で起動されています。この場合：
+コンテナが起動していません。以下で起動してください：
 
 ```bash
-# docker compose 管理外のコンテナを確認
-docker ps | grep airapj
-
-# 方法1: docker exec を使用（推奨）
-docker exec -it airapj-api-dev npm run migrate:status
-
-# 方法2: 既存コンテナを削除して docker compose で再起動
-docker stop airapj-db-dev airapj-api-dev airapj-frontend-dev
-docker rm airapj-db-dev airapj-api-dev airapj-frontend-dev
 docker compose -f docker/docker-compose.dev.yml up -d
 ```
 
-**注意**: コンテナ名の競合エラー（"The container name is already in use"）が出る場合は、ケース2に該当します。既存のコンテナを停止・削除してから docker compose で起動し直してください。
+**"container name is already in use" エラーの場合:**
+
+既存のコンテナを削除してから起動してください：
+
+```bash
+docker stop airapj-db-dev airapj-api-dev airapj-frontend-dev 2>/dev/null
+docker rm airapj-db-dev airapj-api-dev airapj-frontend-dev 2>/dev/null
+docker compose -f docker/docker-compose.dev.yml up -d
+```
+
+</details>
 
 ### よくある問題と解決方法
 
