@@ -101,6 +101,9 @@ const Title: React.FC = () => {
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
               useOneTap
+              type="icon"
+              shape="circle"
+              size="large"
             />
           )}
         </div>
