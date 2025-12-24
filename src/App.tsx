@@ -257,8 +257,8 @@ function App() {
       </BrowserRouter>
     </PartsProvider>
     </NavigationButtonProvider>
-  </AuthProvider>
   </LocaleProvider>
+  </AuthProvider>
   )
 }
 
