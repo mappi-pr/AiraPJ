@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css'
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Title from './pages/Title';
 import CharacterPartsSelect from './pages/CharacterPartsSelect';
 import BackgroundSelect from './pages/BackgroundSelect';
