@@ -30,6 +30,7 @@ const Settings: React.FC = () => {
   const [gameMasters, setGameMasters] = useState<GameMaster[]>([]);
   const [newGMEmail, setNewGMEmail] = useState('');
   const [newGMName, setNewGMName] = useState('');
+  const [expandedGMId, setExpandedGMId] = useState<number | null>(null);
   const [navResult, setNavResult] = useState<string>('');
   const [navResultType, setNavResultType] = useState<'success' | 'error' | null>(null);
   const prevButtonFileRef = useRef<HTMLInputElement>(null);
@@ -797,7 +798,7 @@ const Settings: React.FC = () => {
               <h3 style={{ color: '#fff' }}>{t.settings.addGameMaster}</h3>
               <form onSubmit={handleAddGameMaster} style={{ marginBottom: '24px' }}>
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ color: '#eee' }}>
+                  <label style={{ color: '#eee', display: 'block' }}>
                     {t.settings.emailLabel}
                     <input
                       type="email"
@@ -805,19 +806,19 @@ const Settings: React.FC = () => {
                       onChange={(e) => setNewGMEmail(e.target.value)}
                       placeholder={t.settings.emailPlaceholder}
                       required
-                      style={{ marginLeft: '8px', padding: '8px', width: '300px', borderRadius: '4px', border: '1px solid #555', backgroundColor: '#333', color: '#fff' }}
+                      style={{ marginTop: '8px', padding: '8px', width: '100%', maxWidth: '300px', borderRadius: '4px', border: '1px solid #555', backgroundColor: '#333', color: '#fff', boxSizing: 'border-box' }}
                     />
                   </label>
                 </div>
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ color: '#eee' }}>
+                  <label style={{ color: '#eee', display: 'block' }}>
                     {t.settings.displayNameLabel}
                     <input
                       type="text"
                       value={newGMName}
                       onChange={(e) => setNewGMName(e.target.value)}
                       placeholder={t.settings.displayNamePlaceholder}
-                      style={{ marginLeft: '8px', padding: '8px', width: '300px', borderRadius: '4px', border: '1px solid #555', backgroundColor: '#333', color: '#fff' }}
+                      style={{ marginTop: '8px', padding: '8px', width: '100%', maxWidth: '300px', borderRadius: '4px', border: '1px solid #555', backgroundColor: '#333', color: '#fff', boxSizing: 'border-box' }}
                     />
                   </label>
                 </div>
@@ -841,40 +842,73 @@ const Settings: React.FC = () => {
                     <div
                       key={gm.id}
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '12px',
                         marginBottom: '8px',
                         backgroundColor: '#2a2a2a',
                         borderRadius: '8px',
                         border: '1px solid #444',
-                        position: 'relative',
-                        cursor: 'pointer',
-                      }}
-                      title={`${gm.name || '-'}\n${t.settings.createdAtHeader}: ${new Date(gm.createdAt).toLocaleString('ja-JP')}\n${t.settings.createdByHeader}: ${gm.createdBy || '-'}`}
-                    >
-                      <div style={{ 
-                        flex: 1, 
-                        color: '#eee', 
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        marginRight: '12px',
-                        fontSize: '14px',
-                      }}>
-                        {gm.email}
-                      </div>
-                      <button
-                        onClick={() => handleRemoveGameMaster(gm.id, gm.email)}
+                      }}
+                    >
+                      <div
+                        onClick={() => setExpandedGMId(expandedGMId === gm.id ? null : gm.id)}
                         style={{
-                          ...buttonStyles.base,
-                          ...buttonStyles.danger,
-                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '12px',
+                          cursor: 'pointer',
+                          backgroundColor: expandedGMId === gm.id ? '#333' : '#2a2a2a',
                         }}
                       >
-                        {t.settings.removeBtn}
-                      </button>
+                        <div style={{ 
+                          flex: 1, 
+                          color: '#eee', 
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          marginRight: '12px',
+                          fontSize: '14px',
+                        }}>
+                          {gm.email}
+                        </div>
+                        <span style={{ color: '#888', fontSize: '12px', marginRight: '8px' }}>
+                          {expandedGMId === gm.id ? '▲' : '▼'}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveGameMaster(gm.id, gm.email);
+                          }}
+                          style={{
+                            ...buttonStyles.base,
+                            ...buttonStyles.danger,
+                            flexShrink: 0,
+                            padding: '6px 12px',
+                            fontSize: '13px',
+                          }}
+                        >
+                          {t.settings.removeBtn}
+                        </button>
+                      </div>
+                      {expandedGMId === gm.id && (
+                        <div style={{
+                          padding: '12px',
+                          backgroundColor: '#222',
+                          borderTop: '1px solid #444',
+                          color: '#ccc',
+                          fontSize: '13px',
+                        }}>
+                          <div style={{ marginBottom: '6px' }}>
+                            <strong style={{ color: '#aaa' }}>{t.settings.nameHeader}:</strong> {gm.name || '-'}
+                          </div>
+                          <div style={{ marginBottom: '6px' }}>
+                            <strong style={{ color: '#aaa' }}>{t.settings.createdAtHeader}:</strong> {new Date(gm.createdAt).toLocaleString('ja-JP')}
+                          </div>
+                          <div>
+                            <strong style={{ color: '#aaa' }}>{t.settings.createdByHeader}:</strong> {gm.createdBy || '-'}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
