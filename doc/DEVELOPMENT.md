@@ -287,6 +287,42 @@ docker compose up -d --force-recreate
 
 **注意**: 本番モードでは、すべてのコード変更がDockerイメージに反映されるまで数分かかります。頻繁にコードを変更する場合は、開発モード（`docker-compose.dev.yml`）の使用を推奨します。
 
+#### PR ブランチのテスト（本番モード）
+
+プルリクエストのブランチをチェックアウトして、本番環境（nginx）で動作確認する手順：
+
+```bash
+# 1. PR ブランチをチェックアウト
+git fetch origin
+git checkout <branch-name>  # 例: copilot/fix-docker-proxy-issue
+
+# 2. 既存のコンテナを停止・削除
+docker compose -f docker/docker-compose.yml down
+
+# 3. イメージを再ビルドして起動
+docker compose -f docker/docker-compose.yml up -d --build
+
+# 4. ログを確認（問題がないか確認）
+docker compose -f docker/docker-compose.yml logs -f
+
+# 5. 動作確認
+# - フロントエンド: http://localhost
+# - API: http://localhost/api/health
+```
+
+**元のブランチに戻る場合:**
+
+```bash
+# 1. コンテナを停止
+docker compose -f docker/docker-compose.yml down
+
+# 2. ブランチを切り替え
+git checkout main  # または元のブランチ
+
+# 3. 再ビルドして起動
+docker compose -f docker/docker-compose.yml up -d --build
+```
+
 ---
 
 #### Docker 環境の詳細
