@@ -8,7 +8,6 @@ export type StickerInstance = {
   sticker: PartInfo;
   x: number;
   y: number;
-  scale: number;
 };
 
 export type SelectedParts = {

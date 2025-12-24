@@ -255,7 +255,6 @@ const Photo: React.FC = () => {
       sticker,
       x: 120, // 中央
       y: 160,
-      scale: 0.5,
     };
     partsContext.setSelectedParts(prev => ({
       ...prev,
@@ -301,14 +300,6 @@ const Photo: React.FC = () => {
   ) => {
     e.stopPropagation();
     setSelectedSticker(index);
-  };
-
-  // ステッカー拡大率変更
-  const handleStickerScale = (index: number, newScale: number) => {
-    if (!partsContext) return;
-    const newStickers = [...partsContext.selectedParts.stickers];
-    newStickers[index] = { ...newStickers[index], scale: newScale };
-    partsContext.setSelectedParts(prev => ({ ...prev, stickers: newStickers }));
   };
 
   // ピンチズーム開始
@@ -483,7 +474,6 @@ const Photo: React.FC = () => {
               zIndex: 100 + index,
               cursor: draggingSticker === index ? 'grabbing' : 'grab',
               touchAction: 'none',
-              transform: `scale(${stickerInstance.scale})`,
               transformOrigin: 'center center',
               border: selectedSticker === index ? '3px solid #4a90e2' : '2px solid transparent',
               borderRadius: '4px',
@@ -585,21 +575,6 @@ const Photo: React.FC = () => {
               />
               <div style={{ flex: 1 }}>
                 <div>{stickerInstance.sticker.name}</div>
-                <div style={{ fontSize: '12px' }}>
-                  <label>
-                    拡大率: 
-                    <input
-                      type="range"
-                      min={0.1}
-                      max={2}
-                      step={0.1}
-                      value={stickerInstance.scale}
-                      onChange={(e) => handleStickerScale(index, Number(e.target.value))}
-                      style={{ width: '100px', marginLeft: '8px' }}
-                    />
-                    {stickerInstance.scale.toFixed(1)}倍
-                  </label>
-                </div>
               </div>
               <button onClick={() => handleRemoveSticker(index)}>削除</button>
             </div>
