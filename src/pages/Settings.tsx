@@ -6,6 +6,7 @@ import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 import { useAuth } from '../context/AuthContext';
+import { useNavigationButtons } from '../context/NavigationButtonContext';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -29,12 +30,17 @@ const Settings: React.FC = () => {
   const [gameMasters, setGameMasters] = useState<GameMaster[]>([]);
   const [newGMEmail, setNewGMEmail] = useState('');
   const [newGMName, setNewGMName] = useState('');
+  const [navResult, setNavResult] = useState<string>('');
+  const [navResultType, setNavResultType] = useState<'success' | 'error' | null>(null);
+  const prevButtonFileRef = useRef<HTMLInputElement>(null);
+  const nextButtonFileRef = useRef<HTMLInputElement>(null);
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
   const { isSystemAdmin } = useAuth();
+  const { buttonImages, refreshButtonImages } = useNavigationButtons();
 
   // アップロード種別ごとのエンドポイント
   const uploadUrls: Record<string, string> = {
@@ -263,6 +269,51 @@ const Settings: React.FC = () => {
     // eslint-disable-next-line
   }, [isSystemAdmin]);
 
+  // ナビゲーションボタン画像のアップロード
+  const handleNavButtonUpload = async (buttonType: 'prev' | 'next') => {
+    const fileRef = buttonType === 'prev' ? prevButtonFileRef : nextButtonFileRef;
+    const file = fileRef.current?.files?.[0];
+    
+    if (!file || file.type !== 'image/png') {
+      setNavResult(t.settings.pngOnly);
+      setNavResultType('error');
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append('buttonType', buttonType);
+    formData.append('asset', file);
+    
+    try {
+      await axios.post('/api/navigation-buttons/upload', formData);
+      playSuccess();
+      setNavResult(t.settings.navUploadSuccess);
+      setNavResultType('success');
+      await refreshButtonImages();
+      // ファイル選択をリセット
+      if (fileRef.current) {
+        fileRef.current.value = '';
+      }
+    } catch {
+      setNavResult(t.settings.navUploadFail);
+      setNavResultType('error');
+    }
+  };
+
+  // ナビゲーションボタン画像のリセット
+  const handleNavButtonReset = async (buttonType: 'prev' | 'next') => {
+    try {
+      await axios.delete(`/api/navigation-buttons/${buttonType}/reset`);
+      playSuccess();
+      setNavResult(t.settings.navResetSuccess);
+      setNavResultType('success');
+      await refreshButtonImages();
+    } catch {
+      setNavResult(t.settings.navResetFail);
+      setNavResultType('error');
+    }
+  };
+
   return (
     <PageTransition>
       <SparkleEffect />
@@ -346,6 +397,138 @@ const Settings: React.FC = () => {
             </div>
           </>
         )}
+        <h2>{t.settings.navigationButtonsTitle}</h2>
+        <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.navigationButtonsDesc}</p>
+        <div style={{ 
+          border: '1px solid #ddd', 
+          borderRadius: '8px', 
+          padding: '20px', 
+          marginBottom: '32px',
+          backgroundColor: '#f9f9f9'
+        }}>
+          {/* Prev Button */}
+          <div style={{ marginBottom: '24px' }}>
+            <h3>{t.settings.prevButtonLabel}</h3>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>{t.settings.currentImage}</strong>{' '}
+              {buttonImages.prev ? (
+                <img 
+                  src={buttonImages.prev} 
+                  alt="←" 
+                  style={{ maxWidth: 40, maxHeight: 40, marginLeft: '8px', verticalAlign: 'middle' }} 
+                />
+              ) : (
+                <span style={{ color: '#888' }}>{t.settings.defaultText} (←)</span>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input 
+                type="file" 
+                ref={prevButtonFileRef} 
+                accept="image/png"
+                style={{ flex: '1 1 auto', minWidth: '200px' }}
+              />
+              <button 
+                type="button" 
+                onClick={() => handleNavButtonUpload('prev')}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                {t.settings.uploadNavBtn}
+              </button>
+              {buttonImages.prev && (
+                <button 
+                  type="button" 
+                  onClick={() => handleNavButtonReset('prev')}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {t.settings.resetNavBtn}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Next Button */}
+          <div>
+            <h3>{t.settings.nextButtonLabel}</h3>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>{t.settings.currentImage}</strong>{' '}
+              {buttonImages.next ? (
+                <img 
+                  src={buttonImages.next} 
+                  alt="→" 
+                  style={{ maxWidth: 40, maxHeight: 40, marginLeft: '8px', verticalAlign: 'middle' }} 
+                />
+              ) : (
+                <span style={{ color: '#888' }}>{t.settings.defaultText} (→)</span>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input 
+                type="file" 
+                ref={nextButtonFileRef} 
+                accept="image/png"
+                style={{ flex: '1 1 auto', minWidth: '200px' }}
+              />
+              <button 
+                type="button" 
+                onClick={() => handleNavButtonUpload('next')}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                {t.settings.uploadNavBtn}
+              </button>
+              {buttonImages.next && (
+                <button 
+                  type="button" 
+                  onClick={() => handleNavButtonReset('next')}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {t.settings.resetNavBtn}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {navResult && (
+            <div style={{ 
+              marginTop: '16px', 
+              padding: '12px', 
+              backgroundColor: navResultType === 'success' ? '#d4edda' : '#f8d7da',
+              border: `1px solid ${navResultType === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+              borderRadius: '4px',
+              color: navResultType === 'success' ? '#155724' : '#721c24',
+            }}>
+              {navResult}
+            </div>
+          )}
+        </div>
 
         <h2>{t.settings.uploadTitle}</h2>
         <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">

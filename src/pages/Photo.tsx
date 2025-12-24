@@ -6,19 +6,51 @@ import html2canvas from 'html2canvas';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
+import { getUserId } from '../utils/user';
+import axios from 'axios';
+
+// フォトエリアの固定サイズ (3:4のアスペクト比)
+const PHOTO_WIDTH = 240;
+const PHOTO_HEIGHT = 320;
 
 const Photo: React.FC = () => {
   // ドラッグ用state
-  const [dragPos, setDragPos] = React.useState({ x: 0, y: 0 });
   const [dragging, setDragging] = React.useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
+  
+  // ピンチズーム用state
+  const [isPinching, setIsPinching] = React.useState(false);
+  const initialPinchDistance = useRef<number>(0);
+  const initialScale = useRef<number>(1);
+  const characterRef = useRef<HTMLDivElement>(null);
+  
+  // ピンチズーム距離計算
+  const getPinchDistance = (touches: React.TouchList | TouchList) => {
+    if (touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // スケール計算の共通関数
+  const calculatePinchScale = (currentDistance: number) => {
+    if (initialPinchDistance.current === 0) return 1;
+    const scaleChange = currentDistance / initialPinchDistance.current;
+    let newScale = initialScale.current * scaleChange;
+    // スケールを0.5～2の範囲に制限
+    return Math.max(0.5, Math.min(2, newScale));
+  };
 
   // ドラッグ中のグローバルイベント監視
   React.useEffect(() => {
     if (!dragging) return;
     const handleMove = (e: MouseEvent | TouchEvent) => {
+      if (e instanceof TouchEvent && e.touches.length > 1) {
+        // 2本指以上の場合はドラッグ処理をスキップ
+        return;
+      }
       let clientX, clientY;
       if (e instanceof TouchEvent) {
         clientX = e.touches[0]?.clientX ?? 0;
@@ -27,10 +59,12 @@ const Photo: React.FC = () => {
         clientX = e.clientX;
         clientY = e.clientY;
       }
-      setDragPos({
-        x: clientX - dragOffset.current.x,
-        y: clientY - dragOffset.current.y,
-      });
+      if (partsContext) {
+        partsContext.setDragPos({
+          x: clientX - dragOffset.current.x,
+          y: clientY - dragOffset.current.y,
+        });
+      }
     };
     const handleUp = () => setDragging(false);
     window.addEventListener('mousemove', handleMove);
@@ -48,7 +82,52 @@ const Photo: React.FC = () => {
   const partsContext = useContext(PartsContext);
   const photoRef = useRef<HTMLDivElement>(null);
   if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
-  const { selectedParts, scale, setScale } = partsContext;
+  const { selectedParts, scale, setScale, dragPos, setDragPos } = partsContext;
+  // ピンチズーム用のグローバルイベント監視
+  React.useEffect(() => {
+    if (!isPinching) return;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length >= 2) {
+        const currentDistance = getPinchDistance(e.touches);
+        const newScale = calculatePinchScale(currentDistance);
+        setScale(newScale);
+        e.preventDefault();
+      } else {
+        // 2本指未満の場合はピンチモード終了
+        setIsPinching(false);
+      }
+    };
+    const handleTouchEnd = () => {
+      setIsPinching(false);
+    };
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPinching, setScale]);
+
+  // マウスホイールイベント用のグローバルイベント監視
+  React.useEffect(() => {
+    const characterElement = characterRef.current;
+    if (!characterElement) return;
+    
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      setScale(currentScale => {
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        let newScale = currentScale + delta;
+        // スケールを0.5～2の範囲に制限
+        return Math.max(0.5, Math.min(2, newScale));
+      });
+    };
+    
+    characterElement.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      characterElement.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
 
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
@@ -57,15 +136,40 @@ const Photo: React.FC = () => {
   const handleDownload = async () => {
     playSuccess();
     if (photoRef.current) {
+      // 高解像度でキャプチャ（scale=3で720x960の高画質出力）
       const canvas = await html2canvas(photoRef.current, { 
         useCORS: true, 
         background: undefined,
-        scale: window.devicePixelRatio * 2
+        scale: 3,  // 3倍解像度で高画質出力
+        width: PHOTO_WIDTH,
+        height: PHOTO_HEIGHT,
+        windowWidth: PHOTO_WIDTH,
+        windowHeight: PHOTO_HEIGHT
       } as any );
+      
       const link = document.createElement('a');
       link.download = 'my_character.png';
       link.href = canvas.toDataURL();
       link.click();
+
+      // Save generation history
+      try {
+        const userId = getUserId();
+        await axios.post('/api/generation-history', {
+          userId,
+          backgroundId: selectedParts.background?.id || null,
+          costumeId: selectedParts.costume?.id || null,
+          backHairId: selectedParts.backHair?.id || null,
+          faceId: selectedParts.face?.id || null,
+          frontHairId: selectedParts.frontHair?.id || null,
+          scale,
+          dragX: dragPos.x,
+          dragY: dragPos.y,
+        });
+        console.log('Generation history saved');
+      } catch (error) {
+        console.error('Failed to save generation history:', error);
+      }
     }
   };
 
@@ -77,6 +181,11 @@ const Photo: React.FC = () => {
 
   // ドラッグ開始
   const handleDragStart = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    // タッチイベントで2本指以上の場合はピンチズーム
+    if ('touches' in e && e.touches.length >= 2) {
+      handlePinchStart(e);
+      return;
+    }
     setDragging(true);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -84,6 +193,17 @@ const Photo: React.FC = () => {
       x: clientX - dragPos.x,
       y: clientY - dragPos.y,
     };
+  };
+
+  // ピンチズーム開始
+  const handlePinchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length >= 2) {
+      setIsPinching(true);
+      setDragging(false); // ドラッグをキャンセル
+      initialPinchDistance.current = getPinchDistance(e.touches);
+      initialScale.current = scale;
+      e.preventDefault();
+    }
   };
 
   return (
@@ -102,15 +222,15 @@ const Photo: React.FC = () => {
               value={scale}
               onChange={e => setScale(Number(e.target.value))}
             />
-            {scale}{t.photo.scaleSuffix}
+            {scale.toFixed(2)}{t.photo.scaleSuffix}
           </label>
         </div>
         <div
           ref={photoRef}
           style={{
             position: 'relative',
-            width: 240,
-            height: 320,
+            width: PHOTO_WIDTH,
+            height: PHOTO_HEIGHT,
             background: '#eee',
             margin: '0 auto',
             overflow: 'hidden',
@@ -127,8 +247,8 @@ const Photo: React.FC = () => {
                 position: 'absolute',
                 left: 0,
                 top: 0,
-                width: 240,
-                height: 320,
+                width: PHOTO_WIDTH,
+                height: PHOTO_HEIGHT,
                 zIndex: 0,
                 objectFit: 'cover',
                 pointerEvents: 'none',
@@ -136,16 +256,17 @@ const Photo: React.FC = () => {
               }}
             />
           ) : (
-            <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noBackground}</div>
+            <div style={{position:'absolute',left:0,top:0,width:PHOTO_WIDTH,height:PHOTO_HEIGHT,zIndex:0,background:'#ccc',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noBackground}</div>
           )}
           {/* パーツ重ね順: 後髪→衣装→顔→前髪 */}
           <div
+            ref={characterRef}
             style={{
               position: 'absolute',
               left: dragPos.x,
               top: dragPos.y,
-              width: 240,
-              height: 320,
+              width: PHOTO_WIDTH,
+              height: PHOTO_HEIGHT,
               zIndex: 1,
               transform: `scale(${scale})`,
               transformOrigin: 'center center',
@@ -165,8 +286,8 @@ const Photo: React.FC = () => {
                   position: 'absolute',
                   left: 0,
                   top: 0,
-                  width: 240,
-                  height: 320,
+                  width: PHOTO_WIDTH,
+                  height: PHOTO_HEIGHT,
                   zIndex: 1,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -184,8 +305,8 @@ const Photo: React.FC = () => {
                   position: 'absolute',
                   left: 0,
                   top: 0,
-                  width: 240,
-                  height: 320,
+                  width: PHOTO_WIDTH,
+                  height: PHOTO_HEIGHT,
                   zIndex: 2,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -193,7 +314,7 @@ const Photo: React.FC = () => {
                 }}
               />
             ) : (
-              <div style={{position:'absolute',left:0,top:0,width:240,height:320,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noCostume}</div>
+              <div style={{position:'absolute',left:0,top:0,width:PHOTO_WIDTH,height:PHOTO_HEIGHT,zIndex:2,background:'rgba(255,255,255,0.2)',color:'#888',display:'flex',alignItems:'center',justifyContent:'center'}}>{t.photo.noCostume}</div>
             )}
             {selectedParts.face && (
               <img
@@ -205,8 +326,8 @@ const Photo: React.FC = () => {
                   position: 'absolute',
                   left: 0,
                   top: 0,
-                  width: 240,
-                  height: 320,
+                  width: PHOTO_WIDTH,
+                  height: PHOTO_HEIGHT,
                   zIndex: 3,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -224,8 +345,8 @@ const Photo: React.FC = () => {
                   position: 'absolute',
                   left: 0,
                   top: 0,
-                  width: 240,
-                  height: 320,
+                  width: PHOTO_WIDTH,
+                  height: PHOTO_HEIGHT,
                   zIndex: 4,
                   objectFit: 'contain',
                   pointerEvents: 'none',

@@ -83,7 +83,7 @@ const Title: React.FC = () => {
             <Link to="/history" id="favorites-menu" onClick={playClick}>{t.title.favorites}</Link>
           </div>
         </main>
-        <footer style={{ position: 'absolute', bottom: 16, width: '100%', textAlign: 'center' }}>
+        <footer style={{ position: 'absolute', bottom: 16, left: 0, right: 0, textAlign: 'center' }}>
           <Link to="/terms" id="terms-link" style={{ fontSize: 'small' }} onClick={playClick}>{t.title.terms}</Link>
         </footer>
       </div>

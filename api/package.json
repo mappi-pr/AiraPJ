@@ -7,7 +7,10 @@
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "build": "tsc",
     "postbuild": "mkdir -p dist/uploads/face dist/uploads/frontHair dist/uploads/backHair dist/uploads/bg dist/uploads/csm",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "migrate": "node scripts/migrate.js migrate",
+    "migrate:status": "node scripts/migrate.js status",
+    "migrate:undo": "node scripts/migrate.js undo"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
@@ -29,6 +32,7 @@
     "@types/node": "^24.0.3",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "sequelize-cli": "^6.6.3",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.0"

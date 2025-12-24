@@ -8,8 +8,24 @@ const router = Router();
 
 // GET /api/back-hair
 router.get('/', async (req, res) => {
-  const backHairs = await BackHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-  res.json(backHairs);
+  try {
+    const backHairs = await BackHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    res.json(backHairs);
+  } catch (e) {
+    console.error('Error fetching back hairs:', e);
+    res.status(500).json({ error: 'Failed to fetch back hairs' });
+  }
+});
+
+// GET /api/back-hair/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const backHair = await BackHair.findByPk(req.params.id);
+    if (!backHair || backHair.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(backHair);
+  } catch (e) {
+    res.status(500).json({ error: 'Fetch failed' });
+  }
 });
 
 // DELETE /api/back-hair/:id (管理者専用)

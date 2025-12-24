@@ -6,6 +6,7 @@ import type { PartInfo } from '../context/PartsContextOnly';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
+import { NavigationButton } from '../components/NavigationButton';
 
 const CostumeSelect: React.FC = () => {
   const [costumes, setCostumes] = useState<PartInfo[]>([]);
@@ -53,12 +54,12 @@ const CostumeSelect: React.FC = () => {
         <div className="select-container">
           {costumes.length > 0 ? (
             <>
-              <button onClick={handlePrev}>←</button>
+              <NavigationButton direction="prev" onClick={handlePrev} />
               <div id="costume-info">
                 <img src={costumes[idx].assetPath} alt={t.costumeSelect.imageAlt} style={{ maxWidth: 200, maxHeight: 200 }} />
                 <div>{costumes[idx].name}</div>
               </div>
-              <button onClick={handleNext}>→</button>
+              <NavigationButton direction="next" onClick={handleNext} />
             </>
           ) : (
             <div>{t.common.noData}</div>
