@@ -111,7 +111,7 @@
     "addGameMaster": "ゲームマスターを追加",
     "emailLabel": "メールアドレス:",
     "emailPlaceholder": "user@example.com",
-    "displayNameLabel": "名前（任意）:",
+    "displayNameLabel": "ハンドルネーム（任意）:",
     "displayNamePlaceholder": "表示名",
     "addBtn": "追加",
     "gameMasterList": "現在のゲームマスター一覧",
