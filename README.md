@@ -59,7 +59,7 @@ cd api && cp .env.example .env && cd ..
 # - PostgreSQL 16.x をインストールして起動
 # - データベース 'airapj' を作成
 # オプション2: PostgreSQL のみ Docker で起動（軽量な選択肢）
-docker run -d --name airapj-postgres \
+docker run -d --name airapj-db \
   -e POSTGRES_DB=airapj -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
   postgres:16-alpine
@@ -83,6 +83,7 @@ npm run dev
 
 ### 機能別ドキュメント
 
+- **[画像アセット作成ガイド](doc/IMAGE_ASSETS.md)** - キャラクターパーツや背景などの画像アセット作成方法
 - **[ボイス実装ガイド](doc/VOICE_IMPLEMENTATION.md)** - キャラクター選択画面などでのボイス機能の実装方法
 - **[CSS アーキテクチャ](doc/CSS.md)** - スタイル管理とデザインガイドライン
 - **[多言語対応](doc/MULTILINGUAL.md)** - 国際化対応の実装方法

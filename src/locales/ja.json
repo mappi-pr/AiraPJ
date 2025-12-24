@@ -64,6 +64,7 @@
   "settings": {
     "title": "設定",
     "uploadTitle": "画像アセットアップロード",
+    "uploadDesc": "キャラクターパーツ・背景・衣装の画像をアップロードできます",
     "typeLabel": "アップロード種別:",
     "nameLabel": "名前:",
     "uploadBtn": "アップロード",
@@ -74,6 +75,7 @@
     "pngOnly": "PNG画像のみアップロード可能です。",
     "selectType": "種別を選択してください。",
     "assetListTitle": "アセット一覧・削除",
+    "assetListDesc": "アップロード済みアセットの確認・削除・並び替えができます",
     "faceLabel": "顔パーツ",
     "frontHairLabel": "前髪パーツ",
     "backHairLabel": "後髪パーツ",

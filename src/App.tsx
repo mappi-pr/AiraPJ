@@ -17,9 +17,9 @@ import { LocaleProvider } from './context/LocaleContext';
 import { NavigationButtonProvider } from './context/NavigationButtonContext';
 import texts from './locales/ja.json';
 
-// BGM file path - place your MP3 file in src/assets/sound/bgm/main.mp3
-// Empty string disables BGM until file is added
-const bgmpath = '';
+// BGM file path from environment variable (VITE_BGM_PATH)
+// Configure in .env file - see .env.example for details
+const bgmpath = import.meta.env.VITE_BGM_PATH || '';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);

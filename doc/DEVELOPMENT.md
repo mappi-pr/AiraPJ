@@ -287,6 +287,42 @@ docker compose up -d --force-recreate
 
 **注意**: 本番モードでは、すべてのコード変更がDockerイメージに反映されるまで数分かかります。頻繁にコードを変更する場合は、開発モード（`docker-compose.dev.yml`）の使用を推奨します。
 
+#### PR ブランチのテスト（本番モード）
+
+プルリクエストのブランチをチェックアウトして、本番環境（nginx）で動作確認する手順：
+
+```bash
+# 1. PR ブランチをチェックアウト
+git fetch origin
+git checkout <branch-name>  # 例: copilot/fix-docker-proxy-issue
+
+# 2. 既存のコンテナを停止・削除
+docker compose -f docker/docker-compose.yml down
+
+# 3. イメージを再ビルドして起動
+docker compose -f docker/docker-compose.yml up -d --build
+
+# 4. ログを確認（問題がないか確認）
+docker compose -f docker/docker-compose.yml logs -f
+
+# 5. 動作確認
+# - フロントエンド: http://localhost
+# - API: http://localhost/api/health
+```
+
+**元のブランチに戻る場合:**
+
+```bash
+# 1. コンテナを停止
+docker compose -f docker/docker-compose.yml down
+
+# 2. ブランチを切り替え
+git checkout main  # または元のブランチ
+
+# 3. 再ビルドして起動
+docker compose -f docker/docker-compose.yml up -d --build
+```
+
 ---
 
 #### Docker 環境の詳細
@@ -384,7 +420,7 @@ PostgreSQL をローカルにインストールするか、Docker で起動し�
 ```bash
 # Docker で PostgreSQL のみ起動する場合
 docker run -d \
-  --name airapj-postgres \
+  --name airapj-db \
   -e POSTGRES_DB=airapj \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
@@ -434,11 +470,11 @@ npm run migrate:undo
 #### Docker 環境でのマイグレーション実行
 
 ```bash
-# 開発モード
-docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
+# 開発モード - マイグレーション実行
+docker exec -it airapj-api-dev npm run migrate
 
-# 本番モード
-docker compose -f docker/docker-compose.yml exec api npm run migrate
+# 本番モード - マイグレーション実行
+docker exec -it airapj-api npm run migrate
 ```
 
 詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」セクションを参照してください。
@@ -1036,7 +1072,7 @@ docker compose -f docker/docker-compose.yml up
 
 ```bash
 # PostgreSQL を起動
-docker run -d --name airapj-postgres \
+docker run -d --name airapj-db \
   -e POSTGRES_DB=airapj -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
   postgres:16-alpine
@@ -1077,15 +1113,48 @@ npm run migrate:undo
 
 ### Docker 環境でのマイグレーション実行
 
-```bash
-# 開発モード
-docker compose -f docker/docker-compose.dev.yml exec api npm run migrate:status
-docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
+**推奨コマンド（開発モード）:**
 
-# 本番モード
-docker compose -f docker/docker-compose.yml exec api npm run migrate:status
-docker compose -f docker/docker-compose.yml exec api npm run migrate
+```bash
+# マイグレーション状態確認
+docker exec -it airapj-api-dev npm run migrate:status
+
+# マイグレーション実行
+docker exec -it airapj-api-dev npm run migrate
 ```
+
+**本番モード:**
+
+```bash
+# マイグレーション状態確認
+docker exec -it airapj-api npm run migrate:status
+
+# マイグレーション実行
+docker exec -it airapj-api npm run migrate
+```
+
+<details>
+<summary>エラーが出る場合のトラブルシューティング（クリックして展開）</summary>
+
+**"No such container" エラーの場合:**
+
+コンテナが起動していません。以下で起動してください：
+
+```bash
+docker compose -f docker/docker-compose.dev.yml up -d
+```
+
+**"container name is already in use" エラーの場合:**
+
+既存のコンテナを削除してから起動してください：
+
+```bash
+docker stop airapj-db-dev airapj-api-dev airapj-frontend-dev 2>/dev/null
+docker rm airapj-db-dev airapj-api-dev airapj-frontend-dev 2>/dev/null
+docker compose -f docker/docker-compose.dev.yml up -d
+```
+
+</details>
 
 ### よくある問題と解決方法
 

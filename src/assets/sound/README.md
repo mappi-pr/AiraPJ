@@ -20,11 +20,15 @@ sound/
 ## BGMの追加方法
 
 1. 背景音楽のMP3ファイルを `bgm/main.mp3` に配置します
-2. `src/App.tsx` を更新してファイルをインポートします：
-   ```typescript
-   import bgmpath from './assets/sound/bgm/main.mp3';
+2. プロジェクトルートの `.env` ファイルを編集して、BGMファイルのパスを設定します：
+   ```bash
+   VITE_BGM_PATH=/src/assets/sound/bgm/main.mp3
    ```
-3. 空文字列の定数をインポートに置き換えます
+   `.env` ファイルがない場合は、`.env.example` をコピーして作成してください：
+   ```bash
+   cp .env.example .env
+   ```
+3. 空にするとBGMが無効になります
 
 ## SEの追加方法
 
