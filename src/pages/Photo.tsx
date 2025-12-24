@@ -8,6 +8,8 @@ import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+
 const Photo: React.FC = () => {
   const partsContext = useContext(PartsContext);
   const photoRef = useRef<HTMLDivElement>(null);
@@ -22,6 +24,7 @@ const Photo: React.FC = () => {
   // ステッカー関連state
   const [availableStickers, setAvailableStickers] = React.useState<PartInfo[]>([]);
   const [showStickerPanel, setShowStickerPanel] = React.useState(false);
+  const [selectedSticker, setSelectedSticker] = React.useState<number | null>(null);
   const [draggingSticker, setDraggingSticker] = React.useState<number | null>(null);
   const stickerDragOffset = useRef({ x: 0, y: 0 });
 
@@ -158,6 +161,7 @@ const Photo: React.FC = () => {
     index: number
   ) => {
     e.stopPropagation();
+    setSelectedSticker(index);
     setDraggingSticker(index);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -174,6 +178,20 @@ const Photo: React.FC = () => {
     if (!partsContext) return;
     const newStickers = partsContext.selectedParts.stickers.filter((_, i) => i !== index);
     partsContext.setSelectedParts(prev => ({ ...prev, stickers: newStickers }));
+    if (selectedSticker === index) {
+      setSelectedSticker(null);
+    } else if (selectedSticker !== null && selectedSticker > index) {
+      setSelectedSticker(selectedSticker - 1);
+    }
+  };
+
+  // ステッカークリック（選択）
+  const handleStickerClick = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
+    index: number
+  ) => {
+    e.stopPropagation();
+    setSelectedSticker(index);
   };
 
   // ステッカー拡大率変更
@@ -346,79 +364,15 @@ const Photo: React.FC = () => {
               touchAction: 'none',
               transform: `scale(${stickerInstance.scale})`,
               transformOrigin: 'center center',
+              border: selectedSticker === index ? '3px solid #4a90e2' : '2px solid transparent',
+              borderRadius: '4px',
+              boxShadow: selectedSticker === index ? '0 0 10px rgba(74, 144, 226, 0.5)' : 'none',
+              transition: 'border 0.2s, box-shadow 0.2s',
+              padding: '4px',
             }}
             onMouseDown={(e) => handleStickerDragStart(e, index)}
             onTouchStart={(e) => handleStickerDragStart(e, index)}
-          >
-            <img
-              src={API_BASE_URL + stickerInstance.sticker.assetPath}
-              alt={stickerInstance.sticker.name}
-              style={{ width: 100, height: 100, objectFit: 'contain', pointerEvents: 'none' }}
-            />
-          </div>
-        ))}      </div>
-      <button onClick={handleDownload}>{t.photo.saveButton}</button>
-      <button onClick={() => setShowStickerPanel(!showStickerPanel)}>
-        ステッカー追加
-      </button>
-      
-      {/* ステッカー選択パネル */}
-      {showStickerPanel && (
-        <div style={{ 
-          margin: '16px 0', 
-          padding: '16px', 
-          border: '1px solid #ccc', 
-          borderRadius: '8px',
-          background: '#f9f9f9' 
-        }}>
-          <h3>ステッカーを選択</h3>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {availableStickers.length > 0 ? (
-              availableStickers.map(sticker => (
-                <div
-                  key={sticker.id}
-                  onClick={() => handleAddSticker(sticker)}
-                  style={{
-                    cursor: 'pointer',
-                    border: '2px solid #ddd',
-                    borderRadius: '4px',
-                    padding: '8px',
-                    textAlign: 'center',
-                    background: 'white',
-                  }}
-                >
-                  <img
-                    src={API_BASE_URL + sticker.assetPath}
-                    alt={sticker.name}
-                    style={{ width: 60, height: 60, objectFit: 'contain' }}
-                  />
-                  <div style={{ fontSize: '12px', marginTop: '4px' }}>{sticker.name}</div>
-                </div>
-              ))
-            ) : (
-              <div>ステッカーが登録されていません</div>
-            )}
-          </div>
-          <button onClick={() => setShowStickerPanel(false)} style={{ marginTop: '8px' }}>
-            閉じる
-          </button>
-        </div>
-        {/* ステッカーレイヤー（最前面） */}
-        {selectedParts.stickers.map((stickerInstance, index) => (
-          <div
-            key={index}
-            style={{
-              position: 'absolute',
-              left: stickerInstance.x,
-              top: stickerInstance.y,
-              zIndex: 100 + index,
-              cursor: draggingSticker === index ? 'grabbing' : 'grab',
-              touchAction: 'none',
-              transform: `scale(${stickerInstance.scale})`,
-              transformOrigin: 'center center',
-            }}
-            onMouseDown={(e) => handleStickerDragStart(e, index)}
-            onTouchStart={(e) => handleStickerDragStart(e, index)}
+            onClick={(e) => handleStickerClick(e, index)}
           >
             <img
               src={API_BASE_URL + stickerInstance.sticker.assetPath}
@@ -428,8 +382,7 @@ const Photo: React.FC = () => {
           </div>
         ))}
       </div>
-      <button onClick={handleDownload}>PNGで保存</button>
-      <button onClick={() => setDragPos({ x: 0, y: 0 })}>位置リセット</button>
+      <button onClick={handleDownload}>{t.photo.saveButton}</button>
       <button onClick={() => setShowStickerPanel(!showStickerPanel)}>
         ステッカー追加
       </button>
@@ -488,15 +441,22 @@ const Photo: React.FC = () => {
         }}>
           <h3>配置済みステッカー</h3>
           {selectedParts.stickers.map((stickerInstance, index) => (
-            <div key={index} style={{ 
-              marginBottom: '8px', 
-              padding: '8px', 
-              background: 'white', 
-              borderRadius: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
+            <div 
+              key={index} 
+              onClick={() => setSelectedSticker(index)}
+              style={{ 
+                marginBottom: '8px', 
+                padding: '8px', 
+                background: selectedSticker === index ? '#e3f2fd' : 'white',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                border: selectedSticker === index ? '2px solid #4a90e2' : '1px solid #ddd',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
               <img
                 src={API_BASE_URL + stickerInstance.sticker.assetPath}
                 alt={stickerInstance.sticker.name}
@@ -527,9 +487,11 @@ const Photo: React.FC = () => {
       )}
       
       <nav>
-        <a href="/title">{texts.common.backToTitle}</a>
+        <Link to="/title">{t.common.backToTitle}</Link>
       </nav>
-    </div>  );
+    </div>
+    </PageTransition>
+  );
 };
 
 export default Photo;
