@@ -433,12 +433,24 @@ npm run migrate:undo
 
 #### Docker 環境でのマイグレーション実行
 
+**方法1: Docker Compose を使用（プロジェクトルートから実行）**
+
 ```bash
 # 開発モード
 docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
 
 # 本番モード
 docker compose -f docker/docker-compose.yml exec api npm run migrate
+```
+
+**方法2: docker exec を使用（任意のディレクトリから実行可能）**
+
+```bash
+# 開発モード
+docker exec -it airapj-api-dev npm run migrate
+
+# 本番モード
+docker exec -it airapj-api npm run migrate
 ```
 
 詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」セクションを参照してください。
@@ -1077,6 +1089,10 @@ npm run migrate:undo
 
 ### Docker 環境でのマイグレーション実行
 
+**方法1: Docker Compose を使用（推奨）**
+
+プロジェクトルートディレクトリから実行：
+
 ```bash
 # 開発モード
 docker compose -f docker/docker-compose.dev.yml exec api npm run migrate:status
@@ -1086,6 +1102,20 @@ docker compose -f docker/docker-compose.dev.yml exec api npm run migrate
 docker compose -f docker/docker-compose.yml exec api npm run migrate:status
 docker compose -f docker/docker-compose.yml exec api npm run migrate
 ```
+
+**方法2: docker exec を使用（任意のディレクトリから実行可能）**
+
+```bash
+# 開発モード
+docker exec -it airapj-api-dev npm run migrate:status
+docker exec -it airapj-api-dev npm run migrate
+
+# 本番モード
+docker exec -it airapj-api npm run migrate:status
+docker exec -it airapj-api npm run migrate
+```
+
+**注意**: 方法1はプロジェクトルートで実行する必要がありますが、docker-compose.ymlの設定を利用できます。方法2は任意のディレクトリから実行できますが、コンテナ名を直接指定する必要があります。
 
 ### よくある問題と解決方法
 
