@@ -59,7 +59,7 @@ cd api && cp .env.example .env && cd ..
 # - PostgreSQL 16.x をインストールして起動
 # - データベース 'airapj' を作成
 # オプション2: PostgreSQL のみ Docker で起動（軽量な選択肢）
-docker run -d --name airapj-postgres \
+docker run -d --name airapj-db \
   -e POSTGRES_DB=airapj -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
   postgres:16-alpine

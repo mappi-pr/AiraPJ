@@ -384,7 +384,7 @@ PostgreSQL をローカルにインストールするか、Docker で起動し�
 ```bash
 # Docker で PostgreSQL のみ起動する場合
 docker run -d \
-  --name airapj-postgres \
+  --name airapj-db \
   -e POSTGRES_DB=airapj \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
@@ -1036,7 +1036,7 @@ docker compose -f docker/docker-compose.yml up
 
 ```bash
 # PostgreSQL を起動
-docker run -d --name airapj-postgres \
+docker run -d --name airapj-db \
   -e POSTGRES_DB=airapj -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
   postgres:16-alpine
