@@ -45,7 +45,7 @@ const Title: React.FC = () => {
       <SparkleEffect />
       <div className="main-container" style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
         {/* ログイン情報: 上部左（アイコンのみ、クリックで展開） */}
-        <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
+        <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10 }}>
           {user ? (
             <div style={{ position: 'relative' }}>
               {/* プロフィールアイコン（クリックで展開） */}
@@ -131,19 +131,19 @@ const Title: React.FC = () => {
 
         {/* ゲーム開始ボタン: 中央 */}
         <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: 32 }}>{t.title.mainTitle}</h1>
-          <form onSubmit={handleStart} style={{ margin: '16px 0' }}>
+          <h1 style={{ textAlign: 'center', marginBottom: 20 }}>{t.title.mainTitle}</h1>
+          <form onSubmit={handleStart} style={{ margin: '8px 0' }}>
             <button type="submit" id="start-btn">{t.title.startBtn}</button>
           </form>
         </main>
 
         {/* おきにいり: 左下 */}
-        <div style={{ position: 'absolute', bottom: 16, left: 16 }}>
+        <div style={{ position: 'absolute', bottom: 8, left: 8 }}>
           <Link to="/history" id="favorites-menu" onClick={playClick}>{t.title.favorites}</Link>
         </div>
 
         {/* 規約・クレジット: 右下 */}
-        <footer style={{ position: 'absolute', bottom: 16, right: 16 }}>
+        <footer style={{ position: 'absolute', bottom: 8, right: 8 }}>
           <Link to="/terms" id="terms-link" style={{ fontSize: 'small' }} onClick={playClick}>{t.title.terms}</Link>
         </footer>
       </div>
