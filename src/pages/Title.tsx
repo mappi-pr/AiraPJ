@@ -1,7 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import React from 'react';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
-import gearpath from '../assets/gear.png';
 import { useTranslation } from '../hooks/useTranslation';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
@@ -85,16 +84,16 @@ const Title: React.FC = () => {
                   {isSystemAdmin && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ color: '#FF6B6B', fontSize: '0.85em' }}>🔑 システム管理者</span>
-                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={(e) => { playClick(); setShowUserMenu(false); }}>
-                        <img src={gearpath} alt={t.title.settings} style={{ width: 16, height: 16 }} />
+                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={(e) => { playClick(); setShowUserMenu(false); }} style={{ fontSize: '16px', textDecoration: 'none' }}>
+                        ⚙️
                       </Link>
                     </div>
                   )}
                   {isGameMaster && !isSystemAdmin && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ color: '#4CAF50', fontSize: '0.85em' }}>⚔️ ゲームマスター</span>
-                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={(e) => { playClick(); setShowUserMenu(false); }}>
-                        <img src={gearpath} alt={t.title.settings} style={{ width: 16, height: 16 }} />
+                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={(e) => { playClick(); setShowUserMenu(false); }} style={{ fontSize: '16px', textDecoration: 'none' }}>
+                        ⚙️
                       </Link>
                     </div>
                   )}
