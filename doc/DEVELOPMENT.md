@@ -453,6 +453,8 @@ docker exec -it airapj-api-dev npm run migrate
 docker exec -it airapj-api npm run migrate
 ```
 
+**注意**: 方法1で「service is not running」エラーが出る場合は、`docker compose -f docker/docker-compose.dev.yml up -d` でコンテナを起動してから実行してください。または方法2を使用してください。
+
 詳細は「[データベースマイグレーション管理](#データベースマイグレーション管理)」セクションを参照してください。
 
 **6. サーバーの起動**
@@ -1116,6 +1118,31 @@ docker exec -it airapj-api npm run migrate
 ```
 
 **注意**: 方法1はプロジェクトルートで実行する必要がありますが、docker-compose.ymlの設定を利用できます。方法2は任意のディレクトリから実行できますが、コンテナ名を直接指定する必要があります。
+
+**⚠️ "service is not running" エラーが発生する場合**
+
+`docker compose exec` で「service "api" is not running」エラーが出る場合、コンテナが起動していません：
+
+```bash
+# コンテナの状態を確認
+docker compose -f docker/docker-compose.dev.yml ps
+
+# コンテナが起動していない場合は起動
+docker compose -f docker/docker-compose.dev.yml up -d
+
+# 起動後にマイグレーションを実行
+docker compose -f docker/docker-compose.dev.yml exec api npm run migrate:status
+```
+
+または、コンテナ名を直接指定する方法2を使用：
+
+```bash
+# コンテナが起動しているか確認
+docker ps | grep airapj-api-dev
+
+# docker exec で実行（コンテナが起動していれば動作）
+docker exec -it airapj-api-dev npm run migrate:status
+```
 
 ### よくある問題と解決方法
 
