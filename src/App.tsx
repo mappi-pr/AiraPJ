@@ -13,7 +13,10 @@ import { PartsProvider } from './context/PartsContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { NavigationButtonProvider } from './context/NavigationButtonContext';
 import texts from './locales/ja.json';
-import { BGM_PATH } from './config/audio';
+
+// BGM file path from environment variable (VITE_BGM_PATH)
+// Configure in .env file - see .env.example for details
+const bgmpath = import.meta.env.VITE_BGM_PATH || '';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);
@@ -126,7 +129,7 @@ function App() {
     <NavigationButtonProvider>
       <PartsProvider>
         <BrowserRouter>
-          <audio ref={bgmRef} src={BGM_PATH} loop />
+          <audio ref={bgmRef} src={bgmpath} loop />
           
           {/* 音声設定モーダル */}
           {showAudioModal && (
