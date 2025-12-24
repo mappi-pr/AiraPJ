@@ -257,7 +257,7 @@ const Settings: React.FC = () => {
     playClick();
     
     if (!newGMEmail) {
-      setResult('メールアドレスを入力してください');
+      setResult(t.settings.emailLabel + ' を入力してください');
       return;
     }
 
@@ -268,16 +268,16 @@ const Settings: React.FC = () => {
       });
       
       playSuccess();
-      setResult('ゲームマスターを追加しました');
+      setResult(t.settings.addSuccess);
       setNewGMEmail('');
       setNewGMName('');
       await fetchGameMasters();
     } catch (error: any) {
       console.error('Error adding game master:', error);
       if (error.response?.status === 409) {
-        setResult('このユーザーは既にゲームマスターです');
+        setResult(t.settings.addFailAlreadyExists);
       } else {
-        setResult('ゲームマスターの追加に失敗しました');
+        setResult(t.settings.addFail);
       }
     }
   };
@@ -286,18 +286,18 @@ const Settings: React.FC = () => {
   const handleRemoveGameMaster = async (id: number, email: string) => {
     playClick();
     
-    if (!window.confirm(`${email} をゲームマスターから削除しますか？`)) {
+    if (!window.confirm(`${email} ${t.settings.removeConfirm}`)) {
       return;
     }
 
     try {
       await axios.delete(`/api/game-masters/${id}`);
       playSuccess();
-      setResult('ゲームマスターを削除しました');
+      setResult(t.settings.removeSuccess);
       await fetchGameMasters();
     } catch (error) {
       console.error('Error removing game master:', error);
-      setResult('ゲームマスターの削除に失敗しました');
+      setResult(t.settings.removeFail);
     }
   };
 
@@ -363,82 +363,7 @@ const Settings: React.FC = () => {
           <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>
 
-        {/* ゲームマスター管理（システム管理者専用） */}
-        {isSystemAdmin && (
-          <>
-            <h2 style={{ marginTop: '32px', color: '#FF6B6B' }}>🔑 ゲームマスター管理（システム管理者専用）</h2>
-            <div style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
-              <h3>ゲームマスターを追加</h3>
-              <form onSubmit={handleAddGameMaster} style={{ marginBottom: '16px' }}>
-                <div style={{ marginBottom: '8px' }}>
-                  <label>
-                    メールアドレス: 
-                    <input
-                      type="email"
-                      value={newGMEmail}
-                      onChange={(e) => setNewGMEmail(e.target.value)}
-                      placeholder="user@example.com"
-                      required
-                      style={{ marginLeft: '8px', width: '300px' }}
-                    />
-                  </label>
-                </div>
-                <div style={{ marginBottom: '8px' }}>
-                  <label>
-                    名前（任意）: 
-                    <input
-                      type="text"
-                      value={newGMName}
-                      onChange={(e) => setNewGMName(e.target.value)}
-                      placeholder="表示名"
-                      style={{ marginLeft: '8px', width: '300px' }}
-                    />
-                  </label>
-                </div>
-                <button type="submit" style={{ background: '#4CAF50', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                  追加
-                </button>
-              </form>
-
-              <h3>現在のゲームマスター一覧</h3>
-              {gameMasters.length === 0 ? (
-                <p>登録されているゲームマスターはいません</p>
-              ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #ddd' }}>
-                      <th style={{ padding: '8px', textAlign: 'left' }}>メールアドレス</th>
-                      <th style={{ padding: '8px', textAlign: 'left' }}>名前</th>
-                      <th style={{ padding: '8px', textAlign: 'left' }}>登録日時</th>
-                      <th style={{ padding: '8px', textAlign: 'left' }}>登録者</th>
-                      <th style={{ padding: '8px', textAlign: 'center' }}>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {gameMasters.map((gm) => (
-                      <tr key={gm.id} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: '8px' }}>{gm.email}</td>
-                        <td style={{ padding: '8px' }}>{gm.name || '-'}</td>
-                        <td style={{ padding: '8px' }}>{new Date(gm.createdAt).toLocaleString('ja-JP')}</td>
-                        <td style={{ padding: '8px' }}>{gm.createdBy || '-'}</td>
-                        <td style={{ padding: '8px', textAlign: 'center' }}>
-                          <button
-                            onClick={() => handleRemoveGameMaster(gm.id, gm.email)}
-                            style={{ background: '#f44336', color: 'white', padding: '4px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                          >
-                            削除
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </>
-        )}
-        <h2>{t.settings.navigationButtonsTitle}</h2>
-        <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.navigationButtonsDesc}</p>
+        {/* ①画像アセットアップロード */}
         <h2>{t.settings.uploadTitle}</h2>
         <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.uploadDesc}</p>
         <div style={{ 
@@ -471,6 +396,7 @@ const Settings: React.FC = () => {
           <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
         </div>
 
+        {/* ②アセット一覧・削除 */}
         <h2>{t.settings.assetListTitle}</h2>
         <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.assetListDesc}</p>
       <div className="asset-sections">
@@ -714,6 +640,7 @@ const Settings: React.FC = () => {
         })}
       </div>
 
+        {/* ③ナビゲーションボタン画像設定 */}
         <h2>{t.settings.navigationButtonsTitle}</h2>
         <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.navigationButtonsDesc}</p>
         <div style={{ 
@@ -830,6 +757,99 @@ const Settings: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* ④ゲームマスター管理（システム管理者専用） */}
+        {isSystemAdmin && (
+          <>
+            <h2 style={{ marginTop: '32px', color: '#FF6B6B' }}>{t.settings.gameMasterTitle}</h2>
+            <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.gameMasterDesc}</p>
+            <div style={{ 
+              border: '1px solid #ddd', 
+              borderRadius: '8px', 
+              padding: '20px', 
+              marginBottom: '32px',
+              backgroundColor: '#f9f9f9'
+            }}>
+              <h3>{t.settings.addGameMaster}</h3>
+              <form onSubmit={handleAddGameMaster} style={{ marginBottom: '24px' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <label>
+                    {t.settings.emailLabel}
+                    <input
+                      type="email"
+                      value={newGMEmail}
+                      onChange={(e) => setNewGMEmail(e.target.value)}
+                      placeholder={t.settings.emailPlaceholder}
+                      required
+                      style={{ marginLeft: '8px', padding: '8px', width: '300px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </label>
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <label>
+                    {t.settings.displayNameLabel}
+                    <input
+                      type="text"
+                      value={newGMName}
+                      onChange={(e) => setNewGMName(e.target.value)}
+                      placeholder={t.settings.displayNamePlaceholder}
+                      style={{ marginLeft: '8px', padding: '8px', width: '300px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </label>
+                </div>
+                <button 
+                  type="submit"
+                  style={{
+                    ...buttonStyles.base,
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                  }}
+                >
+                  {t.settings.addBtn}
+                </button>
+              </form>
+
+              <h3>{t.settings.gameMasterList}</h3>
+              {gameMasters.length === 0 ? (
+                <p style={{ color: '#666', padding: '16px', textAlign: 'center' }}>{t.settings.noGameMasters}</p>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #ddd', backgroundColor: '#f5f5f5' }}>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>{t.settings.emailHeader}</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>{t.settings.nameHeader}</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>{t.settings.createdAtHeader}</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>{t.settings.createdByHeader}</th>
+                      <th style={{ padding: '12px', textAlign: 'center' }}>{t.settings.actionsHeader}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {gameMasters.map((gm) => (
+                      <tr key={gm.id} style={{ borderBottom: '1px solid #eee' }}>
+                        <td style={{ padding: '12px' }}>{gm.email}</td>
+                        <td style={{ padding: '12px' }}>{gm.name || '-'}</td>
+                        <td style={{ padding: '12px' }}>{new Date(gm.createdAt).toLocaleString('ja-JP')}</td>
+                        <td style={{ padding: '12px' }}>{gm.createdBy || '-'}</td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <button
+                            onClick={() => handleRemoveGameMaster(gm.id, gm.email)}
+                            style={{
+                              ...buttonStyles.base,
+                              ...buttonStyles.danger,
+                              color: 'white',
+                            }}
+                          >
+                            {t.settings.removeBtn}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </>
+        )}
     </div>
     </PageTransition>
   );
