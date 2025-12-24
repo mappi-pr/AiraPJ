@@ -270,7 +270,7 @@ AiraPJ は、キャラクターの顔・髪・衣装・背景を組み合わせ�
 
 1. **アプリケーションを起動**
    - 開発モード: http://localhost:5173
-   - 本番モード: http://localhost
+   - 本番モード: http://localhost:80 (nginx経由)
 
 2. **設定画面に移動**
    - タイトル画面から「設定」リンクをクリック
@@ -420,9 +420,12 @@ AiraPJ は、キャラクターの顔・髪・衣装・背景を組み合わせ�
 
 **解決方法**:
 1. **PNG 圧縮ツールを使用**:
-   - [TinyPNG](https://tinypng.com/)（オンライン）
-   - [PNGGauntlet](https://pnggauntlet.com/)（Windows）
-   - [ImageOptim](https://imageoptim.com/)（Mac）
+   - [TinyPNG](https://tinypng.com/)（オンライン、⚠️ 機密性の高い画像は避ける）
+   - [PNGGauntlet](https://pnggauntlet.com/)（Windows、ローカル処理）
+   - [ImageOptim](https://imageoptim.com/)（Mac、ローカル処理）
+   
+   > ⚠️ **セキュリティ注意**: オンライン圧縮ツールは第三者サーバーに画像をアップロードします。機密性の高いコンテンツや未公開のアセットの場合は、ローカルで動作する圧縮ツールを使用してください。
+
 2. **書き出しオプションを調整**:
    - メタデータを削除
    - 不要なチャンネルを削除
