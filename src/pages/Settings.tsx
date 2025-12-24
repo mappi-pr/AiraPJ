@@ -836,38 +836,48 @@ const Settings: React.FC = () => {
               {gameMasters.length === 0 ? (
                 <p style={{ color: '#999', padding: '16px', textAlign: 'center' }}>{t.settings.noGameMasters}</p>
               ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #555', backgroundColor: '#333' }}>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#fff' }}>{t.settings.emailHeader}</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#fff' }}>{t.settings.nameHeader}</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#fff' }}>{t.settings.createdAtHeader}</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#fff' }}>{t.settings.createdByHeader}</th>
-                      <th style={{ padding: '12px', textAlign: 'center', color: '#fff' }}>{t.settings.actionsHeader}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {gameMasters.map((gm) => (
-                      <tr key={gm.id} style={{ borderBottom: '1px solid #444' }}>
-                        <td style={{ padding: '12px', color: '#eee' }}>{gm.email}</td>
-                        <td style={{ padding: '12px', color: '#eee' }}>{gm.name || '-'}</td>
-                        <td style={{ padding: '12px', color: '#eee' }}>{new Date(gm.createdAt).toLocaleString('ja-JP')}</td>
-                        <td style={{ padding: '12px', color: '#eee' }}>{gm.createdBy || '-'}</td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <button
-                            onClick={() => handleRemoveGameMaster(gm.id, gm.email)}
-                            style={{
-                              ...buttonStyles.base,
-                              ...buttonStyles.danger,
-                            }}
-                          >
-                            {t.settings.removeBtn}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div style={{ marginTop: '16px' }}>
+                  {gameMasters.map((gm) => (
+                    <div
+                      key={gm.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px',
+                        marginBottom: '8px',
+                        backgroundColor: '#2a2a2a',
+                        borderRadius: '8px',
+                        border: '1px solid #444',
+                        position: 'relative',
+                        cursor: 'pointer',
+                      }}
+                      title={`${gm.name || '-'}\n${t.settings.createdAtHeader}: ${new Date(gm.createdAt).toLocaleString('ja-JP')}\n${t.settings.createdByHeader}: ${gm.createdBy || '-'}`}
+                    >
+                      <div style={{ 
+                        flex: 1, 
+                        color: '#eee', 
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        marginRight: '12px',
+                        fontSize: '14px',
+                      }}>
+                        {gm.email}
+                      </div>
+                      <button
+                        onClick={() => handleRemoveGameMaster(gm.id, gm.email)}
+                        style={{
+                          ...buttonStyles.base,
+                          ...buttonStyles.danger,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {t.settings.removeBtn}
+                      </button>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
