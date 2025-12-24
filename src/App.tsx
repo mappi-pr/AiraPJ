@@ -13,10 +13,7 @@ import { PartsProvider } from './context/PartsContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { NavigationButtonProvider } from './context/NavigationButtonContext';
 import texts from './locales/ja.json';
-
-// BGM file path - place your MP3 file in src/assets/sound/bgm/main.mp3
-// Empty string disables BGM until file is added
-const bgmpath = '';
+import { BGM_PATH } from './config/audio';
 
 function App() {
   const bgmRef = useRef<HTMLAudioElement>(null);
@@ -129,7 +126,7 @@ function App() {
     <NavigationButtonProvider>
       <PartsProvider>
         <BrowserRouter>
-          <audio ref={bgmRef} src={bgmpath} loop />
+          <audio ref={bgmRef} src={BGM_PATH} loop />
           
           {/* 音声設定モーダル */}
           {showAudioModal && (

@@ -20,11 +20,15 @@ sound/
 ## BGMの追加方法
 
 1. 背景音楽のMP3ファイルを `bgm/main.mp3` に配置します
-2. `src/App.tsx` を更新してファイルをインポートします：
+2. `src/config/audio.ts` を更新してファイルパスを指定します：
    ```typescript
-   import bgmpath from './assets/sound/bgm/main.mp3';
+   export const BGM_PATH = '/src/assets/sound/bgm/main.mp3';
    ```
-3. 空文字列の定数をインポートに置き換えます
+   または、ファイルをインポートする場合：
+   ```typescript
+   import bgmFile from '../assets/sound/bgm/main.mp3';
+   export const BGM_PATH = bgmFile;
+   ```
 
 ## SEの追加方法
 
