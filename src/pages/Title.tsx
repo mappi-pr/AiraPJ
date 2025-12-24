@@ -59,7 +59,7 @@ const Title: React.FC = () => {
             {user ? (
               <div>
                 <p>ようこそ、{user.name || 'ユーザー'}さん</p>
-                {user.picture && <img src={user.picture} alt="Profile" style={{ width: 48, height: 48, borderRadius: '50%' }} />}
+                {user.picture && user.picture.trim() && <img src={user.picture} alt="Profile" style={{ width: 48, height: 48, borderRadius: '50%' }} />}
                 {isSystemAdmin && <p style={{ color: '#FF6B6B', fontWeight: 'bold' }}>🔑 システム管理者</p>}
                 {isGameMaster && !isSystemAdmin && <p style={{ color: '#4CAF50', fontWeight: 'bold' }}>⚔️ ゲームマスター</p>}
                 <button onClick={logout} style={{ marginTop: 8 }}>ログアウト</button>
