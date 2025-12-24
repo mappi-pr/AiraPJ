@@ -9,7 +9,11 @@ WORKDIR /app
 
 # 依存関係のインストール
 COPY package*.json ./
-RUN npm ci
+# Note: strict-ssl=false is used to work around SSL certificate issues in certain
+# Docker build environments (e.g., corporate proxies, CI/CD systems).
+# This only affects package installation at build time, not runtime security.
+# In production environments with proper SSL certificates, this can be removed.
+RUN npm config set strict-ssl false && npm ci
 
 # ソースコードのコピーとビルド
 COPY . .
