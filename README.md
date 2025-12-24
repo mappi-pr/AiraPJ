@@ -14,7 +14,7 @@ Express APIサーバーと連携し、キャラクター・背景・衣装の着
 cp .env.example .env
 
 # 開発用コンテナの起動（Vite dev server + API + PostgreSQL）
-docker compose -f docker-compose.dev.yml up
+docker compose -f docker/docker-compose.dev.yml up
 
 # アクセス
 # フロントエンド: http://localhost:5173 (Vite dev server with HMR)
@@ -32,7 +32,7 @@ docker compose -f docker-compose.dev.yml up
 cp .env.example .env
 
 # 本番用コンテナの起動（nginx + API + PostgreSQL）
-docker compose up -d
+docker compose -f docker/docker-compose.yml up -d
 
 # アクセス
 # フロントエンド: http://localhost (nginx)
@@ -81,16 +81,13 @@ npm run dev
 - トラブルシューティング
 - 開発ガイドライン
 
-
-
-
 ### 機能別ドキュメント
+
 - **[ボイス実装ガイド](doc/VOICE_IMPLEMENTATION.md)** - キャラクター選択画面などでのボイス機能の実装方法
 - **[CSS アーキテクチャ](doc/CSS.md)** - スタイル管理とデザインガイドライン
 - **[多言語対応](doc/MULTILINGUAL.md)** - 国際化対応の実装方法
 
 ---
-
 
 ## 概要
 
@@ -113,7 +110,8 @@ AiraPJ/
 │   ├── routes/          # API ルーティング
 │   ├── models/          # Sequelize モデル
 │   └── uploads/         # アップロードファイル
-├── docker/              # Docker設定
+├── docker/              # Docker設定（Dockerfile、docker-compose.yml等）
+├── scripts/             # 補助スクリプト（WSLポートフォワーディング等）
 ├── doc/                 # ドキュメント
 └── public/              # 静的ファイル
 ```
@@ -122,7 +120,7 @@ AiraPJ/
 - キャラクター着せ替え（顔・前髪・後髪・衣装・背景の組み合わせ）
 - BGM/SE の継続再生
 - 画面遷移演出
-- フォト撮影機能（ステッカー配置、PNG保存）
+- フォト撮影機能（PNG保存）
 - パーツアップロード機能
 
 ---

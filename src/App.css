@@ -245,3 +245,9 @@ img:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateX(5px);
 }
+
+/* Terms link - ensure proper centering */
+#terms-link {
+  display: inline-block;
+  position: static;
+}

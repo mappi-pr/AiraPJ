@@ -10,5 +10,5 @@ README.md
 .DS_Store
 .vscode
 .idea
-docker-compose.yml
-docker-compose.dev.yml
+docker/docker-compose.yml
+docker/docker-compose.dev.yml

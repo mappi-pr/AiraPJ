@@ -7,8 +7,24 @@ const router = Router();
 
 // GET /api/background
 router.get('/', async (req, res) => {
-  const backgrounds = await Background.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
-  res.json(backgrounds);
+  try {
+    const backgrounds = await Background.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    res.json(backgrounds);
+  } catch (e) {
+    console.error('Error fetching backgrounds:', e);
+    res.status(500).json({ error: 'Failed to fetch backgrounds' });
+  }
+});
+
+// GET /api/background/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const background = await Background.findByPk(req.params.id);
+    if (!background || background.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(background);
+  } catch (e) {
+    res.status(500).json({ error: 'Fetch failed' });
+  }
 });
 
 // DELETE /api/background/:id

@@ -1,0 +1,48 @@
+/* Navigation button with custom image - remove all default button styling */
+.nav-button-image {
+  /* Reset all button styles */
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
+  
+  /* Remove transforms and transitions from default button */
+  transition: transform 0.1s ease !important;
+}
+
+.nav-button-image::before {
+  /* Disable the ripple effect for image buttons */
+  display: none !important;
+}
+
+.nav-button-image:hover {
+  /* Remove hover effects */
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+.nav-button-image:active {
+  /* Add pressed effect - scale down slightly */
+  transform: scale(0.9) !important;
+  box-shadow: none !important;
+}
+
+.nav-button-image:focus,
+.nav-button-image:focus-visible {
+  /* Remove focus outline for image buttons */
+  outline: none !important;
+}
+
+.nav-button-image:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Text-based navigation button keeps default styling */
+.nav-button-text {
+  /* Uses default button styles from index.css */
+}
