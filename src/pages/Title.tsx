@@ -44,12 +44,6 @@ const Title: React.FC = () => {
       <SparkleEffect />
       <div className="main-container" style={{ position: 'relative' }}>
         <header>
-          {/* 管理画面アイコンは管理者のみ表示 */}
-          {isAdmin && (
-            <Link to="/settings" id="settings-icon" title={t.title.settings} style={{ position: 'absolute', left: 16, top: 16, zIndex: 2 }} onClick={playClick}>
-              <img src={gearpath} alt={t.title.settings} style={{ width: 32, height: 32 }} />
-            </Link>
-          )}
         </header>
         <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
           <h1 style={{ textAlign: 'center' }}>{t.title.mainTitle}</h1>
@@ -60,8 +54,16 @@ const Title: React.FC = () => {
               <div>
                 <p>ようこそ、{user.name || 'ユーザー'}さん</p>
                 {user.picture && user.picture.trim() && <img src={user.picture} alt="Profile" style={{ width: 48, height: 48, borderRadius: '50%' }} />}
-                {isSystemAdmin && <p style={{ color: '#FF6B6B', fontWeight: 'bold' }}>🔑 システム管理者</p>}
-                {isGameMaster && !isSystemAdmin && <p style={{ color: '#4CAF50', fontWeight: 'bold' }}>⚔️ ゲームマスター</p>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  {isSystemAdmin && <p style={{ color: '#FF6B6B', fontWeight: 'bold', margin: 0 }}>🔑 システム管理者</p>}
+                  {isGameMaster && !isSystemAdmin && <p style={{ color: '#4CAF50', fontWeight: 'bold', margin: 0 }}>⚔️ ゲームマスター</p>}
+                  {/* 管理画面アイコンは管理者のみ表示 */}
+                  {isAdmin && (
+                    <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={playClick}>
+                      <img src={gearpath} alt={t.title.settings} style={{ width: 24, height: 24 }} />
+                    </Link>
+                  )}
+                </div>
                 <button onClick={logout} style={{ marginTop: 8 }}>ログアウト</button>
               </div>
             ) : (
