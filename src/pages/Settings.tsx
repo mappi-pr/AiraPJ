@@ -5,6 +5,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
+import VisualPositionEditor from '../components/VisualPositionEditor';
 import { useNavigationButtons } from '../context/NavigationButtonContext';
 
 const ITEMS_PER_PAGE = 12;
@@ -18,6 +19,16 @@ const Settings: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [currentPages, setCurrentPages] = useState<Record<string, number>>({});
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [editingItem, setEditingItem] = useState<{type: string, item: any} | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    offsetX: '0',
+    offsetY: '0',
+    width: '240',
+    height: '320',
+  });
+  const [showVisualEditor, setShowVisualEditor] = useState(false);
   const [navResult, setNavResult] = useState<string>('');
   const [navResultType, setNavResultType] = useState<'success' | 'error' | null>(null);
   const prevButtonFileRef = useRef<HTMLInputElement>(null);
@@ -25,6 +36,10 @@ const Settings: React.FC = () => {
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
+  const offsetXRef = useRef<HTMLInputElement>(null);
+  const offsetYRef = useRef<HTMLInputElement>(null);
+  const widthRef = useRef<HTMLInputElement>(null);
+  const heightRef = useRef<HTMLInputElement>(null);
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
   const { buttonImages, refreshButtonImages } = useNavigationButtons();
@@ -122,6 +137,10 @@ const Settings: React.FC = () => {
     const type = assetTypeRef.current?.value;
     const name = assetNameRef.current?.value;
     const file = assetFileRef.current?.files?.[0];
+    const offsetX = offsetXRef.current?.value;
+    const offsetY = offsetYRef.current?.value;
+    const width = widthRef.current?.value;
+    const height = heightRef.current?.value;
     if (!file || file.type !== 'image/png') {
       setResult(t.settings.pngOnly);
       return;
@@ -133,6 +152,11 @@ const Settings: React.FC = () => {
     const formData = new FormData();
     formData.append('name', name || '');
     formData.append('asset', file);
+    // Always append position/size values (backend will use defaults if not provided)
+    if (offsetX !== undefined && offsetX !== '') formData.append('offsetX', offsetX);
+    if (offsetY !== undefined && offsetY !== '') formData.append('offsetY', offsetY);
+    if (width !== undefined && width !== '') formData.append('width', width);
+    if (height !== undefined && height !== '') formData.append('height', height);
     const url = uploadUrls[type];
     setUploading(true);
     try {
@@ -184,6 +208,66 @@ const Settings: React.FC = () => {
     } catch {
       setResult(t.settings.sortOrderUpdateFail);
     }
+  };
+
+  // 編集開始
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleEditStart = (type: string, item: any) => {
+    playClick();
+    setEditingItem({ type, item });
+    setEditForm({
+      name: item.name || '',
+      offsetX: String(item.offsetX ?? 0),
+      offsetY: String(item.offsetY ?? 0),
+      width: String(item.width ?? 240),
+      height: String(item.height ?? 320),
+    });
+  };
+
+  // 編集キャンセル
+  const handleEditCancel = () => {
+    playClick();
+    setEditingItem(null);
+  };
+
+  // 編集保存
+  const handleEditSave = async () => {
+    if (!editingItem) return;
+    playClick();
+    try {
+      await axios.put(`${uploadUrls[editingItem.type].replace('/upload', '')}/${editingItem.item.id}`, editForm);
+      await refreshAssetsForType(editingItem.type);
+      setEditingItem(null);
+      setResult(t.settings.editSuccess);
+      playSuccess();
+    } catch {
+      setResult(t.settings.editFail);
+    }
+  };
+
+  // ビジュアルエディタを開く
+  const handleOpenVisualEditor = () => {
+    setShowVisualEditor(true);
+  };
+
+  // ビジュアルエディタを閉じる
+  const handleCloseVisualEditor = () => {
+    setShowVisualEditor(false);
+  };
+
+  // ビジュアルエディタで位置変更
+  const handleVisualEditorPositionChange = (offsetX: number, offsetY: number) => {
+    setEditForm({
+      ...editForm,
+      offsetX: String(offsetX),
+      offsetY: String(offsetY),
+    });
+  };
+
+  // ビジュアルエディタで保存
+  const handleVisualEditorSave = async () => {
+    setShowVisualEditor(false);
+    await handleEditSave();
   };
 
   // フィルタリングされたアセット取得
@@ -281,6 +365,49 @@ const Settings: React.FC = () => {
 
         <h2>{t.settings.uploadTitle}</h2>
         <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.uploadDesc}</p>
+        <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
+          <label>
+            {t.settings.typeLabel}
+            <select name="type" ref={assetTypeRef}>
+              {assetTypes.map(({ key, label }) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <br />
+          <label>
+            {t.settings.nameLabel} <input type="text" name="name" ref={assetNameRef} required />
+          </label>
+          <br />
+          <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
+          <br />
+          <details style={{ margin: '12px 0' }}>
+            <summary style={{ cursor: 'pointer', userSelect: 'none' }}>{t.settings.positionSizeSettings}</summary>
+            <div style={{ marginLeft: '20px', marginTop: '8px' }}>
+              <label>
+                {t.settings.offsetX}: <input type="number" name="offsetX" ref={offsetXRef} defaultValue="0" style={{ width: '80px' }} />
+              </label>
+              <br />
+              <label>
+                {t.settings.offsetY}: <input type="number" name="offsetY" ref={offsetYRef} defaultValue="0" style={{ width: '80px' }} />
+              </label>
+              <br />
+              <label>
+                {t.settings.width}: <input type="number" name="width" ref={widthRef} defaultValue="240" style={{ width: '80px' }} />
+              </label>
+              <br />
+              <label>
+                {t.settings.height}: <input type="number" name="height" ref={heightRef} defaultValue="320" style={{ width: '80px' }} />
+              </label>
+              <br />
+              <small style={{ color: '#666' }}>{t.settings.defaultValuesHint}</small>
+            </div>
+          </details>
+          <button type="submit" disabled={uploading}>
+            {uploading ? t.settings.uploadingBtn : t.settings.uploadBtn}
+          </button>
+        </form>
+        <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />        <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.uploadDesc}</p>
         <div style={{ 
           border: '1px solid #ddd', 
           borderRadius: '8px', 
@@ -420,6 +547,182 @@ const Settings: React.FC = () => {
                               }}>
                                 {item.name}
                               </span>
+                              
+                              {/* 編集フォーム（展開式） */}
+                              {editingItem && editingItem.type === key && editingItem.item.id === item.id ? (
+                                <div style={{ 
+                                  width: '100%',
+                                  boxSizing: 'border-box',
+                                  padding: '12px', 
+                                  backgroundColor: '#f8f9fa', 
+                                  borderRadius: '4px',
+                                  border: '1px solid #dee2e6',
+                                }}>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                      {t.settings.nameLabel}
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={editForm.name}
+                                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                      style={{
+                                        width: '100%',
+                                        boxSizing: 'border-box',
+                                        padding: '4px 8px',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {t.settings.offsetX}:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={editForm.offsetX}
+                                        onChange={(e) => setEditForm({ ...editForm, offsetX: e.target.value })}
+                                        style={{
+                                          width: '100%',
+                                          boxSizing: 'border-box',
+                                          padding: '4px 8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '12px',
+                                        }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {t.settings.offsetY}:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={editForm.offsetY}
+                                        onChange={(e) => setEditForm({ ...editForm, offsetY: e.target.value })}
+                                        style={{
+                                          width: '100%',
+                                          boxSizing: 'border-box',
+                                          padding: '4px 8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '12px',
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                  
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {t.settings.width}:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={editForm.width}
+                                        onChange={(e) => setEditForm({ ...editForm, width: e.target.value })}
+                                        style={{
+                                          width: '100%',
+                                          boxSizing: 'border-box',
+                                          padding: '4px 8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '12px',
+                                        }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label style={{ display: 'block', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {t.settings.height}:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={editForm.height}
+                                        onChange={(e) => setEditForm({ ...editForm, height: e.target.value })}
+                                        style={{
+                                          width: '100%',
+                                          boxSizing: 'border-box',
+                                          padding: '4px 8px',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '4px',
+                                          fontSize: '12px',
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                  
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <button
+                                      onClick={handleOpenVisualEditor}
+                                      type="button"
+                                      style={{
+                                        width: '100%',
+                                        padding: '6px 12px',
+                                        backgroundColor: showVisualEditor ? '#6c757d' : '#17a2b8',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                      }}
+                                    >
+                                      {showVisualEditor ? '✖' : '🎨'} {showVisualEditor ? t.settings.closeVisualEditor : t.settings.visualEditor}
+                                    </button>
+                                  </div>
+                                  
+                                  {/* ビジュアルエディタをインライン表示 */}
+                                  {showVisualEditor && editingItem && (
+                                    <VisualPositionEditor
+                                      imagePath={editingItem.item.assetPath}
+                                      initialOffsetX={parseInt(editForm.offsetX) || 0}
+                                      initialOffsetY={parseInt(editForm.offsetY) || 0}
+                                      initialWidth={parseInt(editForm.width) || 240}
+                                      initialHeight={parseInt(editForm.height) || 320}
+                                      onPositionChange={handleVisualEditorPositionChange}
+                                      onClose={handleCloseVisualEditor}
+                                      onSave={handleVisualEditorSave}
+                                      t={t}
+                                    />
+                                  )}
+                                  
+                                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                                    <button
+                                      onClick={handleEditCancel}
+                                      style={{
+                                        padding: '4px 12px',
+                                        backgroundColor: '#6c757d',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                      }}
+                                    >
+                                      {t.settings.cancelBtn}
+                                    </button>
+                                    <button
+                                      onClick={handleEditSave}
+                                      style={{
+                                        padding: '4px 12px',
+                                        backgroundColor: '#28a745',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                      }}
+                                    >
+                                      {t.settings.saveBtn}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : null}
+                              
                               <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
                                 <button
                                   onClick={() => handleReorder(key, item.id, 'up')}
@@ -442,6 +745,21 @@ const Settings: React.FC = () => {
                                   title={originalIndex === fullList.length - 1 ? '' : t.settings.moveDownTooltip}
                                 >
                                   {t.settings.moveDownBtn}
+                                </button>
+                                <button 
+                                  onClick={() => handleEditStart(key, item)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    backgroundColor: '#28a745',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                  }}
+                                  title={t.settings.editTooltip}
+                                >
+                                  {t.settings.editBtn}
                                 </button>
                                 <button 
                                   onClick={() => handleDelete(key, item.id)}

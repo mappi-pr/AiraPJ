@@ -284,10 +284,10 @@ const Photo: React.FC = () => {
                 draggable={false}
                 style={{
                   position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  width: PHOTO_WIDTH,
-                  height: PHOTO_HEIGHT,
+                  left: selectedParts.backHair.offsetX || 0,
+                  top: selectedParts.backHair.offsetY || 0,
+                  width: selectedParts.backHair.width || 240,
+                  height: selectedParts.backHair.height || 320,
                   zIndex: 1,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -303,10 +303,10 @@ const Photo: React.FC = () => {
                 draggable={false}
                 style={{
                   position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  width: PHOTO_WIDTH,
-                  height: PHOTO_HEIGHT,
+                  left: selectedParts.costume.offsetX || 0,
+                  top: selectedParts.costume.offsetY || 0,
+                  width: selectedParts.costume.width || 240,
+                  height: selectedParts.costume.height || 320,
                   zIndex: 2,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -324,10 +324,10 @@ const Photo: React.FC = () => {
                 draggable={false}
                 style={{
                   position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  width: PHOTO_WIDTH,
-                  height: PHOTO_HEIGHT,
+                  left: selectedParts.face.offsetX || 0,
+                  top: selectedParts.face.offsetY || 0,
+                  width: selectedParts.face.width || 240,
+                  height: selectedParts.face.height || 320,
                   zIndex: 3,
                   objectFit: 'contain',
                   pointerEvents: 'none',
@@ -343,10 +343,10 @@ const Photo: React.FC = () => {
                 draggable={false}
                 style={{
                   position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  width: PHOTO_WIDTH,
-                  height: PHOTO_HEIGHT,
+                  left: selectedParts.frontHair.offsetX || 0,
+                  top: selectedParts.frontHair.offsetY || 0,
+                  width: selectedParts.frontHair.width || 240,
+                  height: selectedParts.frontHair.height || 320,
                   zIndex: 4,
                   objectFit: 'contain',
                   pointerEvents: 'none',

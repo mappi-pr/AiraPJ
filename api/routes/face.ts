@@ -95,4 +95,72 @@ router.put('/:id/order', async (req, res) => {
   }
 });
 
+// PUT /api/face/:id
+router.put('/:id', async (req, res) => {
+  try {
+    const face = await Face.findByPk(req.params.id);
+    if (!face || face.deleted) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const { name, offsetX, offsetY, width, height } = req.body;
+
+    // Update name if provided
+    if (name !== undefined && name !== '') {
+      face.name = name;
+    }
+
+    // Parse and validate numeric parameters (handle '0' as valid value)
+    if (offsetX !== undefined && offsetX !== '') {
+      const parsedOffsetX = parseInt(offsetX);
+      if (isNaN(parsedOffsetX)) {
+        return res.status(400).json({ error: 'Invalid offsetX value' });
+      }
+      if (parsedOffsetX < -1000 || parsedOffsetX > 1000) {
+        return res.status(400).json({ error: 'offsetX must be between -1000 and 1000' });
+      }
+      face.offsetX = parsedOffsetX;
+    }
+
+    if (offsetY !== undefined && offsetY !== '') {
+      const parsedOffsetY = parseInt(offsetY);
+      if (isNaN(parsedOffsetY)) {
+        return res.status(400).json({ error: 'Invalid offsetY value' });
+      }
+      if (parsedOffsetY < -1000 || parsedOffsetY > 1000) {
+        return res.status(400).json({ error: 'offsetY must be between -1000 and 1000' });
+      }
+      face.offsetY = parsedOffsetY;
+    }
+
+    if (width !== undefined && width !== '') {
+      const parsedWidth = parseInt(width);
+      if (isNaN(parsedWidth)) {
+        return res.status(400).json({ error: 'Invalid width value' });
+      }
+      if (parsedWidth < 1 || parsedWidth > 2000) {
+        return res.status(400).json({ error: 'width must be between 1 and 2000' });
+      }
+      face.width = parsedWidth;
+    }
+
+    if (height !== undefined && height !== '') {
+      const parsedHeight = parseInt(height);
+      if (isNaN(parsedHeight)) {
+        return res.status(400).json({ error: 'Invalid height value' });
+      }
+      if (parsedHeight < 1 || parsedHeight > 2000) {
+        return res.status(400).json({ error: 'height must be between 1 and 2000' });
+      }
+      face.height = parsedHeight;
+    }
+
+    await face.save();
+    res.json(face);
+  } catch (e) {
+    console.error('Error updating face:', e);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
 export default router;

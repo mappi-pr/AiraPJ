@@ -90,4 +90,58 @@ router.put('/:id/order', async (req, res) => {
   }
 });
 
+// PUT /api/front-hair/:id
+router.put('/:id', async (req, res) => {
+  try {
+    const frontHair = await FrontHair.findByPk(req.params.id);
+    if (!frontHair || frontHair.deleted) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const { name, offsetX, offsetY, width, height } = req.body;
+
+    if (name !== undefined && name !== '') {
+      frontHair.name = name;
+    }
+
+    if (offsetX !== undefined && offsetX !== '') {
+      const parsedOffsetX = parseInt(offsetX);
+      if (isNaN(parsedOffsetX) || parsedOffsetX < -1000 || parsedOffsetX > 1000) {
+        return res.status(400).json({ error: 'Invalid offsetX value' });
+      }
+      frontHair.offsetX = parsedOffsetX;
+    }
+
+    if (offsetY !== undefined && offsetY !== '') {
+      const parsedOffsetY = parseInt(offsetY);
+      if (isNaN(parsedOffsetY) || parsedOffsetY < -1000 || parsedOffsetY > 1000) {
+        return res.status(400).json({ error: 'Invalid offsetY value' });
+      }
+      frontHair.offsetY = parsedOffsetY;
+    }
+
+    if (width !== undefined && width !== '') {
+      const parsedWidth = parseInt(width);
+      if (isNaN(parsedWidth) || parsedWidth < 1 || parsedWidth > 2000) {
+        return res.status(400).json({ error: 'Invalid width value' });
+      }
+      frontHair.width = parsedWidth;
+    }
+
+    if (height !== undefined && height !== '') {
+      const parsedHeight = parseInt(height);
+      if (isNaN(parsedHeight) || parsedHeight < 1 || parsedHeight > 2000) {
+        return res.status(400).json({ error: 'Invalid height value' });
+      }
+      frontHair.height = parsedHeight;
+    }
+
+    await frontHair.save();
+    res.json(frontHair);
+  } catch (e) {
+    console.error('Error updating front hair:', e);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
 export default router;
