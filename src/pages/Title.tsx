@@ -13,6 +13,7 @@ const Title: React.FC = () => {
   const { user, login, logout, isAdmin, isSystemAdmin, isGameMaster } = useAuth();
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
+  const [showUserMenu, setShowUserMenu] = React.useState(false);
 
   // スタートボタン押下時
   const handleStart = (e: React.FormEvent) => {
@@ -42,42 +43,72 @@ const Title: React.FC = () => {
   return (
     <PageTransition>
       <SparkleEffect />
-      <div className="main-container" style={{ position: 'relative', minHeight: '100vh' }}>
-        {/* ログイン情報: 上部左小さ目 */}
-        <div style={{ position: 'absolute', top: 16, left: 16, fontSize: '0.85em' }}>
+      <div className="main-container" style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
+        {/* ログイン情報: 上部左（アイコンのみ、クリックで展開） */}
+        <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {user.picture && user.picture.trim() && <img src={user.picture} alt="Profile" style={{ width: 32, height: 32, borderRadius: '50%' }} />}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span style={{ fontSize: '0.9em' }}>{user.name || 'ユーザー'}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  {isSystemAdmin && <span style={{ color: '#FF6B6B', fontWeight: 'bold', fontSize: '0.85em' }}>🔑 システム管理者</span>}
-                  {isGameMaster && !isSystemAdmin && <span style={{ color: '#4CAF50', fontWeight: 'bold', fontSize: '0.85em' }}>⚔️ ゲームマスター</span>}
-                  {/* 設定アイコン: ログイン情報の横 */}
-                  {isAdmin && (
-                    <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={playClick}>
-                      <img src={gearpath} alt={t.title.settings} style={{ width: 20, height: 20 }} />
-                    </Link>
-                  )}
+            <div style={{ position: 'relative' }}>
+              {/* プロフィールアイコン（クリックで展開） */}
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+              >
+                {user.picture && user.picture.trim() ? (
+                  <img src={user.picture} alt="Profile" style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid #fff' }} />
+                ) : (
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#4CAF50', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold' }}>
+                    {(user.name || 'U')[0].toUpperCase()}
+                  </div>
+                )}
+                {isAdmin && (
+                  <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={playClick}>
+                    <img src={gearpath} alt={t.title.settings} style={{ width: 20, height: 20 }} />
+                  </Link>
+                )}
+              </button>
+              
+              {/* 展開メニュー */}
+              {showUserMenu && (
+                <div style={{
+                  position: 'absolute',
+                  top: 42,
+                  left: 0,
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  border: '1px solid #ccc',
+                  borderRadius: 8,
+                  padding: 12,
+                  minWidth: 200,
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                  fontSize: '0.9em'
+                }}>
+                  <div style={{ marginBottom: 8, fontWeight: 'bold' }}>{user.name || 'ユーザー'}</div>
+                  {isSystemAdmin && <div style={{ color: '#FF6B6B', fontSize: '0.85em', marginBottom: 4 }}>🔑 システム管理者</div>}
+                  {isGameMaster && !isSystemAdmin && <div style={{ color: '#4CAF50', fontSize: '0.85em', marginBottom: 4 }}>⚔️ ゲームマスター</div>}
+                  <button onClick={() => { logout(); setShowUserMenu(false); }} style={{ width: '100%', fontSize: '0.85em', padding: '6px', marginTop: 8 }}>ログアウト</button>
                 </div>
-                <button onClick={logout} style={{ fontSize: '0.8em', padding: '2px 8px' }}>ログアウト</button>
-              </div>
+              )}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                useOneTap
-              />
-            </div>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+            />
           )}
         </div>
 
         {/* BGM/SE: 上部右既存サイズ（既存のオーディオコントロールがここに表示される想定） */}
 
         {/* ゲーム開始ボタン: 中央 */}
-        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', paddingTop: '80px', paddingBottom: '80px' }}>
+        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
           <h1 style={{ textAlign: 'center', marginBottom: 32 }}>{t.title.mainTitle}</h1>
           <form onSubmit={handleStart} style={{ margin: '16px 0' }}>
             <button type="submit" id="start-btn">{t.title.startBtn}</button>
