@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Title: React.FC = () => {
   const navigate = useNavigate();
-  const { user, login, logout, isAdmin, isSystemAdmin, isGameMaster } = useAuth();
+  const { user, login, logout, isSystemAdmin, isGameMaster } = useAuth();
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
   const [showUserMenu, setShowUserMenu] = React.useState(false);
@@ -84,7 +84,7 @@ const Title: React.FC = () => {
                   {isSystemAdmin && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ color: '#FF6B6B', fontSize: '0.85em' }}>🔑 システム管理者</span>
-                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={(e) => { playClick(); setShowUserMenu(false); }} style={{ fontSize: '16px', textDecoration: 'none' }}>
+                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={() => { playClick(); setShowUserMenu(false); }} style={{ fontSize: '16px', textDecoration: 'none' }}>
                         ⚙️
                       </Link>
                     </div>
@@ -92,7 +92,7 @@ const Title: React.FC = () => {
                   {isGameMaster && !isSystemAdmin && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ color: '#4CAF50', fontSize: '0.85em' }}>⚔️ ゲームマスター</span>
-                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={(e) => { playClick(); setShowUserMenu(false); }} style={{ fontSize: '16px', textDecoration: 'none' }}>
+                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={() => { playClick(); setShowUserMenu(false); }} style={{ fontSize: '16px', textDecoration: 'none' }}>
                         ⚙️
                       </Link>
                     </div>
