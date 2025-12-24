@@ -42,50 +42,55 @@ const Title: React.FC = () => {
   return (
     <PageTransition>
       <SparkleEffect />
-      <div className="main-container" style={{ position: 'relative' }}>
-        <header>
-        </header>
-        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-          <h1 style={{ textAlign: 'center' }}>{t.title.mainTitle}</h1>
-          
-          {/* ログイン状態表示 */}
-          <div style={{ margin: '16px 0', textAlign: 'center' }}>
-            {user ? (
-              <div>
-                <p>ようこそ、{user.name || 'ユーザー'}さん</p>
-                {user.picture && user.picture.trim() && <img src={user.picture} alt="Profile" style={{ width: 48, height: 48, borderRadius: '50%' }} />}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                  {isSystemAdmin && <p style={{ color: '#FF6B6B', fontWeight: 'bold', margin: 0 }}>🔑 システム管理者</p>}
-                  {isGameMaster && !isSystemAdmin && <p style={{ color: '#4CAF50', fontWeight: 'bold', margin: 0 }}>⚔️ ゲームマスター</p>}
-                  {/* 管理画面アイコンは管理者のみ表示 */}
+      <div className="main-container" style={{ position: 'relative', minHeight: '100vh' }}>
+        {/* ログイン情報: 上部左小さ目 */}
+        <div style={{ position: 'absolute', top: 16, left: 16, fontSize: '0.85em' }}>
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {user.picture && user.picture.trim() && <img src={user.picture} alt="Profile" style={{ width: 32, height: 32, borderRadius: '50%' }} />}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ fontSize: '0.9em' }}>{user.name || 'ユーザー'}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {isSystemAdmin && <span style={{ color: '#FF6B6B', fontWeight: 'bold', fontSize: '0.85em' }}>🔑 システム管理者</span>}
+                  {isGameMaster && !isSystemAdmin && <span style={{ color: '#4CAF50', fontWeight: 'bold', fontSize: '0.85em' }}>⚔️ ゲームマスター</span>}
+                  {/* 設定アイコン: ログイン情報の横 */}
                   {isAdmin && (
                     <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={playClick}>
-                      <img src={gearpath} alt={t.title.settings} style={{ width: 24, height: 24 }} />
+                      <img src={gearpath} alt={t.title.settings} style={{ width: 20, height: 20 }} />
                     </Link>
                   )}
                 </div>
-                <button onClick={logout} style={{ marginTop: 8 }}>ログアウト</button>
+                <button onClick={logout} style={{ fontSize: '0.8em', padding: '2px 8px' }}>ログアウト</button>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                <p>Googleアカウントでログイン:</p>
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  useOneTap
-                />
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                useOneTap
+              />
+            </div>
+          )}
+        </div>
 
+        {/* BGM/SE: 上部右既存サイズ（既存のオーディオコントロールがここに表示される想定） */}
+
+        {/* ゲーム開始ボタン: 中央 */}
+        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', paddingTop: '80px', paddingBottom: '80px' }}>
+          <h1 style={{ textAlign: 'center', marginBottom: 32 }}>{t.title.mainTitle}</h1>
           <form onSubmit={handleStart} style={{ margin: '16px 0' }}>
             <button type="submit" id="start-btn">{t.title.startBtn}</button>
           </form>
-          <div style={{ marginBottom: 16 }}>
-            <Link to="/history" id="favorites-menu" onClick={playClick}>{t.title.favorites}</Link>
-          </div>
         </main>
-        <footer style={{ position: 'absolute', bottom: 16, left: 0, right: 0, textAlign: 'center' }}>
+
+        {/* おきにいり: 左下 */}
+        <div style={{ position: 'absolute', bottom: 16, left: 16 }}>
+          <Link to="/history" id="favorites-menu" onClick={playClick}>{t.title.favorites}</Link>
+        </div>
+
+        {/* 規約・クレジット: 右下 */}
+        <footer style={{ position: 'absolute', bottom: 16, right: 16 }}>
           <Link to="/terms" id="terms-link" style={{ fontSize: 'small' }} onClick={playClick}>{t.title.terms}</Link>
         </footer>
       </div>
