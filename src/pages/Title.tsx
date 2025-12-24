@@ -129,9 +129,9 @@ const Title: React.FC = () => {
         {/* BGM/SE: 上部右既存サイズ（既存のオーディオコントロールがここに表示される想定） */}
 
         {/* ゲーム開始ボタン: 中央 */}
-        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: 20 }}>{t.title.mainTitle}</h1>
-          <form onSubmit={handleStart} style={{ margin: '8px 0' }}>
+        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '0 20px' }}>
+          <h1 style={{ textAlign: 'center', marginBottom: 12 }}>{t.title.mainTitle}</h1>
+          <form onSubmit={handleStart} style={{ margin: 0 }}>
             <button type="submit" id="start-btn">{t.title.startBtn}</button>
           </form>
         </main>

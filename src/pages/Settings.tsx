@@ -826,7 +826,6 @@ const Settings: React.FC = () => {
                   style={{
                     ...buttonStyles.base,
                     backgroundColor: '#4CAF50',
-                    color: 'white',
                   }}
                 >
                   {t.settings.addBtn}
@@ -860,7 +859,6 @@ const Settings: React.FC = () => {
                             style={{
                               ...buttonStyles.base,
                               ...buttonStyles.danger,
-                              color: 'white',
                             }}
                           >
                             {t.settings.removeBtn}
