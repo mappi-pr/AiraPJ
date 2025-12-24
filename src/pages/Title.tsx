@@ -55,10 +55,7 @@ const Title: React.FC = () => {
                   background: 'none',
                   border: 'none',
                   padding: 0,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6
+                  cursor: 'pointer'
                 }}
               >
                 {user.picture && user.picture.trim() ? (
@@ -67,11 +64,6 @@ const Title: React.FC = () => {
                   <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#4CAF50', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold' }}>
                     {(user.name || 'U')[0].toUpperCase()}
                   </div>
-                )}
-                {isAdmin && (
-                  <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={playClick}>
-                    <img src={gearpath} alt={t.title.settings} style={{ width: 20, height: 20 }} />
-                  </Link>
                 )}
               </button>
               
@@ -85,14 +77,41 @@ const Title: React.FC = () => {
                   border: '1px solid #ccc',
                   borderRadius: 8,
                   padding: 12,
-                  minWidth: 200,
+                  minWidth: 150,
                   boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                   fontSize: '0.9em'
                 }}>
                   <div style={{ marginBottom: 8, fontWeight: 'bold' }}>{user.name || 'ユーザー'}</div>
-                  {isSystemAdmin && <div style={{ color: '#FF6B6B', fontSize: '0.85em', marginBottom: 4 }}>🔑 システム管理者</div>}
-                  {isGameMaster && !isSystemAdmin && <div style={{ color: '#4CAF50', fontSize: '0.85em', marginBottom: 4 }}>⚔️ ゲームマスター</div>}
-                  <button onClick={() => { logout(); setShowUserMenu(false); }} style={{ width: '100%', fontSize: '0.85em', padding: '6px', marginTop: 8 }}>ログアウト</button>
+                  {isSystemAdmin && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ color: '#FF6B6B', fontSize: '0.85em' }}>🔑 システム管理者</span>
+                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={(e) => { playClick(); setShowUserMenu(false); }}>
+                        <img src={gearpath} alt={t.title.settings} style={{ width: 16, height: 16 }} />
+                      </Link>
+                    </div>
+                  )}
+                  {isGameMaster && !isSystemAdmin && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ color: '#4CAF50', fontSize: '0.85em' }}>⚔️ ゲームマスター</span>
+                      <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={(e) => { playClick(); setShowUserMenu(false); }}>
+                        <img src={gearpath} alt={t.title.settings} style={{ width: 16, height: 16 }} />
+                      </Link>
+                    </div>
+                  )}
+                  <a 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); logout(); setShowUserMenu(false); }} 
+                    style={{ 
+                      display: 'block',
+                      fontSize: '0.85em', 
+                      marginTop: 8,
+                      color: '#0066cc',
+                      textDecoration: 'underline',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ログアウト
+                  </a>
                 </div>
               )}
             </div>
