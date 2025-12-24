@@ -494,9 +494,11 @@ const Photo: React.FC = () => {
         ))}
       </div>
       <button onClick={handleDownload}>{t.photo.saveButton}</button>
-      <button onClick={() => setShowStickerPanel(!showStickerPanel)}>
-        ステッカー追加
-      </button>
+      {availableStickers.length > 0 && (
+        <button onClick={() => setShowStickerPanel(!showStickerPanel)}>
+          ステッカー追加
+        </button>
+      )}
       
       {/* ステッカー選択パネル */}
       {showStickerPanel && (
