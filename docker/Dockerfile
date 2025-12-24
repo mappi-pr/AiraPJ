@@ -3,13 +3,14 @@
 # ===========================================
 
 # ビルドステージ
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
 # 依存関係のインストール
 COPY package*.json ./
-RUN npm ci
+# Disable strict SSL for npm to work around certificate issues in Docker
+RUN npm config set strict-ssl false && npm ci
 
 # ソースコードのコピーとビルド
 COPY . .
