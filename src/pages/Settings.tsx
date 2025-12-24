@@ -29,6 +29,48 @@ const Settings: React.FC = () => {
   const { t } = useTranslation();
   const { buttonImages, refreshButtonImages } = useNavigationButtons();
 
+  // 統一されたボタンスタイル
+  const buttonStyles = {
+    base: {
+      padding: '8px 16px',
+      border: 'none',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      fontSize: '14px',
+      fontWeight: '600' as const,
+      transition: 'all 0.3s ease',
+    },
+    primary: {
+      backgroundColor: '#007bff',
+      color: 'white',
+    },
+    danger: {
+      backgroundColor: '#dc3545',
+      color: 'white',
+    },
+    disabled: {
+      backgroundColor: '#ccc',
+      color: '#666',
+      cursor: 'not-allowed',
+    },
+    pagination: {
+      backgroundColor: 'white',
+      color: 'black',
+      border: '1px solid #ddd',
+    },
+    paginationActive: {
+      backgroundColor: '#007bff',
+      color: 'white',
+      border: '1px solid #007bff',
+    },
+    paginationDisabled: {
+      backgroundColor: '#f5f5f5',
+      color: '#999',
+      border: '1px solid #ddd',
+      cursor: 'not-allowed',
+    },
+  };
+
   // アップロード種別ごとのエンドポイント
   const uploadUrls: Record<string, string> = {
     face: '/api/face/upload',
@@ -375,13 +417,8 @@ const Settings: React.FC = () => {
                                   onClick={() => handleReorder(key, item.id, 'up')}
                                   disabled={originalIndex === 0}
                                   style={{
-                                    padding: '4px 8px',
-                                    backgroundColor: originalIndex === 0 ? '#ccc' : '#007bff',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: originalIndex === 0 ? 'not-allowed' : 'pointer',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold',
+                                    ...buttonStyles.base,
+                                    ...(originalIndex === 0 ? buttonStyles.disabled : buttonStyles.primary),
                                   }}
                                   title={originalIndex === 0 ? '' : t.settings.moveUpTooltip}
                                 >
@@ -391,13 +428,8 @@ const Settings: React.FC = () => {
                                   onClick={() => handleReorder(key, item.id, 'down')}
                                   disabled={originalIndex === fullList.length - 1}
                                   style={{
-                                    padding: '4px 8px',
-                                    backgroundColor: originalIndex === fullList.length - 1 ? '#ccc' : '#007bff',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: originalIndex === fullList.length - 1 ? 'not-allowed' : 'pointer',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold',
+                                    ...buttonStyles.base,
+                                    ...(originalIndex === fullList.length - 1 ? buttonStyles.disabled : buttonStyles.primary),
                                   }}
                                   title={originalIndex === fullList.length - 1 ? '' : t.settings.moveDownTooltip}
                                 >
@@ -406,13 +438,8 @@ const Settings: React.FC = () => {
                                 <button 
                                   onClick={() => handleDelete(key, item.id)}
                                   style={{
-                                    padding: '4px 8px',
-                                    backgroundColor: '#dc3545',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold',
+                                    ...buttonStyles.base,
+                                    ...buttonStyles.danger,
                                   }}
                                   title={t.settings.deleteTooltip}
                                 >
@@ -439,11 +466,8 @@ const Settings: React.FC = () => {
                             onClick={() => handlePageChange(key, pagination.currentPage - 1)}
                             disabled={pagination.currentPage === 1}
                             style={{
-                              padding: '8px 12px',
-                              border: '1px solid #ddd',
-                              borderRadius: '4px',
-                              backgroundColor: pagination.currentPage === 1 ? '#f5f5f5' : 'white',
-                              cursor: pagination.currentPage === 1 ? 'not-allowed' : 'pointer',
+                              ...buttonStyles.base,
+                              ...(pagination.currentPage === 1 ? buttonStyles.paginationDisabled : buttonStyles.pagination),
                             }}
                           >
                             ← 前へ
@@ -480,13 +504,8 @@ const Settings: React.FC = () => {
                                   <button
                                     onClick={() => handlePageChange(key, page)}
                                     style={{
-                                      padding: '8px 12px',
-                                      border: '1px solid #ddd',
-                                      borderRadius: '4px',
-                                      backgroundColor: pagination.currentPage === page ? '#007bff' : 'white',
-                                      color: pagination.currentPage === page ? 'white' : 'black',
-                                      cursor: 'pointer',
-                                      fontWeight: pagination.currentPage === page ? 'bold' : 'normal',
+                                      ...buttonStyles.base,
+                                      ...(pagination.currentPage === page ? buttonStyles.paginationActive : buttonStyles.pagination),
                                     }}
                                   >
                                     {page}
@@ -500,11 +519,8 @@ const Settings: React.FC = () => {
                             onClick={() => handlePageChange(key, pagination.currentPage + 1)}
                             disabled={pagination.currentPage === pagination.totalPages}
                             style={{
-                              padding: '8px 12px',
-                              border: '1px solid #ddd',
-                              borderRadius: '4px',
-                              backgroundColor: pagination.currentPage === pagination.totalPages ? '#f5f5f5' : 'white',
-                              cursor: pagination.currentPage === pagination.totalPages ? 'not-allowed' : 'pointer',
+                              ...buttonStyles.base,
+                              ...(pagination.currentPage === pagination.totalPages ? buttonStyles.paginationDisabled : buttonStyles.pagination),
                             }}
                           >
                             次へ →
@@ -565,12 +581,8 @@ const Settings: React.FC = () => {
                 type="button" 
                 onClick={() => handleNavButtonUpload('prev')}
                 style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
+                  ...buttonStyles.base,
+                  ...buttonStyles.primary,
                 }}
               >
                 {t.settings.uploadNavBtn}
@@ -580,12 +592,8 @@ const Settings: React.FC = () => {
                   type="button" 
                   onClick={() => handleNavButtonReset('prev')}
                   style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#dc3545',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
+                    ...buttonStyles.base,
+                    ...buttonStyles.danger,
                   }}
                 >
                   {t.settings.resetNavBtn}
@@ -620,12 +628,8 @@ const Settings: React.FC = () => {
                 type="button" 
                 onClick={() => handleNavButtonUpload('next')}
                 style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
+                  ...buttonStyles.base,
+                  ...buttonStyles.primary,
                 }}
               >
                 {t.settings.uploadNavBtn}
@@ -635,12 +639,8 @@ const Settings: React.FC = () => {
                   type="button" 
                   onClick={() => handleNavButtonReset('next')}
                   style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#dc3545',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
+                    ...buttonStyles.base,
+                    ...buttonStyles.danger,
                   }}
                 >
                   {t.settings.resetNavBtn}
