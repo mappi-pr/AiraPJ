@@ -11,8 +11,19 @@ router.get('/', async (req, res) => {
     const frontHairs = await FrontHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
     res.json(frontHairs);
   } catch (e) {
-    console.error('Error fetching front hair:', e);
-    res.status(500).json({ error: 'Failed to fetch front hair' });
+    console.error('Error fetching front hairs:', e);
+    res.status(500).json({ error: 'Failed to fetch front hairs' });
+  }
+});
+
+// GET /api/front-hair/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const frontHair = await FrontHair.findByPk(req.params.id);
+    if (!frontHair || frontHair.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(frontHair);
+  } catch (e) {
+    res.status(500).json({ error: 'Fetch failed' });
   }
 });
 

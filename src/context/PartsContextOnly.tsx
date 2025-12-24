@@ -21,6 +21,8 @@ export type PartsContextType = {
   setSelectedParts: React.Dispatch<React.SetStateAction<SelectedParts>>;
   scale: number;
   setScale: React.Dispatch<React.SetStateAction<number>>;
+  dragPos: { x: number; y: number };
+  setDragPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
 };
 
 import { createContext } from 'react';

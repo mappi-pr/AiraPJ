@@ -10,18 +10,18 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS:-postgres}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${DB_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-airapj}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - airapj-network
 
   # API サーバー (Express)
   api:
     build:
-      context: ./api
+      context: ../api
       dockerfile: Dockerfile
     container_name: airapj-api
     restart: unless-stopped
@@ -40,18 +40,26 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - airapj-network
 
   # フロントエンド (nginx + Vite ビルド)
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: airapj-frontend
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-80}:80"
     depends_on:
       - api
+    networks:
+      - airapj-network
+
+networks:
+  airapj-network:
+    driver: bridge
 
 volumes:
   postgres_data:

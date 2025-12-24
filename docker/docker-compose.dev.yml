@@ -33,7 +33,7 @@ services:
       PORT: 4000
       UPLOADS_DIR: /app/uploads
     volumes:
-      - ./api:/app
+      - ../api:/app
       - api_node_modules:/app/node_modules
       - uploads_data_dev:/app/uploads
     ports:
@@ -51,10 +51,10 @@ services:
     working_dir: /app
     environment:
       VITE_API_BASE_URL: http://localhost:4000
-      # Docker環境ではAPIサービス名を使用（デフォルトはhttp://api:4000）
-      # VITE_API_PROXY: http://localhost:4000  # ローカル開発時のみ設定
+      # Docker環境ではlocalhostではなくAPIサービス名を使用（コンテナ間通信）
+      VITE_API_PROXY: http://api:4000
     volumes:
-      - .:/app
+      - ..:/app
       - /app/node_modules
       - /app/api
       - /app/docker

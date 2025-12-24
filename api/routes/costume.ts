@@ -16,6 +16,17 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/costume/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const costume = await Costume.findByPk(req.params.id);
+    if (!costume || costume.deleted) return res.status(404).json({ error: 'Not found' });
+    res.json(costume);
+  } catch (e) {
+    res.status(500).json({ error: 'Fetch failed' });
+  }
+});
+
 // DELETE /api/costume/:id
 router.delete('/:id', async (req, res) => {
   try {

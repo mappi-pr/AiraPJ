@@ -3,7 +3,15 @@
     "noData": "未登録です",
     "next": "つぎへ",
     "backToTitle": "タイトルへ戻る",
-    "loading": "読み込み中..."
+    "loading": "読み込み中...",
+    "fetchError": "パーツ取得に失敗しました"
+  },
+  "audioModal": {
+    "title": "音声設定",
+    "message": "このサイトでは、音声が流れるコンテンツが含まれます。",
+    "question": "音声（BGM・SE）をONにしますか？",
+    "enableButton": "ONにする",
+    "disableButton": "OFFにする"
   },
   "title": {
     "mainTitle": "Aira PJ",
@@ -16,7 +24,8 @@
     "title": "キャラクターパーツ選択",
     "face": "顔",
     "frontHair": "前髪",
-    "backHair": "後髪"
+    "backHair": "後髪",
+    "compositePreview": "合成プレビュー"
   },
   "backgroundSelect": {
     "title": "背景選択",
@@ -39,11 +48,23 @@
     "noPartsContext": "パーツ情報が取得できません"
   },
   "history": {
-    "title": "履歴管理"
+    "title": "履歴表示",
+    "noHistory": "まだ生成履歴がありません",
+    "view": "表示",
+    "viewFail": "表示に失敗しました",
+    "backgroundId": "背景ID",
+    "costumeId": "衣装ID",
+    "backHairId": "後髪ID",
+    "faceId": "顔ID",
+    "frontHairId": "前髪ID",
+    "scale": "拡大率",
+    "scaleUnit": "倍",
+    "notSelected": "未選択"
   },
   "settings": {
     "title": "設定",
     "uploadTitle": "画像アセットアップロード",
+    "uploadDesc": "キャラクターパーツ・背景・衣装の画像をアップロードできます",
     "typeLabel": "アップロード種別:",
     "nameLabel": "名前:",
     "uploadBtn": "アップロード",
@@ -54,6 +75,7 @@
     "pngOnly": "PNG画像のみアップロード可能です。",
     "selectType": "種別を選択してください。",
     "assetListTitle": "アセット一覧・削除",
+    "assetListDesc": "アップロード済みアセットの確認・削除・並び替えができます",
     "faceLabel": "顔パーツ",
     "frontHairLabel": "前髪パーツ",
     "backHairLabel": "後髪パーツ",
@@ -89,6 +111,18 @@
     "dragToPosition": "ドラッグして位置を調整",
     "centerBtn": "中央配置",
     "autoDetectSize": "サイズ自動検出"
+    "navigationButtonsTitle": "ナビゲーションボタン画像設定",
+    "navigationButtonsDesc": "← / → ボタンの画像をカスタマイズできます",
+    "prevButtonLabel": "← (前へ) ボタン",
+    "nextButtonLabel": "→ (次へ) ボタン",
+    "currentImage": "現在の画像:",
+    "defaultText": "デフォルト (テキスト)",
+    "uploadNavBtn": "画像をアップロード",
+    "resetNavBtn": "デフォルトに戻す",
+    "navUploadSuccess": "ナビゲーションボタン画像を更新しました",
+    "navUploadFail": "アップロードに失敗しました",
+    "navResetSuccess": "デフォルトに戻しました",
+    "navResetFail": "リセットに失敗しました"
   },
   "terms": {
     "title": "規約・クレジット"

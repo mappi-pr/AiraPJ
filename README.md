@@ -14,7 +14,7 @@ Express APIサーバーと連携し、キャラクター・背景・衣装の着
 cp .env.example .env
 
 # 開発用コンテナの起動（Vite dev server + API + PostgreSQL）
-docker compose -f docker-compose.dev.yml up
+docker compose -f docker/docker-compose.dev.yml up
 
 # アクセス
 # フロントエンド: http://localhost:5173 (Vite dev server with HMR)
@@ -32,7 +32,7 @@ docker compose -f docker-compose.dev.yml up
 cp .env.example .env
 
 # 本番用コンテナの起動（nginx + API + PostgreSQL）
-docker compose up -d
+docker compose -f docker/docker-compose.yml up -d
 
 # アクセス
 # フロントエンド: http://localhost (nginx)
@@ -59,7 +59,7 @@ cd api && cp .env.example .env && cd ..
 # - PostgreSQL 16.x をインストールして起動
 # - データベース 'airapj' を作成
 # オプション2: PostgreSQL のみ Docker で起動（軽量な選択肢）
-docker run -d --name airapj-postgres \
+docker run -d --name airapj-db \
   -e POSTGRES_DB=airapj -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres -p 5432:5432 \
   postgres:16-alpine
@@ -83,6 +83,7 @@ npm run dev
 
 ### 機能別ドキュメント
 
+- **[画像アセット作成ガイド](doc/IMAGE_ASSETS.md)** - キャラクターパーツや背景などの画像アセット作成方法
 - **[ボイス実装ガイド](doc/VOICE_IMPLEMENTATION.md)** - キャラクター選択画面などでのボイス機能の実装方法
 - **[CSS アーキテクチャ](doc/CSS.md)** - スタイル管理とデザインガイドライン
 - **[多言語対応](doc/MULTILINGUAL.md)** - 国際化対応の実装方法
@@ -110,7 +111,8 @@ AiraPJ/
 │   ├── routes/          # API ルーティング
 │   ├── models/          # Sequelize モデル
 │   └── uploads/         # アップロードファイル
-├── docker/              # Docker設定
+├── docker/              # Docker設定（Dockerfile、docker-compose.yml等）
+├── scripts/             # 補助スクリプト（WSLポートフォワーディング等）
 ├── doc/                 # ドキュメント
 └── public/              # 静的ファイル
 ```
@@ -121,44 +123,6 @@ AiraPJ/
 - 画面遷移演出
 - フォト撮影機能（PNG保存）
 - パーツアップロード機能
-
-### 画像アセットの作成ガイド
-
-パーツ画像（顔・前髪・後髪・衣装）を作成する際のガイドラインです。
-
-#### 基本仕様
-- **ファイル形式**: PNG (透過PNG推奨)
-- **推奨サイズ**: 240×320ピクセル（背景も同様）
-- **透過**: 背景は透過にすることで重ね合わせが可能
-
-#### 位置・サイズ設定機能
-パーツごとに異なるサイズと配置位置を設定できます。
-
-画像は実際のパーツサイズで作成し、位置をオフセットで指定できます：
-
-```
-例: 顔パーツ140×220を中央配置する場合
-→ 140×220で画像を作成
-→ アップロード時にオフセットX: 50, オフセットY: 50を指定
-```
-
-これにより、余白を含めずにパーツ画像を作成できます。
-
-#### アップロード時の設定項目
-Settings画面のアップロードフォームで以下を設定できます：
-
-- **X オフセット**: 左端からの配置位置（-1000〜1000ピクセル、デフォルト: 0）
-- **Y オフセット**: 上端からの配置位置（-1000〜1000ピクセル、デフォルト: 0）
-- **幅**: 画像の実際の幅（1〜2000ピクセル、デフォルト: 240）
-- **高さ**: 画像の実際の高さ（1〜2000ピクセル、デフォルト: 320）
-
-#### パーツ作成のコツ
-1. **背景**: 240×320で作成し、オフセット(0,0)で配置
-2. **顔パーツ**: 実際のサイズで作成し、中央または適切な位置にオフセット設定
-3. **前髪・後髪**: 髪の広がりに応じてサイズを調整し、顔と重なるようにオフセット設定
-4. **衣装**: 体の大きさに応じてサイズを調整し、適切な位置にオフセット設定
-
-**重ね順**: 後髪 → 衣装 → 顔 → 前髪
 
 ---
 
