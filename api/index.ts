@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import authRouter from './routes/auth';
+import gameMasterRouter from './routes/gameMaster';
 import backgroundRouter from './routes/background';
 import backgroundUploadRouter from './routes/background-upload';
 import costumeRouter from './routes/costume';
@@ -17,6 +19,7 @@ import navigationButtonRouter from './routes/navigationButton';
 import navigationButtonUploadRouter from './routes/navigationButton-upload';
 import { sequelize, NavigationButton } from './models';
 import { getUploadsBasePath } from './config/uploads';
+import { authenticate, requireAdmin } from './middleware/auth';
 
 const app = express();
 app.use(cors());
@@ -98,16 +101,26 @@ app.use('/api/*', (req, res, next) => {
   next();
 });
 
+// 認証ルート
+app.use('/api/auth', authRouter);
+
+// ゲームマスター管理API（システム管理者専用）
+app.use('/api/game-masters', gameMasterRouter);
+
+// 公開API（認証不要）
 app.use('/api/background', backgroundRouter);
-app.use('/api/background', backgroundUploadRouter);
 app.use('/api/costume', costumeRouter);
-app.use('/api/costume', costumeUploadRouter);
 app.use('/api/favorite', favoriteRouter);
 app.use('/api/face', faceRouter);
-app.use('/api/face', faceUploadRouter);
 app.use('/api/front-hair', frontHairRouter);
-app.use('/api/front-hair', frontHairUploadRouter);
 app.use('/api/back-hair', backHairRouter);
+
+// 管理者専用API（認証＋管理者権限必要）
+app.use('/api/background', authenticate, requireAdmin, backgroundUploadRouter);
+app.use('/api/costume', authenticate, requireAdmin, costumeUploadRouter);
+app.use('/api/face', authenticate, requireAdmin, faceUploadRouter);
+app.use('/api/front-hair', authenticate, requireAdmin, frontHairUploadRouter);
+app.use('/api/back-hair', authenticate, requireAdmin, backHairUploadRouter);
 app.use('/api/back-hair', backHairUploadRouter);
 app.use('/api/generation-history', generationHistoryRouter);
 app.use('/api/navigation-buttons', navigationButtonRouter);

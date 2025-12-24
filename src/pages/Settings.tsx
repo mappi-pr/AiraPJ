@@ -1,13 +1,22 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from '../hooks/useTranslation';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
+import { useAuth } from '../context/AuthContext';
 import { useNavigationButtons } from '../context/NavigationButtonContext';
 
 const ITEMS_PER_PAGE = 12;
+
+interface GameMaster {
+  id: number;
+  email: string;
+  name: string | null;
+  createdAt: string;
+  createdBy: string | null;
+}
 
 const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
@@ -18,6 +27,10 @@ const Settings: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [currentPages, setCurrentPages] = useState<Record<string, number>>({});
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
+  const [gameMasters, setGameMasters] = useState<GameMaster[]>([]);
+  const [newGMEmail, setNewGMEmail] = useState('');
+  const [newGMName, setNewGMName] = useState('');
+  const [expandedGMId, setExpandedGMId] = useState<number | null>(null);
   const [navResult, setNavResult] = useState<string>('');
   const [navResultType, setNavResultType] = useState<'success' | 'error' | null>(null);
   const prevButtonFileRef = useRef<HTMLInputElement>(null);
@@ -27,6 +40,7 @@ const Settings: React.FC = () => {
   const assetFileRef = useRef<HTMLInputElement>(null);
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
+  const { isSystemAdmin } = useAuth();
   const { buttonImages, refreshButtonImages } = useNavigationButtons();
 
   // 統一されたボタンスタイル
@@ -225,6 +239,77 @@ const Settings: React.FC = () => {
     setCurrentPages((prev) => ({ ...prev, [type]: 1 })); // 検索時は1ページ目に戻る
   };
 
+  // ゲームマスター一覧を取得
+  const fetchGameMasters = async () => {
+    if (!isSystemAdmin) return;
+    
+    try {
+      const res = await axios.get('/api/game-masters');
+      setGameMasters(res.data);
+    } catch (error) {
+      console.error('Error fetching game masters:', error);
+      setResult('ゲームマスターの取得に失敗しました');
+    }
+  };
+
+  // ゲームマスターを追加
+  const handleAddGameMaster = async (e: React.FormEvent) => {
+    e.preventDefault();
+    playClick();
+    
+    if (!newGMEmail) {
+      setResult(t.settings.emailLabel + ' を入力してください');
+      return;
+    }
+
+    try {
+      await axios.post('/api/game-masters', {
+        email: newGMEmail,
+        name: newGMName || null,
+      });
+      
+      playSuccess();
+      setResult(t.settings.addSuccess);
+      setNewGMEmail('');
+      setNewGMName('');
+      await fetchGameMasters();
+    } catch (error: any) {
+      console.error('Error adding game master:', error);
+      if (error.response?.status === 409) {
+        setResult(t.settings.addFailAlreadyExists);
+      } else {
+        setResult(t.settings.addFail);
+      }
+    }
+  };
+
+  // ゲームマスターを削除
+  const handleRemoveGameMaster = async (id: number, email: string) => {
+    playClick();
+    
+    if (!window.confirm(`${email} ${t.settings.removeConfirm}`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/game-masters/${id}`);
+      playSuccess();
+      setResult(t.settings.removeSuccess);
+      await fetchGameMasters();
+    } catch (error) {
+      console.error('Error removing game master:', error);
+      setResult(t.settings.removeFail);
+    }
+  };
+
+  // 初回マウント時にゲームマスター一覧を取得
+  useEffect(() => {
+    if (isSystemAdmin) {
+      fetchGameMasters();
+    }
+    // eslint-disable-next-line
+  }, [isSystemAdmin]);
+
   // ナビゲーションボタン画像のアップロード
   const handleNavButtonUpload = async (buttonType: 'prev' | 'next') => {
     const fileRef = buttonType === 'prev' ? prevButtonFileRef : nextButtonFileRef;
@@ -279,6 +364,7 @@ const Settings: React.FC = () => {
           <Link to="/title" onClick={playClick}>{t.common.backToTitle}</Link>
         </nav>
 
+        {/* ①画像アセットアップロード */}
         <h2>{t.settings.uploadTitle}</h2>
         <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.uploadDesc}</p>
         <div style={{ 
@@ -311,6 +397,7 @@ const Settings: React.FC = () => {
           <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
         </div>
 
+        {/* ②アセット一覧・削除 */}
         <h2>{t.settings.assetListTitle}</h2>
         <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.assetListDesc}</p>
       <div className="asset-sections">
@@ -554,6 +641,7 @@ const Settings: React.FC = () => {
         })}
       </div>
 
+        {/* ③ナビゲーションボタン画像設定 */}
         <h2>{t.settings.navigationButtonsTitle}</h2>
         <p style={{ color: '#666', marginBottom: '16px' }}>{t.settings.navigationButtonsDesc}</p>
         <div style={{ 
@@ -670,6 +758,164 @@ const Settings: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* ④ゲームマスター管理（システム管理者専用） */}
+        {isSystemAdmin && (
+          <div style={{
+            marginTop: '32px',
+            backgroundColor: '#1a1a1a',
+            border: '3px solid #FF6B6B',
+            borderRadius: '12px',
+            padding: '24px',
+            marginBottom: '32px'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px',
+              marginBottom: '8px'
+            }}>
+              <span style={{ fontSize: '20px' }}>⚠️</span>
+              <h2 style={{ margin: 0, color: '#FF6B6B' }}>{t.settings.gameMasterTitle}</h2>
+              <span style={{ 
+                fontSize: '12px', 
+                backgroundColor: '#FF6B6B', 
+                color: 'white', 
+                padding: '2px 8px', 
+                borderRadius: '4px',
+                fontWeight: 'bold'
+              }}>
+                システム管理者専用
+              </span>
+            </div>
+            <p style={{ color: '#ccc', marginBottom: '16px' }}>{t.settings.gameMasterDesc}</p>
+            <div style={{ 
+              border: '1px solid #444', 
+              borderRadius: '8px', 
+              padding: '20px', 
+              backgroundColor: '#2a2a2a'
+            }}>
+              <h3 style={{ color: '#fff' }}>{t.settings.addGameMaster}</h3>
+              <form onSubmit={handleAddGameMaster} style={{ marginBottom: '24px' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ color: '#eee', display: 'block' }}>
+                    {t.settings.emailLabel}
+                    <input
+                      type="email"
+                      value={newGMEmail}
+                      onChange={(e) => setNewGMEmail(e.target.value)}
+                      placeholder={t.settings.emailPlaceholder}
+                      required
+                      style={{ marginTop: '8px', padding: '8px', width: '100%', maxWidth: '300px', borderRadius: '4px', border: '1px solid #555', backgroundColor: '#333', color: '#fff', boxSizing: 'border-box' }}
+                    />
+                  </label>
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ color: '#eee', display: 'block' }}>
+                    {t.settings.displayNameLabel}
+                    <input
+                      type="text"
+                      value={newGMName}
+                      onChange={(e) => setNewGMName(e.target.value)}
+                      placeholder={t.settings.displayNamePlaceholder}
+                      style={{ marginTop: '8px', padding: '8px', width: '100%', maxWidth: '300px', borderRadius: '4px', border: '1px solid #555', backgroundColor: '#333', color: '#fff', boxSizing: 'border-box' }}
+                    />
+                  </label>
+                </div>
+                <button 
+                  type="submit"
+                  style={{
+                    ...buttonStyles.base,
+                    backgroundColor: '#4CAF50',
+                  }}
+                >
+                  {t.settings.addBtn}
+                </button>
+              </form>
+
+              <h3 style={{ color: '#fff' }}>{t.settings.gameMasterList}</h3>
+              {gameMasters.length === 0 ? (
+                <p style={{ color: '#999', padding: '16px', textAlign: 'center' }}>{t.settings.noGameMasters}</p>
+              ) : (
+                <div style={{ marginTop: '16px' }}>
+                  {gameMasters.map((gm) => (
+                    <div
+                      key={gm.id}
+                      style={{
+                        marginBottom: '8px',
+                        backgroundColor: '#2a2a2a',
+                        borderRadius: '8px',
+                        border: '1px solid #444',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <div
+                        onClick={() => setExpandedGMId(expandedGMId === gm.id ? null : gm.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '12px',
+                          cursor: 'pointer',
+                          backgroundColor: expandedGMId === gm.id ? '#333' : '#2a2a2a',
+                        }}
+                      >
+                        <div style={{ 
+                          flex: 1, 
+                          color: '#eee', 
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          marginRight: '12px',
+                          fontSize: '14px',
+                        }}>
+                          {gm.email}
+                        </div>
+                        <span style={{ color: '#888', fontSize: '12px', marginRight: '8px' }}>
+                          {expandedGMId === gm.id ? '▲' : '▼'}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveGameMaster(gm.id, gm.email);
+                          }}
+                          style={{
+                            ...buttonStyles.base,
+                            ...buttonStyles.danger,
+                            flexShrink: 0,
+                            padding: '6px 12px',
+                            fontSize: '13px',
+                          }}
+                        >
+                          {t.settings.removeBtn}
+                        </button>
+                      </div>
+                      {expandedGMId === gm.id && (
+                        <div style={{
+                          padding: '12px',
+                          backgroundColor: '#222',
+                          borderTop: '1px solid #444',
+                          color: '#ccc',
+                          fontSize: '13px',
+                        }}>
+                          <div style={{ marginBottom: '6px' }}>
+                            <strong style={{ color: '#aaa' }}>{t.settings.nameHeader}:</strong> {gm.name || '-'}
+                          </div>
+                          <div style={{ marginBottom: '6px' }}>
+                            <strong style={{ color: '#aaa' }}>{t.settings.createdAtHeader}:</strong> {new Date(gm.createdAt).toLocaleString('ja-JP')}
+                          </div>
+                          <div>
+                            <strong style={{ color: '#aaa' }}>{t.settings.createdByHeader}:</strong> {gm.createdBy || '-'}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
     </div>
     </PageTransition>
   );

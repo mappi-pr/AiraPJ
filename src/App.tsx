@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css'
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Title from './pages/Title';
 import CharacterPartsSelect from './pages/CharacterPartsSelect';
 import BackgroundSelect from './pages/BackgroundSelect';
@@ -10,6 +10,9 @@ import History from './pages/History';
 import Settings from './pages/Settings';
 import Terms from './pages/Terms';
 import { PartsProvider } from './context/PartsContext';
+import { AuthProvider } from './context/AuthContext';
+import { setupAxiosInterceptors } from './utils/axiosConfig';
+import ProtectedRoute from './components/ProtectedRoute';
 import { LocaleProvider } from './context/LocaleContext';
 import { NavigationButtonProvider } from './context/NavigationButtonContext';
 import texts from './locales/ja.json';
@@ -38,6 +41,11 @@ function App() {
   const [seOn, setSeOn] = useState(
     seStorageValue === null ? false : seStorageValue !== '0'
   );
+
+  // Axiosインターセプターのセットアップ
+  useEffect(() => {
+    setupAxiosInterceptors();
+  }, []);
 
   // BGM自動再生
   React.useEffect(() => {
@@ -125,6 +133,7 @@ function App() {
   };
 
   return (
+  <AuthProvider>
   <LocaleProvider>
     <NavigationButtonProvider>
       <PartsProvider>
@@ -242,13 +251,18 @@ function App() {
           <Route path="/costume" element={<CostumeSelect />} />
           <Route path="/photo" element={<Photo />} />
           <Route path="/history" element={<History />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={
+            <ProtectedRoute requireAdmin={true}>
+              <Settings />
+            </ProtectedRoute>
+          } />
           <Route path="/terms" element={<Terms />} />
         </Routes>
       </BrowserRouter>
     </PartsProvider>
     </NavigationButtonProvider>
   </LocaleProvider>
+  </AuthProvider>
   )
 }
 

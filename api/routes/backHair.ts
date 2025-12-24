@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { BackHair } from '../models/backHair';
+import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
@@ -27,8 +28,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/back-hair/:id
-router.delete('/:id', async (req, res) => {
+// DELETE /api/back-hair/:id (管理者専用)
+router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
   try {
     const backHair = await BackHair.findByPk(req.params.id);
     if (!backHair || backHair.deleted) return res.status(404).json({ error: 'Not found' });
@@ -48,8 +49,8 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// PUT /api/back-hair/:id/order
-router.put('/:id/order', async (req, res) => {
+// PUT /api/back-hair/:id/order (管理者専用)
+router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
   try {
     const { direction } = req.body;
     const currentItem = await BackHair.findByPk(req.params.id);

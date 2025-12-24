@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { Costume } from '../models';
+import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
@@ -27,8 +28,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/costume/:id
-router.delete('/:id', async (req, res) => {
+// DELETE /api/costume/:id (管理者専用)
+router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
   try {
     const costume = await Costume.findByPk(req.params.id);
     if (!costume || costume.deleted) return res.status(404).json({ error: 'Not found' });
@@ -48,8 +49,8 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// PUT /api/costume/:id/order
-router.put('/:id/order', async (req, res) => {
+// PUT /api/costume/:id/order (管理者専用)
+router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
   try {
     const { direction } = req.body;
     const currentItem = await Costume.findByPk(req.params.id);
