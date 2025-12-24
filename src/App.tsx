@@ -251,7 +251,11 @@ function App() {
           <Route path="/costume" element={<CostumeSelect />} />
           <Route path="/photo" element={<Photo />} />
           <Route path="/history" element={<History />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={
+            <ProtectedRoute requireAdmin={true}>
+              <Settings />
+            </ProtectedRoute>
+          } />
           <Route path="/terms" element={<Terms />} />
         </Routes>
       </BrowserRouter>
