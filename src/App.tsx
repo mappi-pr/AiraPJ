@@ -16,7 +16,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { LocaleProvider } from './context/LocaleContext';
 import { NavigationButtonProvider } from './context/NavigationButtonContext';
 import { SoundControl } from './components/SoundControl';
-import { UserProfile } from './components/UserProfile';
 import texts from './locales/ja.json';
 
 // BGM file path from environment variable (VITE_BGM_PATH)
@@ -258,7 +257,6 @@ function App() {
           </div>
         )}
         
-        <UserProfile />
         <SoundControl
           bgmOn={bgmOn}
           seOn={seOn}
