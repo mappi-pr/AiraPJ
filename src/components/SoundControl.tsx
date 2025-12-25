@@ -27,9 +27,9 @@ export const SoundControl: React.FC<SoundControlProps> = ({
     const savedSeVolume = localStorage.getItem('seVolume');
     const savedVoiceVolume = localStorage.getItem('voiceVolume');
     
-    if (savedBgmVolume) setBgmVolume(parseInt(savedBgmVolume));
-    if (savedSeVolume) setSeVolume(parseInt(savedSeVolume));
-    if (savedVoiceVolume) setVoiceVolume(parseInt(savedVoiceVolume));
+    if (savedBgmVolume) setBgmVolume(parseInt(savedBgmVolume, 10));
+    if (savedSeVolume) setSeVolume(parseInt(savedSeVolume, 10));
+    if (savedVoiceVolume) setVoiceVolume(parseInt(savedVoiceVolume, 10));
   }, []);
 
   // Save volume changes to localStorage
@@ -105,7 +105,7 @@ export const SoundControl: React.FC<SoundControlProps> = ({
                 min="0"
                 max="100"
                 value={bgmVolume}
-                onChange={(e) => handleBgmVolumeChange(parseInt(e.target.value))}
+                onChange={(e) => handleBgmVolumeChange(parseInt(e.target.value, 10))}
                 disabled={!bgmOn}
               />
               <span className="volume-value">{bgmVolume}%</span>
@@ -130,7 +130,7 @@ export const SoundControl: React.FC<SoundControlProps> = ({
                 min="0"
                 max="100"
                 value={seVolume}
-                onChange={(e) => handleSeVolumeChange(parseInt(e.target.value))}
+                onChange={(e) => handleSeVolumeChange(parseInt(e.target.value, 10))}
                 disabled={!seOn}
               />
               <span className="volume-value">{seVolume}%</span>
@@ -149,7 +149,7 @@ export const SoundControl: React.FC<SoundControlProps> = ({
                 min="0"
                 max="100"
                 value={voiceVolume}
-                onChange={(e) => handleVoiceVolumeChange(parseInt(e.target.value))}
+                onChange={(e) => handleVoiceVolumeChange(parseInt(e.target.value, 10))}
                 disabled
               />
               <span className="volume-value">{voiceVolume}%</span>
