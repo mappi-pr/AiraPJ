@@ -42,9 +42,9 @@ const Title: React.FC = () => {
   return (
     <PageTransition>
       <SparkleEffect />
-      <div className="main-container" style={{ position: 'relative', height: '50vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        {/* ログイン情報: 上部左（アイコンのみ、クリックで展開） */}
-        <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10 }}>
+      <div className="main-container" style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+        {/* ログイン情報: 上部左（アイコンのみ、クリックで展開） - 固定位置 */}
+        <div style={{ position: 'fixed', top: 8, left: 8, zIndex: 1000 }}>
           {user ? (
             <div style={{ position: 'relative' }}>
               {/* プロフィールアイコン（クリックで展開） */}
@@ -54,13 +54,18 @@ const Title: React.FC = () => {
                   background: 'none',
                   border: 'none',
                   padding: 0,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: 40,
+                  height: 40,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
                 {user.picture && user.picture.trim() ? (
-                  <img src={user.picture} alt="Profile" style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid #fff' }} />
+                  <img src={user.picture} alt="Profile" style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid #fff' }} />
                 ) : (
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#4CAF50', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#4CAF50', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold' }}>
                     {(user.name || 'U')[0].toUpperCase()}
                   </div>
                 )}
@@ -70,7 +75,7 @@ const Title: React.FC = () => {
               {showUserMenu && (
                 <div style={{
                   position: 'absolute',
-                  top: 42,
+                  top: 48,
                   left: 0,
                   background: 'rgba(255, 255, 255, 0.95)',
                   border: '1px solid #ccc',
@@ -128,9 +133,9 @@ const Title: React.FC = () => {
 
         {/* BGM/SE: 上部右既存サイズ（既存のオーディオコントロールがここに表示される想定） */}
 
-        {/* ゲーム開始ボタン: 中央 */}
-        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '0 20px' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: 12 }}>{t.title.mainTitle}</h1>
+        {/* ゲーム開始ボタン: 中央上部 */}
+        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', flex: 1, padding: '0 20px', marginTop: '60px' }}>
+          <h1 style={{ textAlign: 'center', marginBottom: 24, marginTop: 0 }}>{t.title.mainTitle}</h1>
           <form onSubmit={handleStart} style={{ margin: 0 }}>
             <button type="submit" id="start-btn">{t.title.startBtn}</button>
           </form>

@@ -462,6 +462,51 @@ select:focus {
 - **対象**: 特定機能のコンポーネント、ID/クラス指定要素
 - **変更頻度**: 中〜高（機能追加・改善時）
 
+### コンポーネント固有のCSS
+
+アプリケーション固有の一部のコンポーネントは、独自のCSSファイルを持っています：
+
+#### NavigationButton.css
+
+```css
+src/components/NavigationButton.css
+```
+
+**役割**: ナビゲーションボタン（← / →）の専用スタイル
+
+**目的**: カスタマイズ可能なナビゲーションボタンのデザインを管理
+
+#### SoundControl.css
+
+```css
+src/components/SoundControl.css
+```
+
+**役割**: 音声コントロールパネルの専用スタイル
+
+**主な定義対象**:
+- `.sound-control` - 音声コントロールコンテナ（#root に対して相対的な絶対配置）
+- `.sound-control-icon` - 音符アイコン（🎵）ボタン
+- `.sound-control-panel` - 展開時のコントロールパネル
+- `.sound-control-header` - パネルのヘッダー
+- `.sound-control-item` - 各音声チャンネル（BGM/SE）の制御エリア
+- `.sound-control-label` - 音声チャンネルのラベルとミュートボタンのコンテナ
+- `.mute-toggle` - ミュートトグルボタン（🔊/🔇）
+- `.volume-control` - 音量スライダーのコンテナ
+- `@keyframes slideDown` - パネル展開時のスライドダウンアニメーション
+
+**デザイン特徴**:
+- グラスモーフィズムデザイン（backdrop-filter: blur）
+- #root コンテナに対する絶対配置（position: absolute, top: 8px, right: 8px）
+- スムーズなスライドダウン展開アニメーション
+- モバイルレスポンシブ対応（600px以下で小型化）
+- クリック外で自動クローズ機能（JavaScriptで実装）
+
+**目的**: 
+- BGM/SEの音量を個別に制御できる直感的なUI
+- 展開式パネルによる省スペース設計
+- アイコンのみの表示で画面を占有しない
+
 ### 管理のポイント
 
 1. **責任を明確に分離**: グローバル vs アプリケーション固有
