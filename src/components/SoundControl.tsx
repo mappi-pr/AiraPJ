@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './SoundControl.css';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface SoundControlProps {
   bgmOn: boolean;
@@ -14,6 +15,7 @@ export const SoundControl: React.FC<SoundControlProps> = ({
   onBgmToggle,
   onSeToggle,
 }) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [bgmVolume, setBgmVolume] = useState(70);
   const [seVolume, setSeVolume] = useState(70);
@@ -73,8 +75,8 @@ export const SoundControl: React.FC<SoundControlProps> = ({
       <button
         className="sound-control-icon"
         onClick={toggleExpand}
-        aria-label="音声設定"
-        title="音声設定"
+        aria-label={t.soundControl.title}
+        title={t.soundControl.title}
       >
         🎵
       </button>
@@ -82,17 +84,17 @@ export const SoundControl: React.FC<SoundControlProps> = ({
       {isExpanded && (
         <div className="sound-control-panel">
           <div className="sound-control-header">
-            <span>音声設定</span>
+            <span>{t.soundControl.title}</span>
           </div>
 
           {/* BGM Control */}
           <div className="sound-control-item">
             <div className="sound-control-label">
-              <span>BGM</span>
+              <span>{t.soundControl.bgm}</span>
               <button
                 className={`mute-toggle ${bgmOn ? 'on' : 'off'}`}
                 onClick={onBgmToggle}
-                title={bgmOn ? 'ミュート' : 'ミュート解除'}
+                title={bgmOn ? t.soundControl.mute : t.soundControl.unmute}
               >
                 {bgmOn ? '🔊' : '🔇'}
               </button>
@@ -113,11 +115,11 @@ export const SoundControl: React.FC<SoundControlProps> = ({
           {/* SE Control */}
           <div className="sound-control-item">
             <div className="sound-control-label">
-              <span>SE</span>
+              <span>{t.soundControl.se}</span>
               <button
                 className={`mute-toggle ${seOn ? 'on' : 'off'}`}
                 onClick={onSeToggle}
-                title={seOn ? 'ミュート' : 'ミュート解除'}
+                title={seOn ? t.soundControl.mute : t.soundControl.unmute}
               >
                 {seOn ? '🔊' : '🔇'}
               </button>
@@ -138,8 +140,8 @@ export const SoundControl: React.FC<SoundControlProps> = ({
           {/* Voice Control */}
           <div className="sound-control-item">
             <div className="sound-control-label">
-              <span>Voice</span>
-              <span className="voice-note">(未実装)</span>
+              <span>{t.soundControl.voice}</span>
+              <span className="voice-note">{t.soundControl.voiceNote}</span>
             </div>
             <div className="volume-control">
               <input

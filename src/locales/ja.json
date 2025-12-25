@@ -13,6 +13,15 @@
     "enableButton": "ONにする",
     "disableButton": "OFFにする"
   },
+  "soundControl": {
+    "title": "音声設定",
+    "bgm": "BGM",
+    "se": "SE",
+    "voice": "Voice",
+    "voiceNote": "(未実装)",
+    "mute": "ミュート",
+    "unmute": "ミュート解除"
+  },
   "title": {
     "mainTitle": "Aira PJ",
     "startBtn": "ゲームをはじめる",
