@@ -42,7 +42,7 @@ const Title: React.FC = () => {
   return (
     <PageTransition>
       <SparkleEffect />
-      <div className="main-container" style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: '80px' }}>
+      <div className="main-container" style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
         {/* ログイン情報: 上部左（アイコンのみ、クリックで展開） - 固定位置 */}
         <div style={{ position: 'fixed', top: 8, left: 8, zIndex: 1000 }}>
           {user ? (
@@ -134,7 +134,7 @@ const Title: React.FC = () => {
         {/* BGM/SE: 上部右既存サイズ（既存のオーディオコントロールがここに表示される想定） */}
 
         {/* ゲーム開始ボタン: 中央上部 */}
-        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', flex: 1, padding: '0 20px' }}>
+        <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', flex: 1, padding: '0 20px', marginTop: '60px' }}>
           <h1 style={{ textAlign: 'center', marginBottom: 24, marginTop: 0 }}>{t.title.mainTitle}</h1>
           <form onSubmit={handleStart} style={{ margin: 0 }}>
             <button type="submit" id="start-btn">{t.title.startBtn}</button>
