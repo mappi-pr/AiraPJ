@@ -127,7 +127,6 @@
 .volume-control {
   display: flex;
   align-items: center;
-  gap: 12px;
 }
 
 .volume-control input[type="range"] {
@@ -140,14 +139,6 @@
 .volume-control input[type="range"]:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-.volume-value {
-  min-width: 42px;
-  text-align: right;
-  font-size: 0.85em;
-  color: rgba(255, 255, 255, 0.7);
-  font-variant-numeric: tabular-nums;
 }
 
 /* Mobile responsive */
