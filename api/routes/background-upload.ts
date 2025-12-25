@@ -32,6 +32,7 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     const assetPath = `/uploads/bg/${req.file.filename}`;
     
     const maxOrderItem = await Background.findOne({ 
+      where: { deleted: false },
       order: [['sortOrder', 'DESC']] 
     });
     const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;

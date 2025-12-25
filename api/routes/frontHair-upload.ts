@@ -32,6 +32,7 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     const assetPath = `/uploads/frontHair/${req.file.filename}`;
     
     const maxOrderItem = await FrontHair.findOne({ 
+      where: { deleted: false },
       order: [['sortOrder', 'DESC']] 
     });
     const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;

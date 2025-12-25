@@ -31,8 +31,9 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     const { name } = req.body;
     const assetPath = `/uploads/face/${req.file.filename}`;
     
-    // 最大のsortOrderを取得して+1
+    // 最大のsortOrderを取得して+1（削除済みアイテムは除外）
     const maxOrderItem = await Face.findOne({ 
+      where: { deleted: false },
       order: [['sortOrder', 'DESC']] 
     });
     const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
