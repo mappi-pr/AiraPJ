@@ -485,7 +485,7 @@ src/components/SoundControl.css
 **役割**: 音声コントロールパネルの専用スタイル
 
 **主な定義対象**:
-- `.sound-control` - 音声コントロールコンテナ（右上固定配置）
+- `.sound-control` - 音声コントロールコンテナ（#root に対して相対的な絶対配置）
 - `.sound-control-icon` - 音符アイコン（🎵）ボタン
 - `.sound-control-panel` - 展開時のコントロールパネル
 - `.sound-control-header` - パネルのヘッダー
@@ -497,7 +497,7 @@ src/components/SoundControl.css
 
 **デザイン特徴**:
 - グラスモーフィズムデザイン（backdrop-filter: blur）
-- 右上固定配置（position: fixed）
+- #root コンテナに対する絶対配置（position: absolute, top: 8px, right: 8px）
 - スムーズなスライドダウン展開アニメーション
 - モバイルレスポンシブ対応（600px以下で小型化）
 - クリック外で自動クローズ機能（JavaScriptで実装）
