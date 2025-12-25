@@ -6,70 +6,73 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     // 各テーブルの非削除アイテムにsortOrderを再設定
     // idの昇順で1から連番を振る
+    // Window関数を使用して効率的に更新
     
     // faces
-    const faces = await queryInterface.sequelize.query(
-      `SELECT id FROM faces WHERE deleted = false ORDER BY id ASC`,
-      { type: Sequelize.QueryTypes.SELECT }
-    );
-    for (let i = 0; i < faces.length; i++) {
-      await queryInterface.sequelize.query(
-        `UPDATE faces SET "sortOrder" = :sortOrder WHERE id = :id`,
-        { replacements: { sortOrder: i + 1, id: faces[i].id } }
-      );
-    }
+    await queryInterface.sequelize.query(`
+      UPDATE faces
+      SET "sortOrder" = subquery.row_num
+      FROM (
+        SELECT id, ROW_NUMBER() OVER (ORDER BY id ASC) as row_num
+        FROM faces
+        WHERE deleted = false
+      ) AS subquery
+      WHERE faces.id = subquery.id
+    `);
 
     // front_hairs
-    const frontHairs = await queryInterface.sequelize.query(
-      `SELECT id FROM front_hairs WHERE deleted = false ORDER BY id ASC`,
-      { type: Sequelize.QueryTypes.SELECT }
-    );
-    for (let i = 0; i < frontHairs.length; i++) {
-      await queryInterface.sequelize.query(
-        `UPDATE front_hairs SET "sortOrder" = :sortOrder WHERE id = :id`,
-        { replacements: { sortOrder: i + 1, id: frontHairs[i].id } }
-      );
-    }
+    await queryInterface.sequelize.query(`
+      UPDATE front_hairs
+      SET "sortOrder" = subquery.row_num
+      FROM (
+        SELECT id, ROW_NUMBER() OVER (ORDER BY id ASC) as row_num
+        FROM front_hairs
+        WHERE deleted = false
+      ) AS subquery
+      WHERE front_hairs.id = subquery.id
+    `);
 
     // back_hairs
-    const backHairs = await queryInterface.sequelize.query(
-      `SELECT id FROM back_hairs WHERE deleted = false ORDER BY id ASC`,
-      { type: Sequelize.QueryTypes.SELECT }
-    );
-    for (let i = 0; i < backHairs.length; i++) {
-      await queryInterface.sequelize.query(
-        `UPDATE back_hairs SET "sortOrder" = :sortOrder WHERE id = :id`,
-        { replacements: { sortOrder: i + 1, id: backHairs[i].id } }
-      );
-    }
+    await queryInterface.sequelize.query(`
+      UPDATE back_hairs
+      SET "sortOrder" = subquery.row_num
+      FROM (
+        SELECT id, ROW_NUMBER() OVER (ORDER BY id ASC) as row_num
+        FROM back_hairs
+        WHERE deleted = false
+      ) AS subquery
+      WHERE back_hairs.id = subquery.id
+    `);
 
     // backgrounds
-    const backgrounds = await queryInterface.sequelize.query(
-      `SELECT id FROM backgrounds WHERE deleted = false ORDER BY id ASC`,
-      { type: Sequelize.QueryTypes.SELECT }
-    );
-    for (let i = 0; i < backgrounds.length; i++) {
-      await queryInterface.sequelize.query(
-        `UPDATE backgrounds SET "sortOrder" = :sortOrder WHERE id = :id`,
-        { replacements: { sortOrder: i + 1, id: backgrounds[i].id } }
-      );
-    }
+    await queryInterface.sequelize.query(`
+      UPDATE backgrounds
+      SET "sortOrder" = subquery.row_num
+      FROM (
+        SELECT id, ROW_NUMBER() OVER (ORDER BY id ASC) as row_num
+        FROM backgrounds
+        WHERE deleted = false
+      ) AS subquery
+      WHERE backgrounds.id = subquery.id
+    `);
 
     // costumes
-    const costumes = await queryInterface.sequelize.query(
-      `SELECT id FROM costumes WHERE deleted = false ORDER BY id ASC`,
-      { type: Sequelize.QueryTypes.SELECT }
-    );
-    for (let i = 0; i < costumes.length; i++) {
-      await queryInterface.sequelize.query(
-        `UPDATE costumes SET "sortOrder" = :sortOrder WHERE id = :id`,
-        { replacements: { sortOrder: i + 1, id: costumes[i].id } }
-      );
-    }
+    await queryInterface.sequelize.query(`
+      UPDATE costumes
+      SET "sortOrder" = subquery.row_num
+      FROM (
+        SELECT id, ROW_NUMBER() OVER (ORDER BY id ASC) as row_num
+        FROM costumes
+        WHERE deleted = false
+      ) AS subquery
+      WHERE costumes.id = subquery.id
+    `);
   },
 
   down: async (queryInterface, Sequelize) => {
-    // ロールバック時はsortOrderを0にリセット
+    // 注意: このロールバックは元の値を完全には復元しません
+    // sortOrderを0にリセットしますが、元のカスタム順序は失われます
+    // 本番環境でのロールバックは慎重に行ってください
     await queryInterface.sequelize.query(`UPDATE faces SET "sortOrder" = 0`);
     await queryInterface.sequelize.query(`UPDATE front_hairs SET "sortOrder" = 0`);
     await queryInterface.sequelize.query(`UPDATE back_hairs SET "sortOrder" = 0`);
