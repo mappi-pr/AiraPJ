@@ -1,18 +1,18 @@
 .sound-control {
   position: fixed;
-  top: 16px;
-  right: 16px;
+  top: 8px;
+  right: 8px;
   z-index: 1000;
 }
 
 .sound-control-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(102, 126, 234, 0.3);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.3);
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -34,7 +34,7 @@
 
 .sound-control-panel {
   position: absolute;
-  top: 56px;
+  top: 48px;
   right: 0;
   background: rgba(26, 26, 46, 0.95);
   backdrop-filter: blur(16px);
@@ -149,13 +149,13 @@
   }
 
   .sound-control-icon {
-    width: 42px;
-    height: 42px;
-    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
   }
 
   .sound-control-panel {
     min-width: 260px;
-    top: 50px;
+    top: 44px;
   }
 }
