@@ -15,6 +15,7 @@ import { setupAxiosInterceptors } from './utils/axiosConfig';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LocaleProvider } from './context/LocaleContext';
 import { NavigationButtonProvider } from './context/NavigationButtonContext';
+import { SoundControl } from './components/SoundControl';
 import texts from './locales/ja.json';
 
 // BGM file path from environment variable (VITE_BGM_PATH)
@@ -45,6 +46,23 @@ function App() {
   // Axiosインターセプターのセットアップ
   useEffect(() => {
     setupAxiosInterceptors();
+  }, []);
+
+  // BGM volume control
+  useEffect(() => {
+    if (bgmRef.current) {
+      const savedVolume = localStorage.getItem('bgmVolume');
+      bgmRef.current.volume = savedVolume ? parseInt(savedVolume) / 100 : 0.7;
+    }
+
+    const handleVolumeChange = (e: CustomEvent) => {
+      if (bgmRef.current) {
+        bgmRef.current.volume = e.detail;
+      }
+    };
+
+    window.addEventListener('bgmVolumeChange', handleVolumeChange as EventListener);
+    return () => window.removeEventListener('bgmVolumeChange', handleVolumeChange as EventListener);
   }, []);
 
   // BGM自動再生
@@ -239,10 +257,12 @@ function App() {
           </div>
         )}
         
-        <div id="sound-toggle" style={{ position: 'absolute', right: 16, top: 16, zIndex: 2, display: 'flex', gap: 8 }}>
-          <button type="button" onClick={toggleBgm}>BGM: {bgmOn ? 'ON' : 'OFF'}</button>
-          <button type="button" onClick={toggleSe}>SE: {seOn ? 'ON' : 'OFF'}</button>
-        </div>
+        <SoundControl
+          bgmOn={bgmOn}
+          seOn={seOn}
+          onBgmToggle={toggleBgm}
+          onSeToggle={toggleSe}
+        />
         <Routes>
           <Route path="/" element={<Title />} />
           <Route path="/title" element={<Title />} />

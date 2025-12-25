@@ -1,0 +1,160 @@
+import React, { useState, useEffect } from 'react';
+import './SoundControl.css';
+
+interface SoundControlProps {
+  bgmOn: boolean;
+  seOn: boolean;
+  onBgmToggle: () => void;
+  onSeToggle: () => void;
+}
+
+export const SoundControl: React.FC<SoundControlProps> = ({
+  bgmOn,
+  seOn,
+  onBgmToggle,
+  onSeToggle,
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [bgmVolume, setBgmVolume] = useState(70);
+  const [seVolume, setSeVolume] = useState(70);
+  const [voiceVolume, setVoiceVolume] = useState(70);
+
+  // Load volumes from localStorage on mount
+  useEffect(() => {
+    const savedBgmVolume = localStorage.getItem('bgmVolume');
+    const savedSeVolume = localStorage.getItem('seVolume');
+    const savedVoiceVolume = localStorage.getItem('voiceVolume');
+    
+    if (savedBgmVolume) setBgmVolume(parseInt(savedBgmVolume));
+    if (savedSeVolume) setSeVolume(parseInt(savedSeVolume));
+    if (savedVoiceVolume) setVoiceVolume(parseInt(savedVoiceVolume));
+  }, []);
+
+  // Save volume changes to localStorage
+  const handleBgmVolumeChange = (value: number) => {
+    setBgmVolume(value);
+    localStorage.setItem('bgmVolume', value.toString());
+    // Dispatch custom event for BGM volume change
+    window.dispatchEvent(new CustomEvent('bgmVolumeChange', { detail: value / 100 }));
+  };
+
+  const handleSeVolumeChange = (value: number) => {
+    setSeVolume(value);
+    localStorage.setItem('seVolume', value.toString());
+  };
+
+  const handleVoiceVolumeChange = (value: number) => {
+    setVoiceVolume(value);
+    localStorage.setItem('voiceVolume', value.toString());
+  };
+
+  // Close panel when clicking outside
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.sound-control')) {
+        setIsExpanded(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isExpanded]);
+
+  const toggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
+  return (
+    <div className="sound-control">
+      <button
+        className="sound-control-icon"
+        onClick={toggleExpand}
+        aria-label="音声設定"
+        title="音声設定"
+      >
+        🎵
+      </button>
+
+      {isExpanded && (
+        <div className="sound-control-panel">
+          <div className="sound-control-header">
+            <span>音声設定</span>
+          </div>
+
+          {/* BGM Control */}
+          <div className="sound-control-item">
+            <div className="sound-control-label">
+              <span>BGM</span>
+              <button
+                className={`mute-toggle ${bgmOn ? 'on' : 'off'}`}
+                onClick={onBgmToggle}
+                title={bgmOn ? 'ミュート' : 'ミュート解除'}
+              >
+                {bgmOn ? '🔊' : '🔇'}
+              </button>
+            </div>
+            <div className="volume-control">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={bgmVolume}
+                onChange={(e) => handleBgmVolumeChange(parseInt(e.target.value))}
+                disabled={!bgmOn}
+              />
+              <span className="volume-value">{bgmVolume}%</span>
+            </div>
+          </div>
+
+          {/* SE Control */}
+          <div className="sound-control-item">
+            <div className="sound-control-label">
+              <span>SE</span>
+              <button
+                className={`mute-toggle ${seOn ? 'on' : 'off'}`}
+                onClick={onSeToggle}
+                title={seOn ? 'ミュート' : 'ミュート解除'}
+              >
+                {seOn ? '🔊' : '🔇'}
+              </button>
+            </div>
+            <div className="volume-control">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={seVolume}
+                onChange={(e) => handleSeVolumeChange(parseInt(e.target.value))}
+                disabled={!seOn}
+              />
+              <span className="volume-value">{seVolume}%</span>
+            </div>
+          </div>
+
+          {/* Voice Control */}
+          <div className="sound-control-item">
+            <div className="sound-control-label">
+              <span>Voice</span>
+              <span className="voice-note">(未実装)</span>
+            </div>
+            <div className="volume-control">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={voiceVolume}
+                onChange={(e) => handleVoiceVolumeChange(parseInt(e.target.value))}
+                disabled
+              />
+              <span className="volume-value">{voiceVolume}%</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
