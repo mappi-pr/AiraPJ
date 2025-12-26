@@ -23,6 +23,8 @@ docker compose -f docker/docker-compose.dev.yml up
 
 コード変更が自動的に反映されます（Hot Module Replacement）。
 
+**⚠️ Google認証とゲームマスター登録について**: 設定画面（Settings）にアクセスするには、Google OAuth認証とシステム管理者の設定が必要です。詳細は **[doc/GOOGLE_AUTH_SETUP.md](doc/GOOGLE_AUTH_SETUP.md)** を参照してください。
+
 ### Docker で本番環境をテストする場合
 
 **nginx + ビルド済みファイルを使用:**
@@ -40,6 +42,8 @@ docker compose -f docker/docker-compose.yml up -d
 ```
 
 **データ永続化について**: データベースとアップロードファイルは Docker ボリューム（`postgres_data`, `uploads_data`）に保存されます。コンテナを停止・削除（`docker compose down`）してもデータは保持されます。データを完全に削除する場合のみ `docker compose down -v` を使用してください。
+
+**⚠️ Google認証とゲームマスター登録について**: 設定画面（Settings）にアクセスするには、Google OAuth認証とシステム管理者の設定が必要です。詳細は **[doc/GOOGLE_AUTH_SETUP.md](doc/GOOGLE_AUTH_SETUP.md)** を参照してください。
 
 ### ローカル開発の場合（アプリケーションのみローカル実行）
 
@@ -71,6 +75,8 @@ cd api && npm run dev
 npm run dev
 ```
 
+**⚠️ Google認証とゲームマスター登録について**: 設定画面（Settings）にアクセスするには、Google OAuth認証とシステム管理者の設定が必要です。詳細は **[doc/GOOGLE_AUTH_SETUP.md](doc/GOOGLE_AUTH_SETUP.md)** を参照してください。
+
 ## 詳細なドキュメント
 
 包括的な開発者向けドキュメントは **[doc/DEVELOPMENT.md](doc/DEVELOPMENT.md)** を参照してください。
@@ -83,6 +89,7 @@ npm run dev
 
 ### 機能別ドキュメント
 
+- **[Google OAuth認証セットアップ](doc/GOOGLE_AUTH_SETUP.md)** - Google認証とゲームマスター・システム管理者権限の設定方法
 - **[画像アセット作成ガイド](doc/IMAGE_ASSETS.md)** - キャラクターパーツや背景などの画像アセット作成方法
 - **[ボイス実装ガイド](doc/VOICE_IMPLEMENTATION.md)** - キャラクター選択画面などでのボイス機能の実装方法
 - **[CSS アーキテクチャ](doc/CSS.md)** - スタイル管理とデザインガイドライン
