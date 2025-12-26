@@ -101,6 +101,8 @@ DB_PORT=5432
 FRONTEND_PORT=5173
 ```
 
+**⚠️ Google認証とゲームマスター登録について**: 設定画面（Settings）にアクセスするには、Google OAuth認証とシステム管理者の設定が必要です。詳細は **[GOOGLE_AUTH_SETUP.md](./GOOGLE_AUTH_SETUP.md)** を参照してください。
+
 **3. 開発用コンテナの起動**
 
 ```bash
@@ -445,6 +447,8 @@ DB_HOST=localhost
 DB_PORT=5432
 PORT=4000
 ```
+
+**⚠️ Google認証とゲームマスター登録について**: 設定画面（Settings）にアクセスするには、Google OAuth認証とシステム管理者の設定が必要です。詳細は **[GOOGLE_AUTH_SETUP.md](./GOOGLE_AUTH_SETUP.md)** を参照してください。
 
 ### データベースマイグレーション管理
 
@@ -1260,6 +1264,7 @@ docker compose -f docker/docker-compose.yml exec db psql -U postgres -d airapj  
 
 AiraPJの機能別ドキュメント：
 
+- **[Google OAuth認証セットアップ](./GOOGLE_AUTH_SETUP.md)** - Google認証とゲームマスター・システム管理者権限の設定方法
 - **[ボイス実装ガイド](./VOICE_IMPLEMENTATION.md)** - キャラクター選択画面などでのボイス機能の実装方法
 - **[CSSアーキテクチャ](./CSS.md)** - スタイル管理とデザインガイドライン
 - **[多言語対応](./MULTILINGUAL.md)** - 国際化対応の実装方法
