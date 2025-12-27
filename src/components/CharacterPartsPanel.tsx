@@ -261,7 +261,6 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
     gridTemplateColumns: 'repeat(auto-fit, minmax(64px, 1fr))',
     gap,
     alignItems: 'start',
-    WebkitOverflowScrolling: 'touch', // iOS でのスムーズスクロール
     maxWidth: '100%',
   };
   return (

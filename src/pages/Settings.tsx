@@ -676,7 +676,7 @@ const Settings: React.FC = () => {
                 type="file" 
                 ref={prevButtonFileRef} 
                 accept="image/png"
-                style={{ flex: '1 1 auto', minWidth: '200px', maxWidth: '100%' }}
+                style={{ flex: '1 1 auto', minWidth: '0', maxWidth: '100%', width: '100%' }}
               />
               <button 
                 type="button" 
@@ -723,7 +723,7 @@ const Settings: React.FC = () => {
                 type="file" 
                 ref={nextButtonFileRef} 
                 accept="image/png"
-                style={{ flex: '1 1 auto', minWidth: '200px', maxWidth: '100%' }}
+                style={{ flex: '1 1 auto', minWidth: '0', maxWidth: '100%', width: '100%' }}
               />
               <button 
                 type="button" 
