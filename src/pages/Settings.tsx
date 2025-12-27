@@ -374,7 +374,7 @@ const Settings: React.FC = () => {
           marginBottom: '32px',
           backgroundColor: '#f9f9f9',
           maxWidth: '100%',
-          overflow-x: 'hidden'
+          overflowX: 'hidden'
         }}>
           <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
             <label>
@@ -654,7 +654,7 @@ const Settings: React.FC = () => {
           marginBottom: '32px',
           backgroundColor: '#f9f9f9',
           maxWidth: '100%',
-          overflow-x: 'hidden'
+          overflowX: 'hidden'
         }}>
           {/* Prev Button */}
           <div style={{ marginBottom: '24px' }}>
@@ -800,7 +800,7 @@ const Settings: React.FC = () => {
               padding: '20px', 
               backgroundColor: '#2a2a2a',
               maxWidth: '100%',
-              overflow-x: 'hidden'
+              overflowX: 'hidden'
             }}>
               <h3 style={{ color: '#fff' }}>{t.settings.addGameMaster}</h3>
               <form onSubmit={handleAddGameMaster} style={{ marginBottom: '24px' }}>
