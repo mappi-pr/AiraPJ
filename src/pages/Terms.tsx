@@ -5,32 +5,32 @@ import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 
+const ossLicenses = [
+  // Frontend Dependencies
+  { name: 'React', license: 'MIT', url: 'https://github.com/facebook/react' },
+  { name: 'React DOM', license: 'MIT', url: 'https://github.com/facebook/react' },
+  { name: 'React Router DOM', license: 'MIT', url: 'https://github.com/remix-run/react-router' },
+  { name: 'Vite', license: 'MIT', url: 'https://github.com/vitejs/vite' },
+  { name: 'TypeScript', license: 'Apache-2.0', url: 'https://github.com/microsoft/TypeScript' },
+  { name: '@react-oauth/google', license: 'MIT', url: 'https://github.com/MomenSherif/react-oauth' },
+  { name: 'axios', license: 'MIT', url: 'https://github.com/axios/axios' },
+  { name: 'html2canvas', license: 'MIT', url: 'https://github.com/niklasvh/html2canvas' },
+  
+  // Backend Dependencies
+  { name: 'Express', license: 'MIT', url: 'https://github.com/expressjs/express' },
+  { name: 'Sequelize', license: 'MIT', url: 'https://github.com/sequelize/sequelize' },
+  { name: 'PostgreSQL (pg)', license: 'MIT', url: 'https://github.com/brianc/node-postgres' },
+  { name: 'cors', license: 'MIT', url: 'https://github.com/expressjs/cors' },
+  { name: 'dotenv', license: 'BSD-2-Clause', url: 'https://github.com/motdotla/dotenv' },
+  { name: 'google-auth-library', license: 'Apache-2.0', url: 'https://github.com/googleapis/google-auth-library-nodejs' },
+  { name: 'multer', license: 'MIT', url: 'https://github.com/expressjs/multer' },
+  { name: 'pg-hstore', license: 'MIT', url: 'https://github.com/scarney81/pg-hstore' },
+  { name: 'sqlite3', license: 'BSD-3-Clause', url: 'https://github.com/TryGhost/node-sqlite3' },
+];
+
 const Terms: React.FC = () => {
   const { playClick } = useSound();
   const { t } = useTranslation();
-  
-  const ossLicenses = [
-    // Frontend Dependencies
-    { name: 'React', license: 'MIT', url: 'https://github.com/facebook/react' },
-    { name: 'React DOM', license: 'MIT', url: 'https://github.com/facebook/react' },
-    { name: 'React Router DOM', license: 'MIT', url: 'https://github.com/remix-run/react-router' },
-    { name: 'Vite', license: 'MIT', url: 'https://github.com/vitejs/vite' },
-    { name: 'TypeScript', license: 'Apache-2.0', url: 'https://github.com/microsoft/TypeScript' },
-    { name: '@react-oauth/google', license: 'MIT', url: 'https://github.com/MomenSherif/react-oauth' },
-    { name: 'axios', license: 'MIT', url: 'https://github.com/axios/axios' },
-    { name: 'html2canvas', license: 'MIT', url: 'https://github.com/niklasvh/html2canvas' },
-    { name: 'Sequelize', license: 'MIT', url: 'https://github.com/sequelize/sequelize' },
-    
-    // Backend Dependencies
-    { name: 'Express', license: 'MIT', url: 'https://github.com/expressjs/express' },
-    { name: 'PostgreSQL (pg)', license: 'MIT', url: 'https://github.com/brianc/node-postgres' },
-    { name: 'cors', license: 'MIT', url: 'https://github.com/expressjs/cors' },
-    { name: 'dotenv', license: 'BSD-2-Clause', url: 'https://github.com/motdotla/dotenv' },
-    { name: 'google-auth-library', license: 'Apache-2.0', url: 'https://github.com/googleapis/google-auth-library-nodejs' },
-    { name: 'multer', license: 'MIT', url: 'https://github.com/expressjs/multer' },
-    { name: 'pg-hstore', license: 'MIT', url: 'https://github.com/scarney81/pg-hstore' },
-    { name: 'sqlite3', license: 'BSD-3-Clause', url: 'https://github.com/TryGhost/node-sqlite3' },
-  ];
   
   return (
     <PageTransition>
