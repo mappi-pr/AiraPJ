@@ -239,22 +239,30 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
   // パネル横幅から最大表示数を算出し、表示件数がそれ未満なら左寄せ
   // 画面幅でgapを調整
   const [gap, setGap] = useState(14);
+  const [panelHeight, setPanelHeight] = useState(180);
+  
   useEffect(() => {
     const updateGap = () => {
       setGap(window.innerWidth < 600 ? 22 : 14);
+      // モバイルではより大きなスクロール領域を確保
+      setPanelHeight(window.innerWidth < 600 ? 300 : 180);
     };
     updateGap();
     window.addEventListener('resize', updateGap);
     return () => window.removeEventListener('resize', updateGap);
   }, []);
+  
   const panelStyle: React.CSSProperties = {
-    height: 180,
+    height: panelHeight,
     overflowY: 'auto',
+    overflowX: 'hidden',
     padding: 8,
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(64px, 1fr))',
     gap,
     alignItems: 'start',
+    WebkitOverflowScrolling: 'touch', // iOS でのスムーズスクロール
+    maxWidth: '100%',
   };
   return (
     <div style={panelStyle} ref={panelRef}>

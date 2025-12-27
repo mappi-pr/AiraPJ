@@ -56,7 +56,17 @@ const BackgroundSelect: React.FC = () => {
             <>
               <NavigationButton direction="prev" onClick={handlePrev} />
               <div id="background-info">
-                <img src={backgrounds[idx].assetPath} alt={t.backgroundSelect.imageAlt} style={{ maxWidth: 200, maxHeight: 200 }} />
+                <img 
+                  src={backgrounds[idx].assetPath} 
+                  alt={t.backgroundSelect.imageAlt} 
+                  style={{ 
+                    maxWidth: '100%',
+                    maxHeight: '200px',
+                    width: 'auto',
+                    height: 'auto',
+                    objectFit: 'contain'
+                  }} 
+                />
                 <div>{backgrounds[idx].name}</div>
               </div>
               <NavigationButton direction="next" onClick={handleNext} />
