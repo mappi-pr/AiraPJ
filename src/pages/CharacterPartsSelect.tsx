@@ -259,8 +259,8 @@ const CharacterPartsSelect: React.FC = () => {
           <div style={{ textAlign: 'center', margin: '32px 0', fontSize: 18, color: '#888' }}>{t.common.loading}</div>
         ) : (
           <>
-            <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
-              <div style={{ position: 'relative', width: PREVIEW_WIDTH, height: PREVIEW_WIDTH }}>
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0', maxWidth: '100%' }}>
+              <div style={{ position: 'relative', width: PREVIEW_WIDTH, height: PREVIEW_WIDTH, maxWidth: '100%' }}>
                 {trimmedPreviewUrl ? (
                   <img src={trimmedPreviewUrl} alt={t.characterPartsSelect.compositePreview} style={{ width: PREVIEW_WIDTH, height: PREVIEW_WIDTH, borderRadius: 16 }} />
                 ) : (
@@ -268,7 +268,7 @@ const CharacterPartsSelect: React.FC = () => {
                 )}
               </div>
             </div>
-            <div style={{ margin: '24px 0', textAlign: 'center' }}>
+            <div style={{ margin: '24px 0', textAlign: 'center', maxWidth: '100%', overflow: 'hidden' }}>
               <div className="tab-bar">
                 {(['face', 'frontHair', 'backHair'] as const).map(tab => (
                   <button
