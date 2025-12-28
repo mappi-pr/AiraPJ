@@ -42,7 +42,7 @@ const Title: React.FC = () => {
   return (
     <PageTransition>
       <SparkleEffect />
-      <div className="main-container" style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+      <div className="main-container" style={{ position: 'relative', minHeight: '50vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
         {/* ログイン情報: 上部左（アイコンのみ、クリックで展開） - 固定位置 */}
         <div style={{ position: 'fixed', top: 8, left: 8, zIndex: 1000 }}>
           {user ? (
