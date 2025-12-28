@@ -40,8 +40,11 @@ const Terms: React.FC = () => {
         
         <section style={{ marginBottom: '2rem', textAlign: 'left' }}>
           <h2>{t.terms.ossLicenses}</h2>
+          <p>
+            C107におけるサンプル版の画像アセットははるた（<a href="https://twitter.com/harutapri" target="_blank">@harutapri</a>）様の著作物です。<br/>
+            これらの画像アセットはサンプル版にのみ使用されており、商用利用や再配布は禁止されています。<br/>
+          </p>
           <p style={{ marginBottom: '1.5rem' }}>{t.terms.ossDescription}</p>
-          
           <div style={{ 
             maxHeight: '400px', 
             overflowY: 'auto',
