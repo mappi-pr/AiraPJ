@@ -135,7 +135,7 @@ const Title: React.FC = () => {
 
         {/* ゲーム開始ボタン: 中央上部 */}
         <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', flex: 1, padding: '0 20px', marginTop: '60px' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: 24, marginTop: 0 }}>{t.title.mainTitle}</h1>
+          <h1 style={{ marginBottom: 24, marginTop: 0 }}><img src="/logo.png" alt="Logo" style={{ width: '100%' }}/></h1>
           <form onSubmit={handleStart} style={{ margin: 0 }}>
             <button type="submit" id="start-btn">{t.title.startBtn}</button>
           </form>
