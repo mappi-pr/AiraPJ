@@ -21,7 +21,11 @@ router.get('/', authenticate, requireSystemAdmin, async (req, res) => {
 router.post('/', authenticate, requireSystemAdmin, async (req, res) => {
   try {
     const { email, name } = req.body;
-    const user = (req as any).user;
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
     if (!email) {
       res.status(400).json({ error: 'Email is required' });

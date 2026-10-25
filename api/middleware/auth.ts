@@ -2,6 +2,19 @@ import { Request, Response, NextFunction } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import { GameMaster } from '../models/gameMaster';
 
+export interface AuthenticatedUser {
+  email: string;
+  name?: string;
+  picture?: string;
+  role: 'system_admin' | 'game_master' | 'user';
+}
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: AuthenticatedUser;
+  }
+}
+
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 if (!GOOGLE_CLIENT_ID) {
@@ -86,7 +99,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   const role = await getUserRole(payload.email);
 
   // リクエストオブジェクトにユーザー情報を追加
-  (req as any).user = {
+  req.user = {
     email: payload.email,
     name: payload.name,
     picture: payload.picture,
@@ -98,7 +111,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
 // システム管理者チェックミドルウェア: 認証済みユーザーがシステム管理者かチェック
 export function requireSystemAdmin(req: Request, res: Response, next: NextFunction) {
-  const user = (req as any).user;
+  const user = req.user;
 
   if (!user || user.role !== 'system_admin') {
     res.status(403).json({ error: 'Forbidden: System admin access required' });
@@ -110,7 +123,7 @@ export function requireSystemAdmin(req: Request, res: Response, next: NextFuncti
 
 // 管理者チェックミドルウェア: 認証済みユーザーがシステム管理者またはゲームマスターかチェック
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  const user = (req as any).user;
+  const user = req.user;
 
   if (!user || (user.role !== 'system_admin' && user.role !== 'game_master')) {
     res.status(403).json({ error: 'Forbidden: Admin access required' });

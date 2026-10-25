@@ -386,9 +386,7 @@ Docker を使用せず、ホストマシン上で直接開発する場合の手�
 
 #### 前提条件
 
-- **Node.js**: v20.x（必須）
-  - `.nvmrc` ファイルにバージョンが記載されています
-  - nvm を使用している場合: `nvm use`
+- **Node.js**: v24.x（必須）
 - **PostgreSQL**: 16.x 以上
   - ローカルにインストールまたは Docker で起動
 
@@ -397,10 +395,7 @@ Docker を使用せず、ホストマシン上で直接開発する場合の手�
 **1. Node.js バージョンの確認**
 
 ```bash
-node -v  # v20.x であることを確認
-
-# nvm を使用している場合
-nvm use
+node -v  # v24.x であることを確認
 ```
 
 **2. 依存パッケージのインストール**
@@ -884,7 +879,20 @@ npm run build
 
 ### テスト
 
-現時点ではテストは実装されていません。今後追加予定です。
+Node.js 24 と依存パッケージをインストールした状態で、リポジトリルートからフロントエンドと API の自動テストを実行できます。
+
+```bash
+npm test
+```
+
+個別に実行する場合:
+
+```bash
+npm run test:frontend
+npm run test:api
+```
+
+GitHub Actions は push と pull request 時に自動テスト、lint、ビルドを実行します。
 
 ---
 

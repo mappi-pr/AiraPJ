@@ -48,8 +48,7 @@ docker compose -f docker/docker-compose.yml up -d
 ### ローカル開発の場合（アプリケーションのみローカル実行）
 
 ```sh
-# Node.js v20.x を使用
-nvm use
+# Node.js v24.x をインストールして使用
 
 # 依存関係のインストール
 npm install

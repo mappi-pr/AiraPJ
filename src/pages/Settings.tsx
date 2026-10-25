@@ -18,10 +18,15 @@ interface GameMaster {
   createdBy: string | null;
 }
 
+interface Asset {
+  id: number;
+  name: string;
+  assetPath: string;
+}
+
 const Settings: React.FC = () => {
   const [result, setResult] = useState<string>('');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [assets, setAssets] = useState<Record<string, any[]>>({});
+  const [assets, setAssets] = useState<Record<string, Asset[]>>({});
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -207,8 +212,7 @@ const Settings: React.FC = () => {
     
     if (!searchTerm) return assetList;
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return assetList.filter((item: any) =>
+    return assetList.filter((item) =>
       item.name?.toLowerCase().includes(searchTerm)
     );
   };
@@ -273,9 +277,9 @@ const Settings: React.FC = () => {
       setNewGMEmail('');
       setNewGMName('');
       await fetchGameMasters();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding game master:', error);
-      if (error.response?.status === 409) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
         setResult(t.settings.addFailAlreadyExists);
       } else {
         setResult(t.settings.addFail);
@@ -472,8 +476,7 @@ const Settings: React.FC = () => {
                           const fullList = getFilteredAssets(key);
                           
                           return (
-                            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                            pagination.items.map((item: any, _index: number) => {
+                            pagination.items.map((item) => {
                               // Get the original index in the full filtered list
                               const originalIndex = fullList.findIndex(a => a.id === item.id);
                               

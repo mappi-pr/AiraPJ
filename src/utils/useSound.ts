@@ -1,5 +1,9 @@
 import { useRef } from 'react';
 
+interface WindowWithWebkitAudioContext extends Window {
+  webkitAudioContext?: typeof AudioContext;
+}
+
 /**
  * Custom hook for playing sound effects
  * Creates a simple beep sound using Web Audio API when no file is provided
@@ -13,7 +17,12 @@ export const useSound = () => {
   // Initialize AudioContext if needed
   const getAudioContext = () => {
     if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextConstructor = window.AudioContext
+        || (window as WindowWithWebkitAudioContext).webkitAudioContext;
+      if (!AudioContextConstructor) {
+        throw new Error('Web Audio API is not supported in this browser');
+      }
+      audioContextRef.current = new AudioContextConstructor();
     }
     return audioContextRef.current;
   };

@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { Background } from '../models';
@@ -23,7 +23,8 @@ router.get('/:id', async (req, res) => {
     const background = await Background.findByPk(req.params.id);
     if (!background || background.deleted) return res.status(404).json({ error: 'Not found' });
     res.json(background);
-  } catch (e) {
+  } catch (error) {
+    console.error('Error fetching background:', error);
     res.status(500).json({ error: 'Fetch failed' });
   }
 });
@@ -44,7 +45,8 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
     background.deletedAt = new Date();
     await background.save();
     res.json({ success: true });
-  } catch (e) {
+  } catch (error) {
+    console.error('Error deleting background:', error);
     res.status(500).json({ error: 'Delete failed' });
   }
 });
@@ -86,7 +88,8 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
     await swapItem.save();
 
     res.json({ success: true });
-  } catch (e) {
+  } catch (error) {
+    console.error('Error updating background order:', error);
     res.status(500).json({ error: 'Order update failed' });
   }
 });

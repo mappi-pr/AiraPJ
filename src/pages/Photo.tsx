@@ -38,10 +38,13 @@ const Photo: React.FC = () => {
   const calculatePinchScale = (currentDistance: number) => {
     if (initialPinchDistance.current === 0) return 1;
     const scaleChange = currentDistance / initialPinchDistance.current;
-    let newScale = initialScale.current * scaleChange;
+    const newScale = initialScale.current * scaleChange;
     // スケールを0.5～2の範囲に制限
     return Math.max(0.5, Math.min(2, newScale));
   };
+
+  const partsContext = useContext(PartsContext);
+  const photoRef = useRef<HTMLDivElement>(null);
 
   // ドラッグ中のグローバルイベント監視
   React.useEffect(() => {
@@ -77,20 +80,16 @@ const Photo: React.FC = () => {
       window.removeEventListener('mouseup', handleUp);
       window.removeEventListener('touchend', handleUp);
     };
-  }, [dragging]);
+  }, [dragging, partsContext]);
 
-  const partsContext = useContext(PartsContext);
-  const photoRef = useRef<HTMLDivElement>(null);
-  if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
-  const { selectedParts, scale, setScale, dragPos, setDragPos } = partsContext;
   // ピンチズーム用のグローバルイベント監視
   React.useEffect(() => {
-    if (!isPinching) return;
+    if (!isPinching || !partsContext) return;
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length >= 2) {
         const currentDistance = getPinchDistance(e.touches);
         const newScale = calculatePinchScale(currentDistance);
-        setScale(newScale);
+        partsContext.setScale(newScale);
         e.preventDefault();
       } else {
         // 2本指未満の場合はピンチモード終了
@@ -106,18 +105,18 @@ const Photo: React.FC = () => {
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isPinching, setScale]);
+  }, [isPinching, partsContext]);
 
   // マウスホイールイベント用のグローバルイベント監視
   React.useEffect(() => {
     const characterElement = characterRef.current;
-    if (!characterElement) return;
+    if (!characterElement || !partsContext) return;
     
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      setScale(currentScale => {
+      partsContext.setScale(currentScale => {
         const delta = e.deltaY > 0 ? -0.1 : 0.1;
-        let newScale = currentScale + delta;
+        const newScale = currentScale + delta;
         // スケールを0.5～2の範囲に制限
         return Math.max(0.5, Math.min(2, newScale));
       });
@@ -127,7 +126,10 @@ const Photo: React.FC = () => {
     return () => {
       characterElement.removeEventListener('wheel', handleWheel);
     };
-  }, []);
+  }, [partsContext]);
+
+  if (!partsContext) return <div>{t.photo.noPartsContext}</div>;
+  const { selectedParts, scale, setScale, dragPos, setDragPos } = partsContext;
 
   // デバッグ用: 選択中パーツ情報を表示
   // console.log('selectedParts', selectedParts);
@@ -139,13 +141,12 @@ const Photo: React.FC = () => {
       // 高解像度でキャプチャ（scale=3で720x960の高画質出力）
       const canvas = await html2canvas(photoRef.current, { 
         useCORS: true, 
-        background: undefined,
         scale: 3,  // 3倍解像度で高画質出力
         width: PHOTO_WIDTH,
         height: PHOTO_HEIGHT,
         windowWidth: PHOTO_WIDTH,
         windowHeight: PHOTO_HEIGHT
-      } as any );
+      });
       
       const link = document.createElement('a');
       link.download = 'my_character.png';

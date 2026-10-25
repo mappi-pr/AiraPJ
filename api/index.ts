@@ -78,7 +78,8 @@ app.get('/api/health', async (req, res) => {
   try {
     await sequelize.authenticate();
     res.json({ status: 'ok', database: 'connected' });
-  } catch (err) {
+  } catch (error) {
+    console.error('Database health check failed:', error);
     res.status(503).json({ 
       status: 'degraded', 
       database: 'disconnected',
@@ -156,7 +157,8 @@ async function startServer() {
   // データベースの初期化（バックグラウンドで実行）
   try {
     await initializeDatabase();
-  } catch (err) {
+  } catch (error) {
+    console.error('Database initialization failed:', error);
     console.error('Database initialization failed. Server is running but API endpoints will return 503.');
   }
 }
