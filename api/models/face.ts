@@ -8,6 +8,10 @@ export class Face extends Model {
   public deleted!: boolean;
   public deletedAt!: Date | null;
   public sortOrder!: number;
+  public offsetX!: number;
+  public offsetY!: number;
+  public width!: number;
+  public height!: number;
 }
 
 Face.init(
@@ -18,6 +22,10 @@ Face.init(
     deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deletedAt: { type: DataTypes.DATE, allowNull: true },
     sortOrder: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    offsetX: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    offsetY: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    width: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 240 },
+    height: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 320 },
   },
   { sequelize, modelName: 'Face', tableName: 'faces', timestamps: false }
 );
