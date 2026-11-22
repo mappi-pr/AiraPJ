@@ -56,7 +56,17 @@ const CostumeSelect: React.FC = () => {
             <>
               <NavigationButton direction="prev" onClick={handlePrev} />
               <div id="costume-info">
-                <img src={costumes[idx].assetPath} alt={t.costumeSelect.imageAlt} style={{ maxWidth: 200, maxHeight: 200 }} />
+                <img 
+                  src={costumes[idx].assetPath} 
+                  alt={t.costumeSelect.imageAlt} 
+                  style={{ 
+                    maxWidth: '100%',
+                    maxHeight: '200px',
+                    width: 'auto',
+                    height: 'auto',
+                    objectFit: 'contain'
+                  }} 
+                />
                 <div>{costumes[idx].name}</div>
               </div>
               <NavigationButton direction="next" onClick={handleNext} />

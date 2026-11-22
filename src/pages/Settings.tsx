@@ -424,7 +424,9 @@ const Settings: React.FC = () => {
           borderRadius: '8px', 
           padding: '20px', 
           marginBottom: '32px',
-          backgroundColor: '#f9f9f9'
+          backgroundColor: '#f9f9f9',
+          maxWidth: '100%',
+          overflowX: 'hidden'
         }}>
           <form id="uploadForm" onSubmit={handleUpload} encType="multipart/form-data">
             <label>
@@ -540,7 +542,7 @@ const Settings: React.FC = () => {
                           {/* アセットリスト */}
                           <ul className="asset-list" style={{ 
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 100%), 1fr))',
                         gap: '16px',
                         listStyle: 'none',
                         padding: 0,
@@ -570,6 +572,7 @@ const Settings: React.FC = () => {
                                 loading="lazy"
                                 style={{ 
                                   width: '100%',
+                                  maxWidth: '100%',
                                   height: '120px',
                                   objectFit: 'contain',
                                   backgroundColor: '#f9f9f9',
@@ -584,7 +587,7 @@ const Settings: React.FC = () => {
                               }}>
                                 {item.name}
                               </span>
-                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
                                 <button
                                   onClick={() => handleReorder(key, item.id, 'up')}
                                   disabled={originalIndex === 0}
@@ -744,7 +747,9 @@ const Settings: React.FC = () => {
           borderRadius: '8px', 
           padding: '20px', 
           marginBottom: '32px',
-          backgroundColor: '#f9f9f9'
+          backgroundColor: '#f9f9f9',
+          maxWidth: '100%',
+          overflowX: 'hidden'
         }}>
           {/* Prev Button */}
           <div style={{ marginBottom: '24px' }}>
@@ -761,12 +766,12 @@ const Settings: React.FC = () => {
                 <span style={{ color: '#888' }}>{t.settings.defaultText} (←)</span>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
               <input 
                 type="file" 
                 ref={prevButtonFileRef} 
                 accept="image/png"
-                style={{ flex: '1 1 auto', minWidth: '200px' }}
+                style={{ flex: '1 1 auto', minWidth: '0', maxWidth: '100%', width: '100%' }}
               />
               <button 
                 type="button" 
@@ -808,12 +813,12 @@ const Settings: React.FC = () => {
                 <span style={{ color: '#888' }}>{t.settings.defaultText} (→)</span>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
               <input 
                 type="file" 
                 ref={nextButtonFileRef} 
                 accept="image/png"
-                style={{ flex: '1 1 auto', minWidth: '200px' }}
+                style={{ flex: '1 1 auto', minWidth: '0', maxWidth: '100%', width: '100%' }}
               />
               <button 
                 type="button" 
@@ -888,7 +893,9 @@ const Settings: React.FC = () => {
               border: '1px solid #444', 
               borderRadius: '8px', 
               padding: '20px', 
-              backgroundColor: '#2a2a2a'
+              backgroundColor: '#2a2a2a',
+              maxWidth: '100%',
+              overflowX: 'hidden'
             }}>
               <h3 style={{ color: '#fff' }}>{t.settings.addGameMaster}</h3>
               <form onSubmit={handleAddGameMaster} style={{ marginBottom: '24px' }}>
