@@ -123,10 +123,9 @@ app.use('/api/costume', requireAdminEnabled, authenticate, requireAdmin, costume
 app.use('/api/face', requireAdminEnabled, authenticate, requireAdmin, faceUploadRouter);
 app.use('/api/front-hair', requireAdminEnabled, authenticate, requireAdmin, frontHairUploadRouter);
 app.use('/api/back-hair', requireAdminEnabled, authenticate, requireAdmin, backHairUploadRouter);
-app.use('/api/back-hair', requireAdminEnabled, backHairUploadRouter);
 app.use('/api/generation-history', generationHistoryRouter);
 app.use('/api/navigation-buttons', navigationButtonRouter);
-app.use('/api/navigation-buttons', requireAdminEnabled, navigationButtonUploadRouter);
+app.use('/api/navigation-buttons', requireAdminEnabled, authenticate, requireAdmin, navigationButtonUploadRouter);
 
 // アップロードされたファイルを静的に配信
 // 本番環境では UPLOADS_DIR 環境変数でパスを指定可能

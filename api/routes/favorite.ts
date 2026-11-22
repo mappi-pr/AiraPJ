@@ -29,11 +29,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-// DELETE /api/favorite/:id
+// DELETE /api/favorite/:id?userId=xxx
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await Favorite.destroy({ where: { id } });
+    const { userId } = req.query;
+    if (!userId) return res.status(400).json({ error: 'userId required' });
+    await Favorite.destroy({ where: { id, userId: userId as string } });
     res.json({ success: true });
   } catch (e) {
     console.error('Error deleting favorite:', e);

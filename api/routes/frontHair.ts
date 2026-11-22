@@ -68,8 +68,8 @@ router.delete('/:id', requireAdminEnabled, authenticate, requireAdmin, async (re
   }
 });
 
-// PUT /api/front-hair/:id/order
-router.put('/:id/order', requireAdminEnabled, async (req, res) => {
+// PUT /api/front-hair/:id/order (管理者専用)
+router.put('/:id/order', requireAdminEnabled, authenticate, requireAdmin, async (req, res) => {
   try {
     const { direction } = req.body;
     const currentItem = await FrontHair.findByPk(req.params.id);
