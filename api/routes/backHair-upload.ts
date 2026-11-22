@@ -4,6 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import { BackHair } from '../models/backHair';
 import { getUploadsBasePath } from '../config/uploads';
+import { imageFileFilter, singleImageUpload, MAX_UPLOAD_FILE_SIZE } from '../middleware/uploadValidation';
 
 const router = Router();
 const storage = multer.diskStorage({
@@ -19,10 +20,10 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}${ext}`);
   },
 });
-const upload = multer({ storage });
+const upload = multer({ storage, fileFilter: imageFileFilter, limits: { fileSize: MAX_UPLOAD_FILE_SIZE } });
 
 // POST /api/back-hair/upload
-router.post('/upload', upload.single('asset'), async (req, res) => {
+router.post('/upload', singleImageUpload(upload, 'asset'), async (req, res) => {
   try {
     if (!req.file) {
       res.status(400).json({ error: 'No file uploaded' });
