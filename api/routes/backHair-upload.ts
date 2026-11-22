@@ -28,7 +28,27 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
       res.status(400).json({ error: 'No file uploaded' });
       return;
     }
-    const { name } = req.body;
+    const { name, offsetX, offsetY, width, height } = req.body;
+
+    // 位置・サイズ（任意。未指定時はデフォルト値、整数でない・範囲外はエラー）
+    const parseOptionalInt = (value: unknown, defaultValue: number): number | null => {
+      if (value === undefined || value === '') return defaultValue;
+      const parsed = Number(value);
+      return Number.isInteger(parsed) ? parsed : null;
+    };
+    const parsedOffsetX = parseOptionalInt(offsetX, 0);
+    const parsedOffsetY = parseOptionalInt(offsetY, 0);
+    const parsedWidth = parseOptionalInt(width, 240);
+    const parsedHeight = parseOptionalInt(height, 320);
+    if (
+      parsedOffsetX === null || parsedOffsetX < -1000 || parsedOffsetX > 1000 ||
+      parsedOffsetY === null || parsedOffsetY < -1000 || parsedOffsetY > 1000 ||
+      parsedWidth === null || parsedWidth < 1 || parsedWidth > 2000 ||
+      parsedHeight === null || parsedHeight < 1 || parsedHeight > 2000
+    ) {
+      res.status(400).json({ error: 'Invalid position/size values' });
+      return;
+    }
     const assetPath = `/uploads/backHair/${req.file.filename}`;
     
     const maxOrderItem = await BackHair.findOne({ 
@@ -37,7 +57,15 @@ router.post('/upload', upload.single('asset'), async (req, res) => {
     });
     const sortOrder = maxOrderItem ? maxOrderItem.sortOrder + 1 : 1;
     
-    const backHair = await BackHair.create({ name, assetPath, sortOrder });
+    const backHair = await BackHair.create({
+      name,
+      assetPath,
+      sortOrder,
+      offsetX: parsedOffsetX,
+      offsetY: parsedOffsetY,
+      width: parsedWidth,
+      height: parsedHeight,
+    });
     res.json(backHair);
   } catch (err) {
     console.error('BackHair upload error:', err);

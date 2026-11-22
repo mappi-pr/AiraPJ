@@ -7,6 +7,7 @@ import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 import { useAuth } from '../context/AuthContext';
 import { useNavigationButtons } from '../context/NavigationButtonContext';
+import AssetMetadataEditor, { type AssetMetadataValues } from '../components/AssetMetadataEditor';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -22,6 +23,10 @@ interface Asset {
   id: number;
   name: string;
   assetPath: string;
+  offsetX?: number;
+  offsetY?: number;
+  width?: number;
+  height?: number;
 }
 
 const Settings: React.FC = () => {
@@ -32,6 +37,7 @@ const Settings: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [currentPages, setCurrentPages] = useState<Record<string, number>>({});
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
+  const [editingAsset, setEditingAsset] = useState<{ type: string; id: number } | null>(null);
   const [gameMasters, setGameMasters] = useState<GameMaster[]>([]);
   const [newGMEmail, setNewGMEmail] = useState('');
   const [newGMName, setNewGMName] = useState('');
@@ -43,6 +49,10 @@ const Settings: React.FC = () => {
   const assetTypeRef = useRef<HTMLSelectElement>(null);
   const assetNameRef = useRef<HTMLInputElement>(null);
   const assetFileRef = useRef<HTMLInputElement>(null);
+  const offsetXRef = useRef<HTMLInputElement>(null);
+  const offsetYRef = useRef<HTMLInputElement>(null);
+  const widthRef = useRef<HTMLInputElement>(null);
+  const heightRef = useRef<HTMLInputElement>(null);
   const { playClick, playSuccess } = useSound();
   const { t } = useTranslation();
   const { isSystemAdmin } = useAuth();
@@ -152,6 +162,15 @@ const Settings: React.FC = () => {
     const formData = new FormData();
     formData.append('name', name || '');
     formData.append('asset', file);
+    // 位置・サイズ（入力がある場合のみ送信。未入力時はAPI側のデフォルト値）
+    const offsetX = offsetXRef.current?.value;
+    const offsetY = offsetYRef.current?.value;
+    const width = widthRef.current?.value;
+    const height = heightRef.current?.value;
+    if (offsetX) formData.append('offsetX', offsetX);
+    if (offsetY) formData.append('offsetY', offsetY);
+    if (width) formData.append('width', width);
+    if (height) formData.append('height', height);
     const url = uploadUrls[type];
     setUploading(true);
     try {
@@ -202,6 +221,35 @@ const Settings: React.FC = () => {
       setResult(t.settings.sortOrderUpdateSuccess);
     } catch {
       setResult(t.settings.sortOrderUpdateFail);
+    }
+  };
+
+  // 選択中画像の実サイズを幅・高さ欄に反映
+  const handleAutoDetectSize = () => {
+    const file = assetFileRef.current?.files?.[0];
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      if (widthRef.current) widthRef.current.value = String(img.naturalWidth);
+      if (heightRef.current) heightRef.current.value = String(img.naturalHeight);
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.onerror = () => URL.revokeObjectURL(objectUrl);
+    img.src = objectUrl;
+  };
+
+  // 位置・サイズ等のメタデータ更新
+  const handleEditSave = async (type: string, item: Asset, values: AssetMetadataValues) => {
+    playClick();
+    try {
+      await axios.put(`${uploadUrls[type].replace('/upload', '')}/${item.id}`, values);
+      await refreshAssetsForType(type);
+      setEditingAsset(null);
+      setResult(t.settings.editSuccess);
+      playSuccess();
+    } catch {
+      setResult(t.settings.editFail);
     }
   };
 
@@ -394,6 +442,32 @@ const Settings: React.FC = () => {
             <br />
             <input type="file" name="asset" ref={assetFileRef} accept="image/png" required />
             <br />
+            <details style={{ margin: '12px 0' }}>
+              <summary style={{ cursor: 'pointer', userSelect: 'none' }}>{t.settings.positionSizeSettings}</summary>
+              <div style={{ marginLeft: '20px', marginTop: '8px' }}>
+                <label>
+                  {t.settings.offsetX}: <input type="number" name="offsetX" ref={offsetXRef} defaultValue="0" style={{ width: '80px' }} />
+                </label>
+                <br />
+                <label>
+                  {t.settings.offsetY}: <input type="number" name="offsetY" ref={offsetYRef} defaultValue="0" style={{ width: '80px' }} />
+                </label>
+                <br />
+                <label>
+                  {t.settings.width}: <input type="number" name="width" ref={widthRef} defaultValue="240" style={{ width: '80px' }} />
+                </label>
+                <br />
+                <label>
+                  {t.settings.height}: <input type="number" name="height" ref={heightRef} defaultValue="320" style={{ width: '80px' }} />
+                </label>
+                <br />
+                <button type="button" onClick={handleAutoDetectSize} style={{ marginTop: '8px' }}>
+                  {t.settings.autoDetectSize}
+                </button>
+                <br />
+                <small style={{ color: '#666' }}>{t.settings.defaultValuesHint}</small>
+              </div>
+            </details>
             <button type="submit" disabled={uploading}>
               {uploading ? t.settings.uploadingBtn : t.settings.uploadBtn}
             </button>
@@ -533,6 +607,16 @@ const Settings: React.FC = () => {
                                 >
                                   {t.settings.moveDownBtn}
                                 </button>
+                                <button
+                                  onClick={() => setEditingAsset({ type: key, id: item.id })}
+                                  style={{
+                                    ...buttonStyles.base,
+                                    ...buttonStyles.primary,
+                                  }}
+                                  title={t.settings.editTooltip}
+                                >
+                                  {t.settings.editBtn}
+                                </button>
                                 <button 
                                   onClick={() => handleDelete(key, item.id)}
                                   style={{
@@ -544,6 +628,14 @@ const Settings: React.FC = () => {
                                   {t.settings.deleteBtn}
                                 </button>
                               </div>
+                              {editingAsset && editingAsset.type === key && editingAsset.id === item.id && (
+                                <AssetMetadataEditor
+                                  item={item}
+                                  onSave={(values) => handleEditSave(key, item, values)}
+                                  onCancel={() => setEditingAsset(null)}
+                                  t={t}
+                                />
+                              )}
                             </li>
                           );
                         })
