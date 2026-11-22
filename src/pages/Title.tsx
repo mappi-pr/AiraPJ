@@ -6,6 +6,7 @@ import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
 import { useAuth } from '../context/AuthContext';
+import { ADMIN_ENABLED } from '../utils/adminConfig';
 
 const Title: React.FC = () => {
   const navigate = useNavigate();
@@ -89,17 +90,21 @@ const Title: React.FC = () => {
                   {isSystemAdmin && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ color: '#FF6B6B', fontSize: '0.85em' }}>🔑 システム管理者</span>
+                      {ADMIN_ENABLED && (
                       <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={() => { playClick(); setShowUserMenu(false); }} style={{ fontSize: '16px', textDecoration: 'none' }}>
                         ⚙️
                       </Link>
+                      )}
                     </div>
                   )}
                   {isGameMaster && !isSystemAdmin && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ color: '#4CAF50', fontSize: '0.85em' }}>⚔️ ゲームマスター</span>
+                      {ADMIN_ENABLED && (
                       <Link to="/settings" id="settings-icon" title={t.title.settings} onClick={() => { playClick(); setShowUserMenu(false); }} style={{ fontSize: '16px', textDecoration: 'none' }}>
                         ⚙️
                       </Link>
+                      )}
                     </div>
                   )}
                   <a 

@@ -12,6 +12,7 @@ import Terms from './pages/Terms';
 import { PartsProvider } from './context/PartsContext';
 import { AuthProvider } from './context/AuthContext';
 import { setupAxiosInterceptors } from './utils/axiosConfig';
+import { ADMIN_ENABLED } from './utils/adminConfig';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LocaleProvider } from './context/LocaleContext';
 import { NavigationButtonProvider } from './context/NavigationButtonContext';
@@ -271,11 +272,13 @@ function App() {
           <Route path="/costume" element={<CostumeSelect />} />
           <Route path="/photo" element={<Photo />} />
           <Route path="/history" element={<History />} />
+          {ADMIN_ENABLED && (
           <Route path="/settings" element={
             <ProtectedRoute requireAdmin={true}>
               <Settings />
             </ProtectedRoute>
           } />
+          )}
           <Route path="/terms" element={<Terms />} />
         </Routes>
       </BrowserRouter>

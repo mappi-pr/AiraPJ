@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import { BackHair } from '../models/backHair';
 import { sequelize } from '../models/sequelize';
 import { authenticate, requireAdmin } from '../middleware/auth';
+import { requireAdminEnabled } from '../middleware/adminGate';
 
 const router = Router();
 
@@ -32,7 +33,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // DELETE /api/back-hair/:id (管理者専用)
-router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
+router.delete('/:id', requireAdminEnabled, authenticate, requireAdmin, async (req, res) => {
   try {
     const backHair = await BackHair.findByPk(req.params.id);
     if (!backHair || backHair.deleted) return res.status(404).json({ error: 'Not found' });
@@ -68,7 +69,7 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
 });
 
 // PUT /api/back-hair/:id/order (管理者専用)
-router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
+router.put('/:id/order', requireAdminEnabled, authenticate, requireAdmin, async (req, res) => {
   try {
     const { direction } = req.body;
     const currentItem = await BackHair.findByPk(req.params.id);
@@ -113,7 +114,7 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
 });
 
 // PUT /api/back-hair/:id (管理者専用) - 名前・位置・サイズの更新
-router.put('/:id', authenticate, requireAdmin, async (req, res) => {
+router.put('/:id', requireAdminEnabled, authenticate, requireAdmin, async (req, res) => {
   try {
     const backHair = await BackHair.findByPk(req.params.id);
     if (!backHair || backHair.deleted) {
