@@ -20,6 +20,7 @@ import navigationButtonUploadRouter from './routes/navigationButton-upload';
 import { sequelize, NavigationButton } from './models';
 import { getUploadsBasePath } from './config/uploads';
 import { authenticate, requireAdmin } from './middleware/auth';
+import { requireAdminEnabled } from './middleware/adminGate';
 
 const app = express();
 app.use(cors());
@@ -106,7 +107,7 @@ app.use('/api/*', (req, res, next) => {
 app.use('/api/auth', authRouter);
 
 // ゲームマスター管理API（システム管理者専用）
-app.use('/api/game-masters', gameMasterRouter);
+app.use('/api/game-masters', requireAdminEnabled, gameMasterRouter);
 
 // 公開API（認証不要）
 app.use('/api/background', backgroundRouter);
@@ -117,15 +118,15 @@ app.use('/api/front-hair', frontHairRouter);
 app.use('/api/back-hair', backHairRouter);
 
 // 管理者専用API（認証＋管理者権限必要）
-app.use('/api/background', authenticate, requireAdmin, backgroundUploadRouter);
-app.use('/api/costume', authenticate, requireAdmin, costumeUploadRouter);
-app.use('/api/face', authenticate, requireAdmin, faceUploadRouter);
-app.use('/api/front-hair', authenticate, requireAdmin, frontHairUploadRouter);
-app.use('/api/back-hair', authenticate, requireAdmin, backHairUploadRouter);
-app.use('/api/back-hair', backHairUploadRouter);
+app.use('/api/background', requireAdminEnabled, authenticate, requireAdmin, backgroundUploadRouter);
+app.use('/api/costume', requireAdminEnabled, authenticate, requireAdmin, costumeUploadRouter);
+app.use('/api/face', requireAdminEnabled, authenticate, requireAdmin, faceUploadRouter);
+app.use('/api/front-hair', requireAdminEnabled, authenticate, requireAdmin, frontHairUploadRouter);
+app.use('/api/back-hair', requireAdminEnabled, authenticate, requireAdmin, backHairUploadRouter);
+app.use('/api/back-hair', requireAdminEnabled, backHairUploadRouter);
 app.use('/api/generation-history', generationHistoryRouter);
 app.use('/api/navigation-buttons', navigationButtonRouter);
-app.use('/api/navigation-buttons', navigationButtonUploadRouter);
+app.use('/api/navigation-buttons', requireAdminEnabled, navigationButtonUploadRouter);
 
 // アップロードされたファイルを静的に配信
 // 本番環境では UPLOADS_DIR 環境変数でパスを指定可能
