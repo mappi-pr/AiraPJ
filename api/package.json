@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "build": "tsc",
+    "test": "npm run build && node --test tests/*.test.cjs",
     "postbuild": "mkdir -p dist/uploads/face dist/uploads/frontHair dist/uploads/backHair dist/uploads/bg dist/uploads/csm",
     "start": "node dist/index.js",
     "migrate": "node scripts/migrate.js migrate",
@@ -21,8 +22,7 @@
     "multer": "^2.0.1",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.7",
-    "sqlite3": "^5.1.7"
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
     "@types/connect": "^3.4.38",
@@ -36,5 +36,21 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.0"
+  },
+  "overrides": {
+    "make-fetch-happen": "^14.0.2",
+    "cacache": "^19.0.1",
+    "tar": "^7.5.3",
+    "diff": "^8.0.3",
+    "uuid": "11.1.1",
+    "js-beautify": {
+      "glob": "^14.0.2",
+      "editorconfig": {
+        "minimatch": "^11.0.1"
+      }
+    },
+    "rimraf@^5.0.0": {
+      "glob": "^14.0.2"
+    }
   }
 }
