@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { Op } from 'sequelize';
 import { BackHair } from '../models/backHair';
+import { sequelize } from '../models/sequelize';
 import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = Router();
@@ -9,7 +11,7 @@ const router = Router();
 // GET /api/back-hair
 router.get('/', async (req, res) => {
   try {
-    const backHairs = await BackHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    const backHairs = await BackHair.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC'], ['id', 'ASC']] });
     res.json(backHairs);
   } catch (e) {
     console.error('Error fetching back hairs:', e);
@@ -41,9 +43,23 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
     if (filePath && fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
-    backHair.deleted = true;
-    backHair.deletedAt = new Date();
-    await backHair.save();
+    // 論理削除し、後続の未削除アイテムのsortOrderを詰める（歯抜けを残さない）
+    const deletedSortOrder = backHair.sortOrder;
+    await sequelize.transaction(async (t) => {
+      backHair.deleted = true;
+      backHair.deletedAt = new Date();
+      backHair.sortOrder = 0;
+      await backHair.save({ transaction: t });
+      if (deletedSortOrder > 0) {
+        await BackHair.update(
+          { sortOrder: sequelize.literal('"sortOrder" - 1') },
+          {
+            where: { deleted: false, sortOrder: { [Op.gt]: deletedSortOrder } },
+            transaction: t,
+          }
+        );
+      }
+    });
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting back hair:', error);
@@ -60,9 +76,9 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Not found' });
     }
 
-    const allItems = await BackHair.findAll({ 
-      where: { deleted: false }, 
-      order: [['sortOrder', 'ASC']] 
+    const allItems = await BackHair.findAll({
+      where: { deleted: false },
+      order: [['sortOrder', 'ASC'], ['id', 'ASC']]
     });
 
     const currentIndex = allItems.findIndex(item => item.id === currentItem.id);
@@ -84,8 +100,10 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
     currentItem.sortOrder = swapItem.sortOrder;
     swapItem.sortOrder = tempOrder;
 
-    await currentItem.save();
-    await swapItem.save();
+    await sequelize.transaction(async (t) => {
+      await currentItem.save({ transaction: t });
+      await swapItem.save({ transaction: t });
+    });
 
     res.json({ success: true });
   } catch (error) {
