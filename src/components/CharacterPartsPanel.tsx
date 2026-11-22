@@ -124,7 +124,6 @@ type PartsCacheEntry = {
 
 const PARTS_CACHE_TTL_MS = 5 * 60 * 1000; // 5分で期限切れ
 const PARTS_CACHE_MAX_ENTRIES = 50;       // キャッシュする最大キー数
-const INFINITE_SCROLL_THRESHOLD_PX = 10;  // 無限スクロール発火の閾値（下端からのピクセル数）
 
 const internalPartsCache: { [key: string]: PartsCacheEntry } = {};
 
@@ -180,31 +179,23 @@ const getImageSrc = (part: PartInfo): string => {
 const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }) => {
   const [parts, setParts] = useState<PartInfo[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // タブ切り替え時にページをリセット
-  useEffect(() => {
-    setPage(1);
-    setHasMore(true);
-    setParts([]);
-  }, [partType]);
-
-  // 非同期でパーツ一覧取得（キャッシュ活用）
+  // 非同期でパーツ一覧を全件取得（キャッシュ活用）
+  // API はページング未対応で常に全件を返すため、単一取得に揃える（#147）
   useEffect(() => {
     setFetchError(false); // タブ切り替え時はエラー解除
-    const key = `${partType}-page${page}`;
+    setParts([]);
+    const key = partType;
     if (partsCache[key]) {
       setParts(partsCache[key]);
-      setHasMore(partsCache[key].length > 0);
       return;
     }
     setLoading(true);
     // partTypeをAPIエンドポイント名に変換（frontHair→front-hair等）
     const apiName = partType === 'frontHair' ? 'front-hair' : partType === 'backHair' ? 'back-hair' : partType;
-    fetch(`${API_BASE_URL}/api/${apiName}?page=${page}`)
+    fetch(`${API_BASE_URL}/api/${apiName}`)
       .then(res => {
         if (!res.ok) throw new Error('API取得失敗');
         return res.json();
@@ -212,29 +203,13 @@ const CharacterPartsPanel: React.FC<Props> = ({ partType, selectedId, onSelect }
       .then((data: PartInfo[]) => {
         partsCache[key] = data;
         setParts(data);
-        setHasMore(data.length > 0);
       })
       .catch(() => {
         setParts([]);
-        setHasMore(false);
         setFetchError(true);
       })
       .finally(() => setLoading(false));
-  }, [partType, page]);
-
-  // インフィニットスクロール（下部に到達時に追加ロード）
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!panelRef.current || loading || !hasMore) return;
-      const { scrollTop, scrollHeight, clientHeight } = panelRef.current;
-      if (scrollTop + clientHeight >= scrollHeight - INFINITE_SCROLL_THRESHOLD_PX) {
-        setPage(p => p + 1);
-      }
-    };
-    const ref = panelRef.current;
-    if (ref) ref.addEventListener('scroll', handleScroll);
-    return () => { if (ref) ref.removeEventListener('scroll', handleScroll); };
-  }, [loading, hasMore]);
+  }, [partType]);
 
   // パネル横幅から最大表示数を算出し、表示件数がそれ未満なら左寄せ
   // 画面幅でgapを調整
