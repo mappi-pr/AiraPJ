@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { Op } from 'sequelize';
 import { Face } from '../models/face';
+import { sequelize } from '../models/sequelize';
 import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = Router();
@@ -9,7 +11,7 @@ const router = Router();
 // GET /api/face
 router.get('/', async (req, res) => {
   try {
-    const faces = await Face.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    const faces = await Face.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC'], ['id', 'ASC']] });
     res.json(faces);
   } catch (e) {
     console.error('Error fetching faces:', e);
@@ -42,10 +44,23 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
     if (filePath && fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
-    // 論理削除
-    face.deleted = true;
-    face.deletedAt = new Date();
-    await face.save();
+    // 論理削除し、後続の未削除アイテムのsortOrderを詰める（歯抜けを残さない）
+    const deletedSortOrder = face.sortOrder;
+    await sequelize.transaction(async (t) => {
+      face.deleted = true;
+      face.deletedAt = new Date();
+      face.sortOrder = 0;
+      await face.save({ transaction: t });
+      if (deletedSortOrder > 0) {
+        await Face.update(
+          { sortOrder: sequelize.literal('"sortOrder" - 1') },
+          {
+            where: { deleted: false, sortOrder: { [Op.gt]: deletedSortOrder } },
+            transaction: t,
+          }
+        );
+      }
+    });
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting face:', error);
@@ -63,9 +78,9 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
     }
 
     // 同じグループ内のアイテムを取得
-    const allItems = await Face.findAll({ 
-      where: { deleted: false }, 
-      order: [['sortOrder', 'ASC']] 
+    const allItems = await Face.findAll({
+      where: { deleted: false },
+      order: [['sortOrder', 'ASC'], ['id', 'ASC']]
     });
 
     const currentIndex = allItems.findIndex(item => item.id === currentItem.id);
@@ -89,8 +104,10 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
     currentItem.sortOrder = swapItem.sortOrder;
     swapItem.sortOrder = tempOrder;
 
-    await currentItem.save();
-    await swapItem.save();
+    await sequelize.transaction(async (t) => {
+      await currentItem.save({ transaction: t });
+      await swapItem.save({ transaction: t });
+    });
 
     res.json({ success: true });
   } catch (error) {

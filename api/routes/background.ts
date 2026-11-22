@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { Op } from 'sequelize';
 import { Background } from '../models';
+import { sequelize } from '../models/sequelize';
 import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = Router();
@@ -9,7 +11,7 @@ const router = Router();
 // GET /api/background
 router.get('/', async (req, res) => {
   try {
-    const backgrounds = await Background.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC']] });
+    const backgrounds = await Background.findAll({ where: { deleted: false }, order: [['sortOrder', 'ASC'], ['id', 'ASC']] });
     res.json(backgrounds);
   } catch (e) {
     console.error('Error fetching backgrounds:', e);
@@ -41,9 +43,23 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
     if (filePath && fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
-    background.deleted = true;
-    background.deletedAt = new Date();
-    await background.save();
+    // 論理削除し、後続の未削除アイテムのsortOrderを詰める（歯抜けを残さない）
+    const deletedSortOrder = background.sortOrder;
+    await sequelize.transaction(async (t) => {
+      background.deleted = true;
+      background.deletedAt = new Date();
+      background.sortOrder = 0;
+      await background.save({ transaction: t });
+      if (deletedSortOrder > 0) {
+        await Background.update(
+          { sortOrder: sequelize.literal('"sortOrder" - 1') },
+          {
+            where: { deleted: false, sortOrder: { [Op.gt]: deletedSortOrder } },
+            transaction: t,
+          }
+        );
+      }
+    });
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting background:', error);
@@ -60,9 +76,9 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Not found' });
     }
 
-    const allItems = await Background.findAll({ 
-      where: { deleted: false }, 
-      order: [['sortOrder', 'ASC']] 
+    const allItems = await Background.findAll({
+      where: { deleted: false },
+      order: [['sortOrder', 'ASC'], ['id', 'ASC']]
     });
 
     const currentIndex = allItems.findIndex(item => item.id === currentItem.id);
@@ -84,8 +100,10 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
     currentItem.sortOrder = swapItem.sortOrder;
     swapItem.sortOrder = tempOrder;
 
-    await currentItem.save();
-    await swapItem.save();
+    await sequelize.transaction(async (t) => {
+      await currentItem.save({ transaction: t });
+      await swapItem.save({ transaction: t });
+    });
 
     res.json({ success: true });
   } catch (error) {
