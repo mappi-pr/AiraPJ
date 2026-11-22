@@ -94,4 +94,51 @@ router.put('/:id/order', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
+// PUT /api/back-hair/:id (管理者専用) - 名前・位置・サイズの更新
+router.put('/:id', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const backHair = await BackHair.findByPk(req.params.id);
+    if (!backHair || backHair.deleted) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const { name, offsetX, offsetY, width, height } = req.body;
+
+    if (name !== undefined) {
+      if (typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ error: 'Invalid name value' });
+      }
+      backHair.name = name;
+    }
+
+    // 数値フィールドは未指定なら変更しない。指定時は整数かつ範囲内のみ許可する
+    const numericFields: { key: 'offsetX' | 'offsetY' | 'width' | 'height'; value: unknown; min: number; max: number }[] = [
+      { key: 'offsetX', value: offsetX, min: -1000, max: 1000 },
+      { key: 'offsetY', value: offsetY, min: -1000, max: 1000 },
+      { key: 'width', value: width, min: 1, max: 2000 },
+      { key: 'height', value: height, min: 1, max: 2000 },
+    ];
+    for (const field of numericFields) {
+      if (field.value === undefined || field.value === '') continue;
+      if (typeof field.value !== 'number' && typeof field.value !== 'string') {
+        return res.status(400).json({ error: `Invalid ${field.key} value` });
+      }
+      const parsed = Number(field.value);
+      if (!Number.isInteger(parsed)) {
+        return res.status(400).json({ error: `Invalid ${field.key} value` });
+      }
+      if (parsed < field.min || parsed > field.max) {
+        return res.status(400).json({ error: `${field.key} must be between ${field.min} and ${field.max}` });
+      }
+      backHair[field.key] = parsed;
+    }
+
+    await backHair.save();
+    res.json(backHair);
+  } catch (e) {
+    console.error('Error updating back hair:', e);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
 export default router;

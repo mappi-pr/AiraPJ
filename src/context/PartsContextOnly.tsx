@@ -2,6 +2,10 @@ export type PartInfo = {
   id: number;
   name: string;
   assetPath: string;
+  offsetX?: number;
+  offsetY?: number;
+  width?: number;
+  height?: number;
 };
 
 export type SelectedParts = {
