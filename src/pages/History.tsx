@@ -31,33 +31,11 @@ const History: React.FC = () => {
       try {
         const userId = getUserId();
         const response = await axios.get(`/api/generation-history?userId=${userId}`);
-        const historiesData = response.data;
-        
-        // Check availability of parts for each history
-        const historiesWithAvailability = await Promise.all(
-          historiesData.map(async (history: GenerationHistoryItem) => {
-            try {
-              // Check if all parts are still available (not deleted)
-              const checks = await Promise.all([
-                history.backgroundId ? axios.get(`/api/background/${history.backgroundId}`).catch(() => null) : Promise.resolve(true),
-                history.costumeId ? axios.get(`/api/costume/${history.costumeId}`).catch(() => null) : Promise.resolve(true),
-                history.backHairId ? axios.get(`/api/back-hair/${history.backHairId}`).catch(() => null) : Promise.resolve(true),
-                history.faceId ? axios.get(`/api/face/${history.faceId}`).catch(() => null) : Promise.resolve(true),
-                history.frontHairId ? axios.get(`/api/front-hair/${history.frontHairId}`).catch(() => null) : Promise.resolve(true),
-              ]);
-              
-              // History is available only if all parts that exist are not deleted
-              const isAvailable = checks.every(check => check !== null);
-              
-              return { ...history, isAvailable };
-            } catch {
-              return { ...history, isAvailable: false };
-            }
-          })
-        );
-        
-        // Filter to only show available histories
-        setHistories(historiesWithAvailability.filter(h => h.isAvailable !== false));
+        const historiesData: GenerationHistoryItem[] = response.data;
+
+        // 可用性（参照パーツがすべて現存するか）はサーバ側で一括判定され、
+        // isAvailable として返ってくる。利用できない履歴は一覧から除く。
+        setHistories(historiesData.filter(h => h.isAvailable !== false));
       } catch (error) {
         console.error('Failed to fetch generation history:', error);
       } finally {
