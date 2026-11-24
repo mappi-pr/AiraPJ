@@ -171,7 +171,7 @@ app.delete('/:id', requireAdminEnabled, authenticate, requireAdmin, async (c) =>
     await c.env.DB.batch(statements);
     // 現行はコミット後に物理ファイルも消す。R2 でも同じ順序・同じ扱いにし、
     // 削除に失敗しても論理削除は成立しているため、ログに留めてレスポンスは成功とする。
-    // キーは assetPath (/uploads/bg/xxx.png) からプレフィックスを外して逆引きする
+    // キーは assetPath (/uploads/background/xxx.png) からプレフィックスを外して逆引きする
     const key = background.assetPath.replace(/^\/uploads\//, '');
     try {
       await c.env.UPLOADS.delete(key);

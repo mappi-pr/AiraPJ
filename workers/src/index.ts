@@ -2,6 +2,8 @@ import { Hono } from 'hono';
 import { verifyGoogleToken, getUserRole, type Env, type AuthenticatedUser } from './auth';
 import backgrounds from './routes/backgrounds';
 import backgroundUpload from './routes/background-upload';
+import { PART_CONFIGS, createPartCrudApp, createPartUploadApp } from './routes/parts';
+import navigationButtons from './routes/navigation-buttons';
 import { serveUpload } from './routes/uploads';
 
 type Vars = { Bindings: Env; Variables: { user: AuthenticatedUser } };
@@ -36,6 +38,15 @@ app.post('/api/auth/verify', async (c) => {
 
 app.route('/api/background', backgrounds);
 app.route('/api/background', backgroundUpload);
+
+// パーツ系5種別（face / front-hair / back-hair / costume / sticker）は背景と同型の
+// ファクトリから生成してマウントする
+for (const config of PART_CONFIGS) {
+  app.route(config.path, createPartCrudApp(config));
+  app.route(config.path, createPartUploadApp(config));
+}
+
+app.route('/api/navigation-buttons', navigationButtons);
 
 // GET /uploads/* — R2 から画像を配信（現行 express.static 相当、assetPath 互換の要）
 app.get('/uploads/*', serveUpload);

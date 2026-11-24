@@ -4,8 +4,9 @@ import { requireAdminEnabled, authenticate, requireAdmin } from '../middleware';
 import { toJson, insertBackground } from './backgrounds';
 
 // 現行 api/routes/background-upload.ts（multer → ローカルディスク保存）の Workers 版スパイク。
-// 保存先を R2 に替えるが、DB に入る assetPath は現行互換の /uploads/bg/<filename> のままにし、
-// R2 のキーも assetPath から機械的に決まる（bg/<filename>）ようにして互換を保つ。
+// 保存先を R2 に替えるが、DB に入る assetPath は現行互換の /uploads/background/<filename> のままにし、
+// R2 のキーも assetPath から機械的に決まる（background/<filename>）ようにして互換を保つ。
+// ディレクトリ名は PR #169 で正式名称に統一された background を使う（旧名は bg）。
 
 type Vars = { Bindings: Env; Variables: { user: AuthenticatedUser } };
 
@@ -70,8 +71,8 @@ app.post('/upload', requireAdminEnabled, authenticate, requireAdmin, async (c) =
 
     // ファイル名の付け方は現行 multer の filename コールバックと同じ（時刻 + ランダム文字列 + 拡張子）
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`;
-    key = `bg/${filename}`;
-    const assetPath = `/uploads/bg/${filename}`;
+    key = `background/${filename}`;
+    const assetPath = `/uploads/background/${filename}`;
 
     // 現行は multer が先にファイルを保存し、後段の失敗時に removeUploadedFile で消して巻き戻す。
     // ここでは検証をすべて通してから R2 に put し、DB 登録が失敗した場合だけ R2 側を消すことで

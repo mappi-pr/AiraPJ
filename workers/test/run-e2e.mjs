@@ -176,9 +176,9 @@ try {
   check('backgrounds: missing detail -> 404', (await req(BASE, 'GET', '/api/background/9999')).status, 404);
 
   // 背景: 作成の権限
-  check('backgrounds: create without token -> 401', (await req(BASE, 'POST', '/api/background', { body: { name: 'x', assetPath: '/uploads/bg/x.png' } })).status, 401);
-  check('backgrounds: create as user -> 403', (await req(BASE, 'POST', '/api/background', { token: userToken, body: { name: 'x', assetPath: '/uploads/bg/x.png' } })).status, 403);
-  const created = await req(BASE, 'POST', '/api/background', { token: gmToken, body: { name: 'bg-d', assetPath: '/uploads/bg/d.png' } });
+  check('backgrounds: create without token -> 401', (await req(BASE, 'POST', '/api/background', { body: { name: 'x', assetPath: '/uploads/background/x.png' } })).status, 401);
+  check('backgrounds: create as user -> 403', (await req(BASE, 'POST', '/api/background', { token: userToken, body: { name: 'x', assetPath: '/uploads/background/x.png' } })).status, 403);
+  const created = await req(BASE, 'POST', '/api/background', { token: gmToken, body: { name: 'bg-d', assetPath: '/uploads/background/d.png' } });
   check('backgrounds: create as game master -> 200', created.status, 200);
   check('backgrounds: created sortOrder is max+1', created.json?.sortOrder, 4);
   check('backgrounds: created defaults width/height', [created.json?.width, created.json?.height], [240, 320]);
@@ -258,8 +258,8 @@ try {
   check('upload: offsetX stored', uploaded.json?.offsetX, 5);
   check('upload: sortOrder is max+1', uploaded.json?.sortOrder, 4);
   check(
-    'upload: assetPath keeps /uploads/bg/<file>.png format',
-    /^\/uploads\/bg\/\d+-[a-z0-9]+\.png$/.test(uploaded.json?.assetPath ?? ''),
+    'upload: assetPath keeps /uploads/background/<file>.png format',
+    /^\/uploads\/background\/\d+-[a-z0-9]+\.png$/.test(uploaded.json?.assetPath ?? ''),
     true
   );
   const uploadedId = uploaded.json?.id;
@@ -271,7 +271,7 @@ try {
   check('uploads: content-type is image/png', served.headers.get('content-type'), 'image/png');
   const servedBytes = Buffer.from(await served.arrayBuffer());
   check('uploads: served bytes match uploaded bytes', servedBytes.equals(pngBytes), true);
-  check('uploads: missing object -> 404', (await fetch(`${BASE}/uploads/bg/no-such-file.png`)).status, 404);
+  check('uploads: missing object -> 404', (await fetch(`${BASE}/uploads/background/no-such-file.png`)).status, 404);
 
   // 削除: 論理削除後に assetPath へアクセスすると 404（R2 オブジェクトも消えている）
   const delUploaded = await req(BASE, 'DELETE', `/api/background/${uploadedId}`, { token: adminToken });
@@ -281,7 +281,7 @@ try {
   check('upload: after delete list is back to 3 items', listAfterUploadDelete.json?.map((b) => b.name), ['bg-a', 'bg-d2', 'bg-c']);
 
   // ADMIN_ENABLED=false のとき管理系は 404（現行 adminGate と同じ）
-  check('adminGate: create with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'POST', '/api/background', { token: adminToken, body: { name: 'x', assetPath: '/uploads/bg/x.png' } })).status, 404);
+  check('adminGate: create with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'POST', '/api/background', { token: adminToken, body: { name: 'x', assetPath: '/uploads/background/x.png' } })).status, 404);
   check('adminGate: list still 200 with ADMIN_ENABLED=false', (await req(BASE_NOADMIN, 'GET', '/api/background')).status, 200);
 
   // sortOrder 採番の同時実行競合（#166 ちゃっぴー監査対応）:
@@ -289,7 +289,7 @@ try {
   // この時点の有効行は bg-a(1), bg-d2(2), bg-c(3) の3件なので、次は 4 から採番される前提
   const parallelCreates = await Promise.all(
     ['bg-p1', 'bg-p2', 'bg-p3', 'bg-p4', 'bg-p5'].map((name) =>
-      req(BASE, 'POST', '/api/background', { token: adminToken, body: { name, assetPath: `/uploads/bg/${name}.png` } })
+      req(BASE, 'POST', '/api/background', { token: adminToken, body: { name, assetPath: `/uploads/background/${name}.png` } })
     )
   );
   check('parallel: all 5 creates -> 200', parallelCreates.map((r) => r.status), [200, 200, 200, 200, 200]);
@@ -315,6 +315,152 @@ try {
   );
   const listFinal = await req(BASE, 'GET', '/api/background');
   check('parallel upload: list has 11 items', listFinal.json?.length, 11);
+
+  // ---- パーツ系5種別（face / front-hair / back-hair / costume / sticker） ----
+  // シードは種別ごとに有効行2件（sortOrder 1,2）と削除済み1件（id=3）。背景と同じ流れを通す
+  const partTypes = [
+    { key: 'face', path: '/api/face', dir: 'face', a: 'face-a', b: 'face-b' },
+    { key: 'frontHair', path: '/api/front-hair', dir: 'frontHair', a: 'front-a', b: 'front-b' },
+    { key: 'backHair', path: '/api/back-hair', dir: 'backHair', a: 'back-a', b: 'back-b' },
+    { key: 'costume', path: '/api/costume', dir: 'costume', a: 'costume-a', b: 'costume-b' },
+    { key: 'sticker', path: '/api/sticker', dir: 'sticker', a: 'sticker-a', b: 'sticker-b' },
+  ];
+  for (const t of partTypes) {
+    const pList = await req(BASE, 'GET', t.path);
+    check(`${t.key}: list status`, pList.status, 200);
+    check(`${t.key}: list excludes deleted`, pList.json?.map((x) => x.name), [t.a, t.b]);
+    check(`${t.key}: deleted is boolean`, pList.json?.[0]?.deleted, false);
+    check(`${t.key}: deleted detail -> 404`, (await req(BASE, 'GET', `${t.path}/3`)).status, 404);
+    check(`${t.key}: missing detail -> 404`, (await req(BASE, 'GET', `${t.path}/9999`)).status, 404);
+
+    check(`${t.key}: create without token -> 401`, (await req(BASE, 'POST', t.path, { body: { name: 'x', assetPath: `/uploads/${t.dir}/x.png` } })).status, 401);
+    check(`${t.key}: create as user -> 403`, (await req(BASE, 'POST', t.path, { token: userToken, body: { name: 'x', assetPath: `/uploads/${t.dir}/x.png` } })).status, 403);
+    const pCreated = await req(BASE, 'POST', t.path, { token: gmToken, body: { name: `${t.key}-c`, assetPath: `/uploads/${t.dir}/c.png` } });
+    check(`${t.key}: create as game master -> 200`, pCreated.status, 200);
+    check(`${t.key}: created sortOrder is max+1`, pCreated.json?.sortOrder, 3);
+    check(`${t.key}: created defaults width/height`, [pCreated.json?.width, pCreated.json?.height], [240, 320]);
+    const pCreatedId = pCreated.json?.id;
+
+    check(`${t.key}: update width=0 -> 400`, (await req(BASE, 'PUT', `${t.path}/${pCreatedId}`, { token: adminToken, body: { width: 0 } })).status, 400);
+    const pUpdated = await req(BASE, 'PUT', `${t.path}/${pCreatedId}`, { token: adminToken, body: { name: `${t.key}-c2`, offsetX: -5 } });
+    check(`${t.key}: update ok`, [pUpdated.status, pUpdated.json?.name, pUpdated.json?.offsetX], [200, `${t.key}-c2`, -5]);
+
+    const pOrder = await req(BASE, 'PUT', `${t.path}/${pCreatedId}/order`, { token: adminToken, body: { direction: 'up' } });
+    check(`${t.key}: order swap -> success`, pOrder.json?.success, true);
+    const pListAfterOrder = await req(BASE, 'GET', t.path);
+    check(`${t.key}: order after swap`, pListAfterOrder.json?.map((x) => x.name), [t.a, `${t.key}-c2`, t.b]);
+
+    // アップロード（R2 保存）
+    check(`${t.key} upload: without token -> 401`, (await reqForm(BASE, 'POST', `${t.path}/upload`, { file: pngFile, fields: { name: `${t.key}-up` } })).status, 401);
+    check(`${t.key} upload: as user -> 403`, (await reqForm(BASE, 'POST', `${t.path}/upload`, { token: userToken, file: pngFile, fields: { name: `${t.key}-up` } })).status, 403);
+    check(`${t.key} upload: no file -> 400`, (await reqForm(BASE, 'POST', `${t.path}/upload`, { token: gmToken, fields: { name: `${t.key}-up` } })).status, 400);
+    check(`${t.key} upload: non-PNG -> 400`, (await reqForm(BASE, 'POST', `${t.path}/upload`, { token: gmToken, file: { bytes: Buffer.from('hello'), type: 'text/plain', name: 'x.txt' }, fields: { name: `${t.key}-up` } })).status, 400);
+    if (t.key === 'sticker') {
+      // sticker だけ現行アップロードに name 検証がある（400 'Invalid name value'）
+      const noName = await reqForm(BASE, 'POST', `${t.path}/upload`, { token: gmToken, file: pngFile, fields: {} });
+      check('sticker upload: missing name -> 400', noName.status, 400);
+      check('sticker upload: missing name error', noName.json?.error, 'Invalid name value');
+    }
+    const pUploaded = await reqForm(BASE, 'POST', `${t.path}/upload`, {
+      token: gmToken,
+      file: pngFile,
+      fields: { name: `${t.key}-up`, offsetX: '5' },
+    });
+    check(`${t.key} upload: as game master -> 200`, pUploaded.status, 200);
+    check(`${t.key} upload: sortOrder is max+1`, pUploaded.json?.sortOrder, 4);
+    check(
+      `${t.key} upload: assetPath format`,
+      new RegExp(`^/uploads/${t.dir}/\\d+-[a-z0-9]+\\.png$`).test(pUploaded.json?.assetPath ?? ''),
+      true
+    );
+    const pUploadedId = pUploaded.json?.id;
+    const pUploadedPath = pUploaded.json?.assetPath;
+    const pServed = await fetch(`${BASE}${pUploadedPath}`);
+    check(`${t.key} uploads: GET assetPath -> 200`, pServed.status, 200);
+    const pServedBytes = Buffer.from(await pServed.arrayBuffer());
+    check(`${t.key} uploads: served bytes match uploaded bytes`, pServedBytes.equals(pngBytes), true);
+
+    const pDelUploaded = await req(BASE, 'DELETE', `${t.path}/${pUploadedId}`, { token: adminToken });
+    check(`${t.key} upload: delete uploaded -> success`, pDelUploaded.json?.success, true);
+    check(`${t.key} uploads: after delete GET assetPath -> 404`, (await fetch(`${BASE}${pUploadedPath}`)).status, 404);
+
+    // 論理削除 + 詰め直し（並び替え後の並びは a(1), c2(2), b(3)。b を消すと [1,2] に詰まる）
+    const pB = (await req(BASE, 'GET', t.path)).json?.find((x) => x.name === t.b);
+    const pDel = await req(BASE, 'DELETE', `${t.path}/${pB.id}`, { token: adminToken });
+    check(`${t.key}: delete -> success`, pDel.json?.success, true);
+    const pListAfterDelete = await req(BASE, 'GET', t.path);
+    check(`${t.key}: after delete names`, pListAfterDelete.json?.map((x) => x.name), [t.a, `${t.key}-c2`]);
+    check(`${t.key}: after delete sortOrders compacted`, pListAfterDelete.json?.map((x) => x.sortOrder), [1, 2]);
+    check(`${t.key}: delete again -> 404`, (await req(BASE, 'DELETE', `${t.path}/${pB.id}`, { token: adminToken })).status, 404);
+
+    // 並行作成でも sortOrder が重複しない（有効行は a(1), c2(2) なので次は 3..5）
+    const pParallel = await Promise.all(
+      [`${t.key}-p1`, `${t.key}-p2`, `${t.key}-p3`].map((name) =>
+        req(BASE, 'POST', t.path, { token: adminToken, body: { name, assetPath: `/uploads/${t.dir}/${name}.png` } })
+      )
+    );
+    check(`${t.key} parallel: all 3 creates -> 200`, pParallel.map((r) => r.status), [200, 200, 200]);
+    check(
+      `${t.key} parallel: sortOrders are distinct 3..5`,
+      pParallel.map((r) => r.json?.sortOrder).sort((x, y) => x - y),
+      [3, 4, 5]
+    );
+  }
+
+  // パーツ系も ADMIN_ENABLED=false で管理系は 404（代表として face）
+  check('adminGate: face create with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'POST', '/api/face', { token: adminToken, body: { name: 'x', assetPath: '/uploads/face/x.png' } })).status, 404);
+  check('adminGate: face list still 200 with ADMIN_ENABLED=false', (await req(BASE_NOADMIN, 'GET', '/api/face')).status, 200);
+
+  // ---- ナビゲーションボタン（prev/next の2行固定、sortOrder なし） ----
+  const navList = await req(BASE, 'GET', '/api/navigation-buttons');
+  check('nav: list status', navList.status, 200);
+  check('nav: list has prev/next with null assetPath', navList.json?.map((b) => [b.buttonType, b.assetPath]), [['prev', null], ['next', null]]);
+
+  check('nav upload: without token -> 401', (await reqForm(BASE, 'POST', '/api/navigation-buttons/upload', { file: pngFile, fields: { buttonType: 'prev' } })).status, 401);
+  check('nav upload: as user -> 403', (await reqForm(BASE, 'POST', '/api/navigation-buttons/upload', { token: userToken, file: pngFile, fields: { buttonType: 'prev' } })).status, 403);
+  check('nav upload: no file -> 400', (await reqForm(BASE, 'POST', '/api/navigation-buttons/upload', { token: gmToken, fields: { buttonType: 'prev' } })).status, 400);
+  check('nav upload: non-PNG -> 400', (await reqForm(BASE, 'POST', '/api/navigation-buttons/upload', { token: gmToken, file: { bytes: Buffer.from('hello'), type: 'text/plain', name: 'x.txt' }, fields: { buttonType: 'prev' } })).status, 400);
+  const navBadType = await reqForm(BASE, 'POST', '/api/navigation-buttons/upload', { token: gmToken, file: pngFile, fields: { buttonType: 'side' } });
+  check('nav upload: invalid buttonType -> 400', navBadType.status, 400);
+  check('nav upload: invalid buttonType error', navBadType.json?.error, 'Invalid buttonType. Must be "prev" or "next".');
+
+  const navUp = await reqForm(BASE, 'POST', '/api/navigation-buttons/upload', { token: gmToken, file: pngFile, fields: { buttonType: 'prev' } });
+  check('nav upload: as game master -> 200', navUp.status, 200);
+  check('nav upload: buttonType stored', navUp.json?.buttonType, 'prev');
+  check(
+    'nav upload: assetPath format',
+    /^\/uploads\/navigationButton\/\d+-[a-z0-9]+\.png$/.test(navUp.json?.assetPath ?? ''),
+    true
+  );
+  const navPath1 = navUp.json?.assetPath;
+  const navServed = await fetch(`${BASE}${navPath1}`);
+  check('nav uploads: GET assetPath -> 200', navServed.status, 200);
+  const navServedBytes = Buffer.from(await navServed.arrayBuffer());
+  check('nav uploads: served bytes match uploaded bytes', navServedBytes.equals(pngBytes), true);
+
+  // 差し替えると旧ファイルは消える
+  const navUp2 = await reqForm(BASE, 'POST', '/api/navigation-buttons/upload', { token: gmToken, file: pngFile, fields: { buttonType: 'prev' } });
+  check('nav upload: replace -> 200', navUp2.status, 200);
+  const navPath2 = navUp2.json?.assetPath;
+  check('nav upload: replace changes assetPath', navPath2 !== navPath1, true);
+  check('nav uploads: replaced old file -> 404', (await fetch(`${BASE}${navPath1}`)).status, 404);
+  check('nav uploads: replaced new file -> 200', (await fetch(`${BASE}${navPath2}`)).status, 200);
+  const navListAfterUp = await req(BASE, 'GET', '/api/navigation-buttons');
+  check('nav: list still has exactly prev/next', navListAfterUp.json?.map((b) => b.buttonType), ['prev', 'next']);
+  check('nav: list reflects uploaded assetPath', navListAfterUp.json?.find((b) => b.buttonType === 'prev')?.assetPath, navPath2);
+
+  // リセット: assetPath が null に戻り、ファイルも消える
+  check('nav reset: invalid buttonType -> 400', (await req(BASE, 'DELETE', '/api/navigation-buttons/side/reset', { token: adminToken })).status, 400);
+  check('nav reset: without token -> 401', (await req(BASE, 'DELETE', '/api/navigation-buttons/prev/reset')).status, 401);
+  const navReset = await req(BASE, 'DELETE', '/api/navigation-buttons/prev/reset', { token: adminToken });
+  check('nav reset: -> success', navReset.json?.success, true);
+  check('nav reset: assetPath back to null', navReset.json?.button?.assetPath, null);
+  check('nav uploads: after reset GET assetPath -> 404', (await fetch(`${BASE}${navPath2}`)).status, 404);
+  const navResetAgain = await req(BASE, 'DELETE', '/api/navigation-buttons/prev/reset', { token: adminToken });
+  check('nav reset: reset again (already null) -> success', navResetAgain.json?.success, true);
+
+  check('adminGate: nav upload with ADMIN_ENABLED=false -> 404', (await reqForm(BASE_NOADMIN, 'POST', '/api/navigation-buttons/upload', { token: adminToken, file: pngFile, fields: { buttonType: 'next' } })).status, 404);
+  check('adminGate: nav list still 200 with ADMIN_ENABLED=false', (await req(BASE_NOADMIN, 'GET', '/api/navigation-buttons')).status, 200);
 } finally {
   stopDev(dev);
   stopDev(devNoAdmin);

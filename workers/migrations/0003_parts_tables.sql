@@ -1,0 +1,75 @@
+-- パーツ系6種別のテーブル追加（#166 No.3 移植）
+-- faces / front_hairs / back_hairs / costumes / stickers は現行 PostgreSQL の同名テーブルを
+-- backgrounds と同じ方言変換（BOOLEAN -> INTEGER, TIMESTAMP -> TEXT, SERIAL -> AUTOINCREMENT）で移植。
+-- navigation_buttons は他種別と形が違い、buttonType ごとに1行だけを持つ:
+--   現行は ENUM('prev','next') + UNIQUE。SQLite には ENUM がないため TEXT + CHECK + UNIQUE で再現する。
+CREATE TABLE faces (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  assetPath TEXT NOT NULL,
+  deleted INTEGER NOT NULL DEFAULT 0,
+  deletedAt TEXT,
+  sortOrder INTEGER NOT NULL DEFAULT 0,
+  offsetX INTEGER NOT NULL DEFAULT 0,
+  offsetY INTEGER NOT NULL DEFAULT 0,
+  width INTEGER NOT NULL DEFAULT 240,
+  height INTEGER NOT NULL DEFAULT 320
+);
+
+CREATE TABLE front_hairs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  assetPath TEXT NOT NULL,
+  deleted INTEGER NOT NULL DEFAULT 0,
+  deletedAt TEXT,
+  sortOrder INTEGER NOT NULL DEFAULT 0,
+  offsetX INTEGER NOT NULL DEFAULT 0,
+  offsetY INTEGER NOT NULL DEFAULT 0,
+  width INTEGER NOT NULL DEFAULT 240,
+  height INTEGER NOT NULL DEFAULT 320
+);
+
+CREATE TABLE back_hairs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  assetPath TEXT NOT NULL,
+  deleted INTEGER NOT NULL DEFAULT 0,
+  deletedAt TEXT,
+  sortOrder INTEGER NOT NULL DEFAULT 0,
+  offsetX INTEGER NOT NULL DEFAULT 0,
+  offsetY INTEGER NOT NULL DEFAULT 0,
+  width INTEGER NOT NULL DEFAULT 240,
+  height INTEGER NOT NULL DEFAULT 320
+);
+
+CREATE TABLE costumes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  assetPath TEXT NOT NULL,
+  deleted INTEGER NOT NULL DEFAULT 0,
+  deletedAt TEXT,
+  sortOrder INTEGER NOT NULL DEFAULT 0,
+  offsetX INTEGER NOT NULL DEFAULT 0,
+  offsetY INTEGER NOT NULL DEFAULT 0,
+  width INTEGER NOT NULL DEFAULT 240,
+  height INTEGER NOT NULL DEFAULT 320
+);
+
+CREATE TABLE stickers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  assetPath TEXT NOT NULL,
+  deleted INTEGER NOT NULL DEFAULT 0,
+  deletedAt TEXT,
+  sortOrder INTEGER NOT NULL DEFAULT 0,
+  offsetX INTEGER NOT NULL DEFAULT 0,
+  offsetY INTEGER NOT NULL DEFAULT 0,
+  width INTEGER NOT NULL DEFAULT 240,
+  height INTEGER NOT NULL DEFAULT 320
+);
+
+CREATE TABLE navigation_buttons (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  buttonType TEXT NOT NULL UNIQUE CHECK (buttonType IN ('prev', 'next')),
+  assetPath TEXT
+);
