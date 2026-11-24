@@ -1,5 +1,7 @@
 DELETE FROM backgrounds;
 DELETE FROM game_masters;
+DELETE FROM generation_histories;
+DELETE FROM users;
 DELETE FROM faces;
 DELETE FROM front_hairs;
 DELETE FROM back_hairs;
@@ -35,3 +37,7 @@ INSERT INTO stickers (name, assetPath, deleted, deletedAt, sortOrder, offsetX, o
 INSERT INTO navigation_buttons (buttonType, assetPath) VALUES
   ('prev', NULL),
   ('next', NULL);
+-- 生成履歴の一覧上限（最新100件）確認用に、limit-user へ105件を投入する
+INSERT INTO generation_histories (userId, createdAt)
+WITH RECURSIVE cnt(i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM cnt WHERE i < 104)
+SELECT 'limit-user', '2026-01-01T00:00:00.' || printf('%03d', i) || 'Z' FROM cnt;

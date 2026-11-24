@@ -461,6 +461,150 @@ try {
 
   check('adminGate: nav upload with ADMIN_ENABLED=false -> 404', (await reqForm(BASE_NOADMIN, 'POST', '/api/navigation-buttons/upload', { token: adminToken, file: pngFile, fields: { buttonType: 'next' } })).status, 404);
   check('adminGate: nav list still 200 with ADMIN_ENABLED=false', (await req(BASE_NOADMIN, 'GET', '/api/navigation-buttons')).status, 200);
+
+  // ---- 生成履歴（認証不要、userId がキー） ----
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const bgA = (await req(BASE, 'GET', '/api/background')).json?.find((b) => b.name === 'bg-a');
+  const faceA = (await req(BASE, 'GET', '/api/face')).json?.find((f) => f.name === 'face-a');
+  const stickerA = (await req(BASE, 'GET', '/api/sticker')).json?.find((s) => s.name === 'sticker-a');
+
+  check('history: GET without userId -> 400', (await req(BASE, 'GET', '/api/generation-history')).status, 400);
+  const emptyList = await req(BASE, 'GET', '/api/generation-history?userId=e2e-user');
+  check('history: GET for new user -> 200', emptyList.status, 200);
+  check('history: GET for new user -> empty', emptyList.json, []);
+  check('history: POST without userId -> 400', (await req(BASE, 'POST', '/api/generation-history', { body: {} })).status, 400);
+
+  const hMin = await req(BASE, 'POST', '/api/generation-history', { body: { userId: 'e2e-user' } });
+  check('history: POST minimal -> 200', hMin.status, 200);
+  check(
+    'history: POST minimal defaults',
+    [hMin.json?.backgroundId, hMin.json?.scale, hMin.json?.dragX, hMin.json?.dragY, hMin.json?.stickers, hMin.json?.imageUrl],
+    [null, 1, 0, 0, null, null]
+  );
+  check('history: POST response has no isAvailable', 'isAvailable' in (hMin.json ?? {}), false);
+
+  await sleep(15); // createdAt（ミリ秒）の前後関係を確定させる
+  const stickersInput = [
+    { stickerId: stickerA.id, x: 10, y: 190 },
+    { stickerId: stickerA.id, x: 60.5, y: 140 },
+  ];
+  const hFull = await req(BASE, 'POST', '/api/generation-history', {
+    body: { userId: 'e2e-user', backgroundId: bgA.id, faceId: faceA.id, scale: 1.5, dragX: 3, dragY: -2, stickers: stickersInput },
+  });
+  check('history: POST full -> 200', hFull.status, 200);
+  check('history: POST full stores ids', [hFull.json?.backgroundId, hFull.json?.faceId, hFull.json?.costumeId], [bgA.id, faceA.id, null]);
+  check('history: POST full stores scale/drag', [hFull.json?.scale, hFull.json?.dragX, hFull.json?.dragY], [1.5, 3, -2]);
+  check('history: POST full stickers round-trip', hFull.json?.stickers, stickersInput);
+
+  const list1 = await req(BASE, 'GET', '/api/generation-history?userId=e2e-user');
+  check('history: list has 2 items', list1.json?.length, 2);
+  check('history: list is newest first', list1.json?.map((h) => h.id), [hFull.json?.id, hMin.json?.id]);
+  check('history: list stickers round-trip', list1.json?.[0]?.stickers, stickersInput);
+  check('history: list isAvailable for alive/null refs', list1.json?.map((h) => h.isAvailable), [true, true]);
+
+  // isAvailable: 参照パーツが論理削除・不存在なら false。ステッカーは可用性に含めない（現行 #163 どおり）
+  const tempFace = await req(BASE, 'POST', '/api/face', { token: gmToken, body: { name: 'face-temp', assetPath: '/uploads/face/temp.png' } });
+  const tempSticker = await req(BASE, 'POST', '/api/sticker', { token: gmToken, body: { name: 'sticker-temp', assetPath: '/uploads/sticker/temp.png' } });
+  const hMixed = await req(BASE, 'POST', '/api/generation-history', {
+    body: { userId: 'e2e-user', faceId: tempFace.json?.id, stickers: [{ stickerId: tempSticker.json?.id, x: 0, y: 0 }] },
+  });
+  const hMissing = await req(BASE, 'POST', '/api/generation-history', { body: { userId: 'e2e-user', frontHairId: 999999 } });
+  await req(BASE, 'DELETE', `/api/face/${tempFace.json?.id}`, { token: adminToken });
+  await req(BASE, 'DELETE', `/api/sticker/${tempSticker.json?.id}`, { token: adminToken });
+  const list2 = await req(BASE, 'GET', '/api/generation-history?userId=e2e-user');
+  const mixedRow = list2.json?.find((h) => h.id === hMixed.json?.id);
+  check('history: isAvailable false when a referenced part is deleted', mixedRow?.isAvailable, false);
+  check('history: stickers of a deleted sticker are still returned', mixedRow?.stickers, [{ stickerId: tempSticker.json?.id, x: 0, y: 0 }]);
+  check('history: isAvailable false when a referenced part does not exist', list2.json?.find((h) => h.id === hMissing.json?.id)?.isAvailable, false);
+
+  const tempSticker2 = await req(BASE, 'POST', '/api/sticker', { token: gmToken, body: { name: 'sticker-temp2', assetPath: '/uploads/sticker/temp2.png' } });
+  const hStickerOnly = await req(BASE, 'POST', '/api/generation-history', {
+    body: { userId: 'e2e-user', stickers: [{ stickerId: tempSticker2.json?.id, x: 1, y: 2 }] },
+  });
+  await req(BASE, 'DELETE', `/api/sticker/${tempSticker2.json?.id}`, { token: adminToken });
+  const list3 = await req(BASE, 'GET', '/api/generation-history?userId=e2e-user');
+  check('history: deleted sticker alone does not affect isAvailable', list3.json?.find((h) => h.id === hStickerOnly.json?.id)?.isAvailable, true);
+
+  // stickers の形式検証（現行 #168 と同じ: 不正は 400、上限100件）
+  const badStickers = (stickers) => req(BASE, 'POST', '/api/generation-history', { body: { userId: 'e2e-user', stickers } });
+  const badStr = await badStickers('x');
+  check('history: stickers not an array -> 400', badStr.status, 400);
+  check('history: stickers invalid error message', badStr.json?.error, 'Invalid stickers');
+  check('history: stickerId 0 -> 400', (await badStickers([{ stickerId: 0, x: 0, y: 0 }])).status, 400);
+  check('history: stickerId non-integer -> 400', (await badStickers([{ stickerId: 1.5, x: 0, y: 0 }])).status, 400);
+  check('history: stickerId string -> 400', (await badStickers([{ stickerId: '1', x: 0, y: 0 }])).status, 400);
+  check('history: x non-number -> 400', (await badStickers([{ stickerId: 1, x: '0', y: 0 }])).status, 400);
+  check('history: 101 placements -> 400', (await badStickers(Array.from({ length: 101 }, () => ({ stickerId: 1, x: 0, y: 0 })))).status, 400);
+  const h100 = await badStickers(Array.from({ length: 100 }, () => ({ stickerId: 1, x: 0, y: 0 })));
+  check('history: 100 placements -> 200', h100.status, 200);
+  check('history: 100 placements stored', h100.json?.stickers?.length, 100);
+  const hEmptyStickers = await badStickers([]);
+  check('history: empty stickers array stays []', [hEmptyStickers.status, hEmptyStickers.json?.stickers], [200, []]);
+
+  // 削除: userId が一致しない場合は消えない（ただし応答は success）。存在しなくても success
+  check('history: DELETE without userId -> 400', (await req(BASE, 'DELETE', `/api/generation-history/${hMin.json?.id}`)).status, 400);
+  const delWrongUser = await req(BASE, 'DELETE', `/api/generation-history/${hMin.json?.id}?userId=other-user`);
+  check('history: DELETE with wrong userId -> success (no-op)', delWrongUser.json?.success, true);
+  const listAfterWrongDel = await req(BASE, 'GET', '/api/generation-history?userId=e2e-user');
+  check('history: wrong-user delete keeps the row', listAfterWrongDel.json?.some((h) => h.id === hMin.json?.id), true);
+  const delOk = await req(BASE, 'DELETE', `/api/generation-history/${hMin.json?.id}?userId=e2e-user`);
+  check('history: DELETE -> success', delOk.json?.success, true);
+  const listAfterDel = await req(BASE, 'GET', '/api/generation-history?userId=e2e-user');
+  check('history: deleted row is gone', listAfterDel.json?.some((h) => h.id === hMin.json?.id), false);
+  check('history: DELETE nonexistent -> success', (await req(BASE, 'DELETE', '/api/generation-history/999999?userId=e2e-user')).json?.success, true);
+
+  // 一覧は最新100件まで（105件は seed.sql で limit-user に投入済み）
+  const limitList = await req(BASE, 'GET', '/api/generation-history?userId=limit-user');
+  check('history: list is capped at 100', limitList.json?.length, 100);
+  check('history: cap keeps the newest', limitList.json?.[0]?.createdAt, '2026-01-01T00:00:00.104Z');
+
+  // ---- GM 管理（システム管理者専用、全体に adminGate） ----
+  check('gm: list without token -> 401', (await req(BASE, 'GET', '/api/game-masters')).status, 401);
+  check('gm: list as user -> 403', (await req(BASE, 'GET', '/api/game-masters', { token: userToken })).status, 403);
+  check('gm: list as game master -> 403', (await req(BASE, 'GET', '/api/game-masters', { token: gmToken })).status, 403);
+  const gmList = await req(BASE, 'GET', '/api/game-masters', { token: adminToken });
+  check('gm: list as system admin -> 200', gmList.status, 200);
+  check('gm: list contains seeded gm', gmList.json?.map((g) => g.email), ['gm@example.com']);
+  check('gm: seeded gm fields', [gmList.json?.[0]?.name, gmList.json?.[0]?.createdBy], ['GM', 'spike']);
+  check('gm: createdAt is ISO 8601', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(gmList.json?.[0]?.createdAt ?? ''), true);
+
+  check('gm: create as game master -> 403', (await req(BASE, 'POST', '/api/game-masters', { token: gmToken, body: { email: 'x@example.com' } })).status, 403);
+  const gmNoEmail = await req(BASE, 'POST', '/api/game-masters', { token: adminToken, body: { name: 'x' } });
+  check('gm: create without email -> 400', gmNoEmail.status, 400);
+  check('gm: create without email error', gmNoEmail.json?.error, 'Email is required');
+
+  const gmCreated = await req(BASE, 'POST', '/api/game-masters', { token: adminToken, body: { email: 'NewGM@Example.com', name: 'New GM' } });
+  check('gm: create -> 201', gmCreated.status, 201);
+  check('gm: create stores lowercased email', gmCreated.json?.email, 'newgm@example.com');
+  check('gm: create stores name and createdBy', [gmCreated.json?.name, gmCreated.json?.createdBy], ['New GM', 'admin@example.com']);
+  const newGmId = gmCreated.json?.id;
+
+  const gmDup = await req(BASE, 'POST', '/api/game-masters', { token: adminToken, body: { email: 'NEWGM@example.com' } });
+  check('gm: duplicate (different case) -> 409', gmDup.status, 409);
+  check('gm: duplicate error', gmDup.json?.error, 'This user is already a game master');
+  check('gm: duplicate of seeded gm (different case) -> 409', (await req(BASE, 'POST', '/api/game-masters', { token: adminToken, body: { email: 'GM@example.com' } })).status, 409);
+
+  // 登録した GM は認証で game_master になる（照合は LOWER で大小文字を区別しない）
+  const newGmToken = signToken({ email: 'newgm@example.com' });
+  check('gm: registered gm verifies as game_master', (await req(BASE, 'POST', '/api/auth/verify', { body: { token: newGmToken } })).json?.role, 'game_master');
+  const newGmUpperToken = signToken({ email: 'NewGm@Example.com' });
+  check('gm: mixed-case token email verifies as game_master', (await req(BASE, 'POST', '/api/auth/verify', { body: { token: newGmUpperToken } })).json?.role, 'game_master');
+
+  const gmList2 = await req(BASE, 'GET', '/api/game-masters', { token: adminToken });
+  check('gm: list has 2 after create', gmList2.json?.length, 2);
+  check('gm: list is newest first', gmList2.json?.[0]?.email, 'newgm@example.com');
+
+  check('gm: delete as game master -> 403', (await req(BASE, 'DELETE', `/api/game-masters/${newGmId}`, { token: gmToken })).status, 403);
+  check('gm: delete missing -> 404', (await req(BASE, 'DELETE', '/api/game-masters/999999', { token: adminToken })).status, 404);
+  const gmDel = await req(BASE, 'DELETE', `/api/game-masters/${newGmId}`, { token: adminToken });
+  check('gm: delete -> success', [gmDel.status, gmDel.json?.success, gmDel.json?.message], [200, true, 'Game master removed successfully']);
+  check('gm: delete again -> 404', (await req(BASE, 'DELETE', `/api/game-masters/${newGmId}`, { token: adminToken })).status, 404);
+  check('gm: removed gm verifies as user', (await req(BASE, 'POST', '/api/auth/verify', { body: { token: newGmToken } })).json?.role, 'user');
+
+  // adminGate: ADMIN_ENABLED=false では GM 管理も 404（認証より前に gate が効く）
+  check('adminGate: gm list with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'GET', '/api/game-masters', { token: adminToken })).status, 404);
+  check('adminGate: gm create with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'POST', '/api/game-masters', { token: adminToken, body: { email: 'x@example.com' } })).status, 404);
+  check('adminGate: gm list without token and ADMIN_ENABLED=false -> 404 (gate before auth)', (await req(BASE_NOADMIN, 'GET', '/api/game-masters')).status, 404);
 } finally {
   stopDev(dev);
   stopDev(devNoAdmin);
