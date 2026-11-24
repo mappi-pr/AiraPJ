@@ -3,7 +3,15 @@ import texts from '../locales/ja.json';
 import { getUserId } from '../utils/user';
 import axios from 'axios';
 import { PartsContext } from '../context/PartsContextOnly';
+import type { StickerInstance } from '../context/PartsContextOnly';
 import { useNavigate } from 'react-router-dom';
+
+// 生成履歴に保存されたステッカー配置1枚分（Issue #165）。並び順＝重なり順。
+interface StickerPlacementData {
+  stickerId: number;
+  x: number;
+  y: number;
+}
 
 interface GenerationHistoryItem {
   id: number;
@@ -16,6 +24,8 @@ interface GenerationHistoryItem {
   scale: number;
   dragX: number;
   dragY: number;
+  // 配置情報のない既存履歴では null / undefined になる
+  stickers?: StickerPlacementData[] | null;
   createdAt: string;
   isAvailable?: boolean; // Track if all parts are still available
 }
@@ -59,14 +69,30 @@ const History: React.FC = () => {
         history.frontHairId ? axios.get(`/api/front-hair/${history.frontHairId}`) : null,
       ]);
 
+      // ステッカー配置を復元する（Issue #165）。各ステッカーはパーツ類と同様に
+      // 個別取得するが、論理削除済みなどで取得できないものはエラーにせず
+      // その配置だけをスキップする。並び順（重なり順）は保存時のまま保つ。
+      const placements = Array.isArray(history.stickers) ? history.stickers : [];
+      const restoredStickers = (
+        await Promise.all(
+          placements.map(async (placement): Promise<StickerInstance | null> => {
+            try {
+              const res = await axios.get(`/api/sticker/${placement.stickerId}`);
+              return { sticker: res.data, x: placement.x, y: placement.y };
+            } catch {
+              return null;
+            }
+          })
+        )
+      ).filter((s): s is StickerInstance => s !== null);
+
       partsContext.setSelectedParts({
         background: backgrounds?.data || null,
         costume: costumes?.data || null,
         backHair: backHairs?.data || null,
         face: faces?.data || null,
         frontHair: frontHairs?.data || null,
-        // 生成履歴にはステッカー情報を保存していないため、履歴表示時は未配置にする
-        stickers: [],
+        stickers: restoredStickers,
       });
       partsContext.setScale(history.scale);
       partsContext.setDragPos({ x: history.dragX, y: history.dragY });
