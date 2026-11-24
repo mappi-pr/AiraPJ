@@ -39,9 +39,16 @@ const TEST_USERS = {
 };
 
 function installFakeGoogleAuth() {
-  if (!process.env.SYSTEM_ADMIN_EMAILS) {
-    process.env.SYSTEM_ADMIN_EMAILS = TEST_USERS.admin.payload.email;
+  // 既存の SYSTEM_ADMIN_EMAILS がある環境でも管理者テストが成立するよう、
+  // テスト用管理者メールを追記する（middleware/auth.ts はカンマ区切りで読み込む。重複は除く）。
+  const adminEmails = (process.env.SYSTEM_ADMIN_EMAILS || '')
+    .split(',')
+    .map((email) => email.trim())
+    .filter((email) => email.length > 0);
+  if (!adminEmails.includes(TEST_USERS.admin.payload.email)) {
+    adminEmails.push(TEST_USERS.admin.payload.email);
   }
+  process.env.SYSTEM_ADMIN_EMAILS = adminEmails.join(',');
   const payloadByToken = new Map(
     Object.values(TEST_USERS).map((user) => [user.token, user.payload])
   );
