@@ -5,7 +5,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useSound } from '../utils/useSound';
 import { PageTransition } from '../utils/PageTransition';
 import { SparkleEffect } from '../utils/SparkleEffect';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextOnly';
 import { ADMIN_ENABLED } from '../utils/adminConfig';
 
 const Title: React.FC = () => {
