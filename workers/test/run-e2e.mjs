@@ -283,6 +283,38 @@ try {
   // ADMIN_ENABLED=false のとき管理系は 404（現行 adminGate と同じ）
   check('adminGate: create with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'POST', '/api/background', { token: adminToken, body: { name: 'x', assetPath: '/uploads/bg/x.png' } })).status, 404);
   check('adminGate: list still 200 with ADMIN_ENABLED=false', (await req(BASE_NOADMIN, 'GET', '/api/background')).status, 200);
+
+  // sortOrder 採番の同時実行競合（#166 ちゃっぴー監査対応）:
+  // 作成リクエストを並行で投げても、全件成功し sortOrder が重複しないこと。
+  // この時点の有効行は bg-a(1), bg-d2(2), bg-c(3) の3件なので、次は 4 から採番される前提
+  const parallelCreates = await Promise.all(
+    ['bg-p1', 'bg-p2', 'bg-p3', 'bg-p4', 'bg-p5'].map((name) =>
+      req(BASE, 'POST', '/api/background', { token: adminToken, body: { name, assetPath: `/uploads/bg/${name}.png` } })
+    )
+  );
+  check('parallel: all 5 creates -> 200', parallelCreates.map((r) => r.status), [200, 200, 200, 200, 200]);
+  check(
+    'parallel: sortOrders are distinct 4..8',
+    parallelCreates.map((r) => r.json?.sortOrder).sort((a, b) => a - b),
+    [4, 5, 6, 7, 8]
+  );
+  const listAfterParallel = await req(BASE, 'GET', '/api/background');
+  check('parallel: list sortOrders are 1..8 without duplicates', listAfterParallel.json?.map((b) => b.sortOrder), [1, 2, 3, 4, 5, 6, 7, 8]);
+
+  // アップロード経由の作成（採番コードは共通）も並行で投げる
+  const parallelUploads = await Promise.all(
+    ['bg-pu1', 'bg-pu2', 'bg-pu3'].map((name) =>
+      reqForm(BASE, 'POST', '/api/background/upload', { token: gmToken, file: pngFile, fields: { name } })
+    )
+  );
+  check('parallel upload: all 3 uploads -> 200', parallelUploads.map((r) => r.status), [200, 200, 200]);
+  check(
+    'parallel upload: sortOrders are distinct 9..11',
+    parallelUploads.map((r) => r.json?.sortOrder).sort((a, b) => a - b),
+    [9, 10, 11]
+  );
+  const listFinal = await req(BASE, 'GET', '/api/background');
+  check('parallel upload: list has 11 items', listFinal.json?.length, 11);
 } finally {
   stopDev(dev);
   stopDev(devNoAdmin);
