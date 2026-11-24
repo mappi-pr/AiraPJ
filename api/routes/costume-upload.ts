@@ -2,7 +2,7 @@ import fs from 'fs';
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { Costume } from '../models';
+import { Costume } from '../models/costume';
 import { getUploadsBasePath } from '../config/uploads';
 import { imageFileFilter, singleImageUpload, MAX_UPLOAD_FILE_SIZE } from '../middleware/uploadValidation';
 

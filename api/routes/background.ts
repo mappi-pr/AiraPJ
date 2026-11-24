@@ -2,7 +2,7 @@ import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { Op } from 'sequelize';
-import { Background } from '../models';
+import { Background } from '../models/background';
 import { sequelize } from '../models/sequelize';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { requireAdminEnabled } from '../middleware/adminGate';
