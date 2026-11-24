@@ -1,28 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { AuthContext } from './AuthContextOnly';
+import type { User } from './AuthContextOnly';
 
-type UserRole = 'system_admin' | 'game_master' | 'user';
-
-interface User {
-  email: string;
-  name?: string;
-  picture?: string;
-  role: UserRole;
-  isSystemAdmin: boolean;
-  isGameMaster: boolean;
-  isAdmin: boolean;
-}
-
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (credential: string) => Promise<void>;
-  logout: () => void;
-  isAdmin: boolean;
-  isSystemAdmin: boolean;
-  isGameMaster: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export type { UserRole, User, AuthContextType } from './AuthContextOnly';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -32,7 +12,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const savedToken = localStorage.getItem('authToken');
     const savedUser = localStorage.getItem('authUser');
-    
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
@@ -99,12 +79,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
