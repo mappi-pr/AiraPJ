@@ -41,7 +41,10 @@ before(async () => {
 });
 
 after(async () => {
-  await new Promise((resolve) => server.close(resolve));
+  // before() が途中で失敗した場合 server は未初期化なので、初期化済みのものだけ閉じる。
+  if (server) {
+    await new Promise((resolve) => server.close(resolve));
+  }
   await sequelize.close();
 });
 
