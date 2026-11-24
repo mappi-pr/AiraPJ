@@ -37,13 +37,10 @@ router.delete('/:id', requireAdminEnabled, authenticate, requireAdmin, async (re
   try {
     const face = await Face.findByPk(req.params.id);
     if (!face || face.deleted) return res.status(404).json({ error: 'Not found' });
-    // 画像物理削除
+    // 物理ファイルの削除はトランザクションのコミット後に行う（ここではパス解決のみ）
     let filePath = face.assetPath;
     if (filePath && !path.isAbsolute(filePath)) {
       filePath = path.join(process.cwd(), filePath.replace(/^\//, ''));
-    }
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
     }
     // 論理削除し、後続の未削除アイテムのsortOrderを詰める（歯抜けを残さない）
     const deletedSortOrder = face.sortOrder;
@@ -62,6 +59,15 @@ router.delete('/:id', requireAdminEnabled, authenticate, requireAdmin, async (re
         );
       }
     });
+    // 物理ファイルの削除はトランザクションのコミット後に行う。
+    // 失敗しても論理削除は成立しているため、ログに留めてレスポンスは成功とする
+    if (filePath && fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (fileError) {
+        console.error('Failed to delete asset file:', fileError);
+      }
+    }
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting face:', error);
