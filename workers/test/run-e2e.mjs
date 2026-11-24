@@ -68,13 +68,25 @@ wrangler(['d1', 'execute', 'airapj-spike', '--local', '--file', 'test/seed.sql']
 
 // ---- wrangler dev 起動 ----
 function startDev(port, extraVars = []) {
+  // inspector ポート (既定 9229) はインスタンスごとに分け、プロセスグループごと終了できるよう detached で起動する
   const child = spawn(
     'npx',
-    ['wrangler', 'dev', '--port', String(port), '--var', `GOOGLE_JWKS_URL:http://127.0.0.1:${JWKS_PORT}/jwks.json`, ...extraVars],
-    { stdio: ['ignore', 'pipe', 'pipe'] }
+    [
+      'wrangler', 'dev', '--port', String(port), '--inspector-port', String(port + 442),
+      '--var', `GOOGLE_JWKS_URL:http://127.0.0.1:${JWKS_PORT}/jwks.json`, ...extraVars,
+    ],
+    { stdio: ['ignore', 'pipe', 'pipe'], detached: true }
   );
   child.stderr.on('data', (d) => process.stderr.write(`[wrangler:${port}] ${d}`));
   return child;
+}
+
+function stopDev(child) {
+  try {
+    process.kill(-child.pid, 'SIGTERM');
+  } catch {
+    child.kill('SIGTERM');
+  }
 }
 
 async function waitReady(base, tries = 60) {
@@ -197,8 +209,8 @@ try {
   check('adminGate: create with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'POST', '/api/background', { token: adminToken, body: { name: 'x', assetPath: '/uploads/bg/x.png' } })).status, 404);
   check('adminGate: list still 200 with ADMIN_ENABLED=false', (await req(BASE_NOADMIN, 'GET', '/api/background')).status, 200);
 } finally {
-  dev.kill('SIGTERM');
-  devNoAdmin.kill('SIGTERM');
+  stopDev(dev);
+  stopDev(devNoAdmin);
   jwksServer.close();
 }
 
