@@ -1,0 +1,22 @@
+-- 現行 PostgreSQL の backgrounds / game_masters を SQLite(D1) 方言に置き換えたもの
+-- 方言差: BOOLEAN -> INTEGER(0/1), DATE/TIMESTAMP -> TEXT(ISO 8601), SERIAL -> INTEGER PRIMARY KEY AUTOINCREMENT
+CREATE TABLE backgrounds (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  assetPath TEXT NOT NULL,
+  deleted INTEGER NOT NULL DEFAULT 0,
+  deletedAt TEXT,
+  sortOrder INTEGER NOT NULL DEFAULT 0,
+  offsetX INTEGER NOT NULL DEFAULT 0,
+  offsetY INTEGER NOT NULL DEFAULT 0,
+  width INTEGER NOT NULL DEFAULT 240,
+  height INTEGER NOT NULL DEFAULT 320
+);
+
+CREATE TABLE game_masters (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_by TEXT
+);
