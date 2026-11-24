@@ -9,7 +9,7 @@ import { imageFileFilter, singleImageUpload, MAX_UPLOAD_FILE_SIZE } from '../mid
 const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(getUploadsBasePath(), 'csm');
+    const dir = path.join(getUploadsBasePath(), 'costume');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -58,7 +58,7 @@ router.post('/upload', singleImageUpload(upload, 'asset'), async (req, res) => {
       res.status(400).json({ error: 'Invalid position/size values' });
       return;
     }
-    const assetPath = `/uploads/csm/${req.file.filename}`;
+    const assetPath = `/uploads/costume/${req.file.filename}`;
     
     const maxOrderItem = await Costume.findOne({ 
       where: { deleted: false },

@@ -8,11 +8,12 @@
     "build": "tsc",
     "test": "npm run build && node --test tests/*.test.cjs",
     "test:db": "npm run build && node --test --test-concurrency=1 tests/db/*.test.cjs",
-    "postbuild": "mkdir -p dist/uploads/face dist/uploads/frontHair dist/uploads/backHair dist/uploads/bg dist/uploads/csm",
+    "postbuild": "mkdir -p dist/uploads/face dist/uploads/frontHair dist/uploads/backHair dist/uploads/background dist/uploads/costume",
     "start": "node dist/index.js",
     "migrate": "node scripts/migrate.js migrate",
     "migrate:status": "node scripts/migrate.js status",
-    "migrate:undo": "node scripts/migrate.js undo"
+    "migrate:undo": "node scripts/migrate.js undo",
+    "rename-upload-dirs": "node scripts/rename-upload-dirs.cjs"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
