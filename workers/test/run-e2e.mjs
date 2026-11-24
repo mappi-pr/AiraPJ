@@ -205,6 +205,81 @@ try {
   check('backgrounds: deleted detail -> 404', (await req(BASE, 'GET', `/api/background/${bgB.id}`)).status, 404);
   check('backgrounds: delete again -> 404', (await req(BASE, 'DELETE', `/api/background/${bgB.id}`, { token: adminToken })).status, 404);
 
+  // 背景アップロード（R2 保存）: multipart で送り、assetPath 経由で取得し、削除で R2 からも消えること
+  async function reqForm(base, method, path, { token, fields = {}, file } = {}) {
+    const form = new FormData();
+    for (const [k, v] of Object.entries(fields)) form.append(k, v);
+    if (file) form.append('asset', new Blob([file.bytes], { type: file.type }), file.name);
+    const res = await fetch(`${base}${path}`, {
+      method,
+      headers: { ...(token ? { authorization: `Bearer ${token}` } : {}) },
+      body: form,
+    });
+    const text = await res.text();
+    let json = null;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      /* leave null */
+    }
+    return { status: res.status, json };
+  }
+
+  // 1x1 の PNG
+  const pngBytes = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+    'base64'
+  );
+  const pngFile = { bytes: pngBytes, type: 'image/png', name: 'pixel.png' };
+  const MAX_SIZE_TEST = 10 * 1024 * 1024; // 現行 MAX_UPLOAD_FILE_SIZE と同じ 10MB
+
+  check('upload: without token -> 401', (await reqForm(BASE, 'POST', '/api/background/upload', { file: pngFile, fields: { name: 'bg-up' } })).status, 401);
+  check('upload: as user -> 403', (await reqForm(BASE, 'POST', '/api/background/upload', { token: userToken, file: pngFile, fields: { name: 'bg-up' } })).status, 403);
+  check('upload: no file -> 400', (await reqForm(BASE, 'POST', '/api/background/upload', { token: gmToken, fields: { name: 'bg-up' } })).status, 400);
+  check('upload: non-PNG -> 400', (await reqForm(BASE, 'POST', '/api/background/upload', { token: gmToken, file: { bytes: Buffer.from('hello'), type: 'text/plain', name: 'x.txt' }, fields: { name: 'bg-up' } })).status, 400);
+  check('upload: PNG name but wrong MIME -> 400', (await reqForm(BASE, 'POST', '/api/background/upload', { token: gmToken, file: { bytes: pngBytes, type: 'text/plain', name: 'x.png' }, fields: { name: 'bg-up' } })).status, 400);
+  const oversized = await reqForm(BASE, 'POST', '/api/background/upload', {
+    token: gmToken,
+    file: { bytes: new Uint8Array(MAX_SIZE_TEST + 1), type: 'image/png', name: 'big.png' },
+    fields: { name: 'bg-big' },
+  });
+  check('upload: over 10MB -> 400', oversized.status, 400);
+  check('upload: over 10MB error message', oversized.json?.error, 'File too large. Maximum size is 10MB');
+  check('upload: invalid width -> 400', (await reqForm(BASE, 'POST', '/api/background/upload', { token: gmToken, file: pngFile, fields: { name: 'bg-up', width: '0' } })).status, 400);
+  check('upload: failed uploads create no records', (await req(BASE, 'GET', '/api/background')).json?.length, 3);
+
+  const uploaded = await reqForm(BASE, 'POST', '/api/background/upload', {
+    token: gmToken,
+    file: pngFile,
+    fields: { name: 'bg-up', offsetX: '5' },
+  });
+  check('upload: as game master -> 200', uploaded.status, 200);
+  check('upload: name stored', uploaded.json?.name, 'bg-up');
+  check('upload: offsetX stored', uploaded.json?.offsetX, 5);
+  check('upload: sortOrder is max+1', uploaded.json?.sortOrder, 4);
+  check(
+    'upload: assetPath keeps /uploads/bg/<file>.png format',
+    /^\/uploads\/bg\/\d+-[a-z0-9]+\.png$/.test(uploaded.json?.assetPath ?? ''),
+    true
+  );
+  const uploadedId = uploaded.json?.id;
+  const uploadedPath = uploaded.json?.assetPath;
+
+  // 配信: assetPath をそのまま GET して、上げたバイト列と一致すること（認証なし＝現行の静的配信と同じ）
+  const served = await fetch(`${BASE}${uploadedPath}`);
+  check('uploads: GET assetPath -> 200', served.status, 200);
+  check('uploads: content-type is image/png', served.headers.get('content-type'), 'image/png');
+  const servedBytes = Buffer.from(await served.arrayBuffer());
+  check('uploads: served bytes match uploaded bytes', servedBytes.equals(pngBytes), true);
+  check('uploads: missing object -> 404', (await fetch(`${BASE}/uploads/bg/no-such-file.png`)).status, 404);
+
+  // 削除: 論理削除後に assetPath へアクセスすると 404（R2 オブジェクトも消えている）
+  const delUploaded = await req(BASE, 'DELETE', `/api/background/${uploadedId}`, { token: adminToken });
+  check('upload: delete uploaded -> success', delUploaded.json?.success, true);
+  check('uploads: after delete GET assetPath -> 404', (await fetch(`${BASE}${uploadedPath}`)).status, 404);
+  const listAfterUploadDelete = await req(BASE, 'GET', '/api/background');
+  check('upload: after delete list is back to 3 items', listAfterUploadDelete.json?.map((b) => b.name), ['bg-a', 'bg-d2', 'bg-c']);
+
   // ADMIN_ENABLED=false のとき管理系は 404（現行 adminGate と同じ）
   check('adminGate: create with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'POST', '/api/background', { token: adminToken, body: { name: 'x', assetPath: '/uploads/bg/x.png' } })).status, 404);
   check('adminGate: list still 200 with ADMIN_ENABLED=false', (await req(BASE_NOADMIN, 'GET', '/api/background')).status, 200);

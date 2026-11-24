@@ -7,6 +7,7 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 export interface Env {
   DB: D1Database;
+  UPLOADS: R2Bucket;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_JWKS_URL?: string;
   SYSTEM_ADMIN_EMAILS?: string;

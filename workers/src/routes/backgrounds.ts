@@ -5,11 +5,11 @@ import { requireAdminEnabled, authenticate, requireAdmin } from '../middleware';
 // 現行 api/routes/background.ts の Workers(D1) 版スパイク。
 // 作成は現行では /api/background/upload（multer でファイルをディスク保存してから作成）のみ。
 // ここではレコード作成の意味論（バリデーション・sortOrder 採番）を JSON POST で再現し、
-// ファイル実体の保存先（R2）の検証は次段階に分ける。
+// ファイル実体つきの作成は background-upload.ts（R2 保存）で検証する。
 
 type Vars = { Bindings: Env; Variables: { user: AuthenticatedUser } };
 
-interface BackgroundRow {
+export interface BackgroundRow {
   id: number;
   name: string;
   assetPath: string;
@@ -23,7 +23,7 @@ interface BackgroundRow {
 }
 
 // Sequelize の JSON 表現に合わせる（deleted は boolean、deletedAt は ISO 文字列か null）
-function toJson(row: BackgroundRow) {
+export function toJson(row: BackgroundRow) {
   return {
     id: row.id,
     name: row.name,
@@ -133,7 +133,15 @@ app.delete('/:id', requireAdminEnabled, authenticate, requireAdmin, async (c) =>
       );
     }
     await c.env.DB.batch(statements);
-    // 現行はコミット後に物理ファイルも消す。スパイクではファイル実体がないため対象外（R2 は次段階）
+    // 現行はコミット後に物理ファイルも消す。R2 でも同じ順序・同じ扱いにし、
+    // 削除に失敗しても論理削除は成立しているため、ログに留めてレスポンスは成功とする。
+    // キーは assetPath (/uploads/bg/xxx.png) からプレフィックスを外して逆引きする
+    const key = background.assetPath.replace(/^\/uploads\//, '');
+    try {
+      await c.env.UPLOADS.delete(key);
+    } catch (fileError) {
+      console.error('Failed to delete asset file in R2:', fileError);
+    }
     return c.json({ success: true });
   } catch (error) {
     console.error('Error deleting background:', error);

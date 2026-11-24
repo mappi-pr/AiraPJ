@@ -8,6 +8,11 @@ database_name = "airapj-spike"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
 
+# アップロード画像の保存先（現行のローカルディスク uploads/ の置き換え検証用）
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "airapj-spike-uploads"
+
 [vars]
 GOOGLE_CLIENT_ID = "spike-test-client-id"
 # わざと大文字混じりにして、大小文字を区別しない照合（現行仕様）を検証する
