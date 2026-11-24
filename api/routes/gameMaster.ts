@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { GameMaster } from '../models/gameMaster';
-import { authenticate, requireSystemAdmin } from '../middleware/auth';
+import { authenticate, requireSystemAdmin, isGameMaster } from '../middleware/auth';
 
 const router = Router();
 
@@ -32,15 +32,17 @@ router.post('/', authenticate, requireSystemAdmin, async (req, res) => {
       return;
     }
 
-    // 既に登録されているかチェック
-    const existing = await GameMaster.findOne({ where: { email } });
-    if (existing) {
+    // メールアドレスは大文字小文字を区別しないため、小文字化して登録する（Issue #148）
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    // 既に登録されているかチェック（照合も大文字小文字を区別しない）
+    if (await isGameMaster(normalizedEmail)) {
       res.status(409).json({ error: 'This user is already a game master' });
       return;
     }
 
     const gameMaster = await GameMaster.create({
-      email,
+      email: normalizedEmail,
       name: name || null,
       createdBy: user.email,
     });

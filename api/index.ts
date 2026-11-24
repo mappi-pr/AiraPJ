@@ -21,11 +21,12 @@ import navigationButtonRouter from './routes/navigationButton';
 import navigationButtonUploadRouter from './routes/navigationButton-upload';
 import { sequelize, NavigationButton } from './models';
 import { getUploadsBasePath } from './config/uploads';
+import { corsOptions } from './config/cors';
 import { authenticate, requireAdmin } from './middleware/auth';
 import { requireAdminEnabled } from './middleware/adminGate';
 
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // データベース接続状態を管理
@@ -142,8 +143,8 @@ app.use('/uploads', (req, res, next) => {
   next();
 });
 
-// 静的ファイル配信にもCORSを適用
-app.use('/uploads', cors(), express.static(uploadsDir));
+// 静的ファイル配信にもCORSを適用（APIと同じ許可リストを使う）
+app.use('/uploads', cors(corsOptions), express.static(uploadsDir));
 
 const PORT = Number(process.env.PORT) || 4000;
 // 本番環境ではセキュリティのため HOST 環境変数で制御可能
