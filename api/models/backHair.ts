@@ -1,5 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
-import { sequelize } from './index';
+import { sequelize } from './sequelize';
 
 export class BackHair extends Model {
   public id!: number;
