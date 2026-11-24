@@ -1,0 +1,22 @@
+# リハーサル専用の wrangler 設定（本検証用のローカル D1 を e2e 用と分離する）
+# 使い方（workers/ ディレクトリから）:
+#   npx wrangler d1 migrations apply airapj-rehearsal --local --config migration/rehearsal/wrangler.rehearsal.toml
+#   npx wrangler d1 execute airapj-rehearsal --local --config migration/rehearsal/wrangler.rehearsal.toml --file migration/out/d1-data.sql
+name = "airapj-rehearsal"
+main = "../../src/index.ts"
+compatibility_date = "2024-11-27"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "airapj-rehearsal"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "../../migrations"
+
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "airapj-rehearsal-uploads"
+
+[vars]
+GOOGLE_CLIENT_ID = "spike-test-client-id"
+SYSTEM_ADMIN_EMAILS = "Admin@Example.com"
+ADMIN_ENABLED = "true"
