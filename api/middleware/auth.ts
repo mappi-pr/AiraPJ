@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { OAuth2Client } from 'google-auth-library';
+import { fn, col, where as sqlWhere } from 'sequelize';
 import { GameMaster } from '../models/gameMaster';
 
 export interface AuthenticatedUser {
@@ -24,9 +25,10 @@ if (!GOOGLE_CLIENT_ID) {
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // システム管理者メールアドレスのホワイトリスト（最強権限）
+// メールアドレスは大文字小文字を区別しないため、登録側・照合側とも小文字化して比較する（Issue #148）
 const SYSTEM_ADMIN_EMAILS = (process.env.SYSTEM_ADMIN_EMAILS || '')
   .split(',')
-  .map(email => email.trim())
+  .map(email => email.trim().toLowerCase())
   .filter(email => email.length > 0);
 
 // Google IDトークンを検証し、ペイロードを取得
@@ -44,18 +46,20 @@ export async function verifyGoogleToken(token: string) {
   }
 }
 
-// メールアドレスがシステム管理者リストに含まれているかチェック
+// メールアドレスがシステム管理者リストに含まれているかチェック（大文字小文字を区別しない）
 export function isSystemAdmin(email: string | undefined): boolean {
   if (!email) return false;
-  return SYSTEM_ADMIN_EMAILS.includes(email);
+  return SYSTEM_ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
-// メールアドレスがゲームマスターかチェック（データベースから確認）
+// メールアドレスがゲームマスターかチェック（データベースから確認、大文字小文字を区別しない）
 export async function isGameMaster(email: string | undefined): Promise<boolean> {
   if (!email) return false;
-  
+
   try {
-    const gameMaster = await GameMaster.findOne({ where: { email } });
+    const gameMaster = await GameMaster.findOne({
+      where: sqlWhere(fn('LOWER', col('email')), email.toLowerCase()),
+    });
     return gameMaster !== null;
   } catch (error) {
     console.error('Error checking game master status:', error);

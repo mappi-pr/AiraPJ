@@ -1,7 +1,8 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
 
-process.env.SYSTEM_ADMIN_EMAILS = 'root@example.com';
+// 環境変数側に大文字混じりで登録されたケースを再現する（Issue #148）
+process.env.SYSTEM_ADMIN_EMAILS = 'Root@Example.com';
 process.env.GOOGLE_CLIENT_ID = 'test-client-id';
 
 const {
@@ -48,9 +49,12 @@ test('authenticate rejects requests without a bearer token', async () => {
   assert.equal(nextCalled, false);
 });
 
-test('system administrator allowlist is matched exactly', () => {
+test('system administrator allowlist is matched case-insensitively', () => {
+  // 環境変数は 'Root@Example.com'（大文字混じり）で登録されている
   assert.equal(isSystemAdmin('root@example.com'), true);
-  assert.equal(isSystemAdmin('ROOT@example.com'), false);
+  assert.equal(isSystemAdmin('ROOT@EXAMPLE.COM'), true);
+  assert.equal(isSystemAdmin('Root@Example.com'), true);
+  assert.equal(isSystemAdmin('other@example.com'), false);
   assert.equal(isSystemAdmin(undefined), false);
 });
 
