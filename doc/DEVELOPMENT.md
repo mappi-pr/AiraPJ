@@ -953,6 +953,22 @@ npm run test:frontend
 npm run test:api
 ```
 
+#### DBテスト（実DBが必要）
+
+論理削除と並び順（`sortOrder`）の整合など、DBの実データに依存する処理のテストは `api/tests/db/` に分離されています。通常の `npm test` には含まれません。
+
+PostgreSQL が起動している環境で、リポジトリルートから実行します。
+
+```bash
+npm run test:db
+```
+
+接続情報は環境変数 `DB_HOST` / `DB_PORT` / `DB_USER` / `DB_PASS` / `DB_NAME` で渡します。テストは `${DB_NAME}_test`（既定: `airapj_test`）という専用DBを自動で作成し、`sequelize.sync()` で最新スキーマを作り直してから実行します。本番・開発用DBには触れません。
+
+DBテストでは認証も本物の経路で検証します。差し替えるのは外部サービスである Google の ID トークン検証だけで（`api/tests/db/fakeGoogleAuth.cjs`）、ログイン（`POST /api/auth/verify`）・`authenticate`・ロール解決・`requireAdmin` は実装そのまま動かします。テスト用ユーザーは3種あり、システム管理者は `SYSTEM_ADMIN_EMAILS` 登録、ゲームマスターは `GameMaster` テーブルへの seed で再現します。
+
+GitHub Actions でこのテストを回すには、ワークフロー（`.github/workflows/ci.yml`）に PostgreSQL のサービスコンテナと `npm run test:db` のステップ追加が必要です（Issue #131）。
+
 GitHub Actions は push と pull request 時に自動テスト、lint、ビルドを実行します。
 
 ---
