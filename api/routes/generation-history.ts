@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { Op } from 'sequelize';
-import GenerationHistory from '../models/generationHistory';
+import GenerationHistory, { StickerPlacement } from '../models/generationHistory';
 import User from '../models/user';
 import { Background, Costume } from '../models';
 import { BackHair } from '../models/backHair';
@@ -8,6 +8,29 @@ import { Face } from '../models/face';
 import { FrontHair } from '../models/frontHair';
 
 const router = Router();
+
+// POST で受け取ったステッカー配置を検証し、保存形式に正規化する（Issue #165）。
+// 未指定（undefined / null）は「配置なし」として null を返す。
+// 形式が不正な場合は null と区別するため例外を投げ、呼び出し側で 400 にする。
+const MAX_STICKER_PLACEMENTS = 100;
+
+function normalizeStickerPlacements(input: unknown): StickerPlacement[] | null {
+  if (input === undefined || input === null) return null;
+  if (!Array.isArray(input) || input.length > MAX_STICKER_PLACEMENTS) {
+    throw new Error('Invalid stickers');
+  }
+  return input.map((item) => {
+    if (typeof item !== 'object' || item === null) throw new Error('Invalid stickers');
+    const { stickerId, x, y } = item as { stickerId?: unknown; x?: unknown; y?: unknown };
+    if (typeof stickerId !== 'number' || !Number.isInteger(stickerId) || stickerId <= 0) {
+      throw new Error('Invalid stickers');
+    }
+    if (typeof x !== 'number' || !Number.isFinite(x) || typeof y !== 'number' || !Number.isFinite(y)) {
+      throw new Error('Invalid stickers');
+    }
+    return { stickerId, x, y };
+  });
+}
 
 // 履歴が参照するパーツがすべて現存する（論理削除されていない）かを一括で判定する。
 // 履歴件数によらず、リソースごとに IN 句で1回ずつ照会する（最大5クエリ）。
@@ -89,9 +112,17 @@ router.post('/', async (req, res) => {
       dragX,
       dragY,
       imageUrl,
+      stickers,
     } = req.body;
 
     if (!userId) return res.status(400).json({ error: 'userId required' });
+
+    let stickerPlacements: StickerPlacement[] | null;
+    try {
+      stickerPlacements = normalizeStickerPlacements(stickers);
+    } catch {
+      return res.status(400).json({ error: 'Invalid stickers' });
+    }
 
     // Ensure user exists
     await User.findOrCreate({
@@ -110,6 +141,7 @@ router.post('/', async (req, res) => {
       dragX: dragX || 0,
       dragY: dragY || 0,
       imageUrl: imageUrl || null,
+      stickers: stickerPlacements,
     });
 
     res.json(history);

@@ -220,6 +220,13 @@ const Photo: React.FC = () => {
             scale,
             dragX: dragPos.x,
             dragY: dragPos.y,
+            // ステッカー配置も履歴に保存し、履歴からの再表示で復元できるようにする（Issue #165）。
+            // 配列の並び順が重なり順。座標はキャプチャ領域内の px 値で StickerInstance と同じ。
+            stickers: selectedParts.stickers.map(s => ({
+              stickerId: s.sticker.id,
+              x: s.x,
+              y: s.y,
+            })),
           });
           console.log('Generation history saved');
         } catch (error) {
