@@ -45,6 +45,12 @@ async function ensureTestDatabase() {
         if (err.code !== '23505' && err.code !== '42P04') {
           throw err;
         }
+        // 競合で他プロセスが作成したはずだが、成功扱いにする前に存在を再確認する。
+        // それでも存在しなければ作成に失敗しているので、元のエラーを投げる。
+        const recheck = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [testDbName]);
+        if (recheck.rowCount === 0) {
+          throw err;
+        }
       }
     }
   } finally {
@@ -74,6 +80,18 @@ function loadModels() {
 // 新規DBはマイグレーションではなく sequelize.sync() で作成するのが
 // このリポジトリの正式な運用（doc/DEVELOPMENT.md 参照。アプリ起動時も sync）。
 async function resetSchema(sequelize) {
+  // sync({ force: true }) は破壊的なので、実行直前に接続先がテスト用DBであることを確認する。
+  // DB名は helpers の読み込み時点で `${DB_NAME}_test` に固定されるため通常は一致するが、
+  // 万一の誤設定でも本番・開発DBへ force sync が向かわないための最終ガード。
+  const configuredDb =
+    typeof sequelize.getDatabaseName === 'function'
+      ? sequelize.getDatabaseName()
+      : sequelize.config && sequelize.config.database;
+  if (configuredDb !== testDbName) {
+    throw new Error(
+      `Refusing to force-sync unexpected database: ${configuredDb} (expected ${testDbName})`
+    );
+  }
   await sequelize.sync({ force: true });
 }
 
