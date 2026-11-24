@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigationButtons } from '../context/NavigationButtonContext';
+import { useNavigationButtons } from '../context/NavigationButtonContextOnly';
 import './NavigationButton.css';
 
 interface NavigationButtonProps {
