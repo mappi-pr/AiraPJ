@@ -36,8 +36,16 @@ async function ensureTestDatabase() {
   try {
     const result = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [testDbName]);
     if (result.rowCount === 0) {
-      // 識別子はパラメータ化できないため、検証済みの名前を引用して埋め込む
-      await client.query(`CREATE DATABASE "${testDbName}"`);
+      try {
+        // 識別子はパラメータ化できないため、検証済みの名前を引用して埋め込む
+        await client.query(`CREATE DATABASE "${testDbName}"`);
+      } catch (err) {
+        // 別プロセスが先に作成していた場合は成功扱いにする
+        // （23505: pg_database の一意制約違反、42P04: duplicate_database）
+        if (err.code !== '23505' && err.code !== '42P04') {
+          throw err;
+        }
+      }
     }
   } finally {
     await client.end();
