@@ -1,16 +1,11 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { Locale, SupportedLanguage } from '../types/locale';
 import { SUPPORTED_LANGUAGES } from '../types/locale';
 import ja from '../locales/ja.json';
+import { LocaleContext } from './LocaleContextOnly';
 
-interface LocaleContextType {
-  locale: SupportedLanguage;
-  setLocale: (locale: SupportedLanguage) => void;
-  t: Locale;
-}
-
-export const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
+export type { LocaleContextType } from './LocaleContextOnly';
 
 interface LocaleProviderProps {
   children: ReactNode;

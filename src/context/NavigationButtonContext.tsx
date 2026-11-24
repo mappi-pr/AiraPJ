@@ -1,16 +1,8 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
+import { NavigationButtonContext } from './NavigationButtonContextOnly';
+import type { NavigationButtonImages } from './NavigationButtonContextOnly';
 
-export interface NavigationButtonImages {
-  prev: string | null;
-  next: string | null;
-}
-
-export interface NavigationButtonContextType {
-  buttonImages: NavigationButtonImages;
-  refreshButtonImages: () => Promise<void>;
-}
-
-export const NavigationButtonContext = createContext<NavigationButtonContextType | null>(null);
+export type { NavigationButtonImages, NavigationButtonContextType } from './NavigationButtonContextOnly';
 
 export const NavigationButtonProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [buttonImages, setButtonImages] = useState<NavigationButtonImages>({
@@ -44,12 +36,4 @@ export const NavigationButtonProvider: React.FC<{ children: React.ReactNode }> =
       {children}
     </NavigationButtonContext.Provider>
   );
-};
-
-export const useNavigationButtons = () => {
-  const context = useContext(NavigationButtonContext);
-  if (!context) {
-    throw new Error('useNavigationButtons must be used within NavigationButtonProvider');
-  }
-  return context;
 };
