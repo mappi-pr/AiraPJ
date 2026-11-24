@@ -42,6 +42,40 @@ async function findByPk(db: D1Database, id: string): Promise<BackgroundRow | nul
   return db.prepare('SELECT * FROM backgrounds WHERE id = ?').bind(id).first<BackgroundRow>();
 }
 
+export interface NewBackground {
+  name: string;
+  assetPath: string;
+  offsetX: number;
+  offsetY: number;
+  width: number;
+  height: number;
+}
+
+// sortOrder の採番と INSERT を単一文で行う（#166 ちゃっぴー監査対応）。
+// 以前は SELECT MAX(sortOrder) → 別文 INSERT の2段構えで、同時作成が両方とも同じ max+1 を
+// 計算して sortOrder が重複し得た。INSERT ... SELECT なら採番と挿入が1文で原子的に進む。
+// それでも一意制約（部分インデックス idx_backgrounds_sort_order_active）に当たった場合は
+// 1回だけ再試行する。再試行側は改めて MAX を計算し直すため、競合相手が先に作った分だけ進んだ値になる。
+export async function insertBackground(db: D1Database, input: NewBackground): Promise<BackgroundRow> {
+  const attempt = () =>
+    db
+      .prepare(
+        `INSERT INTO backgrounds (name, assetPath, sortOrder, offsetX, offsetY, width, height)
+         SELECT ?, ?, COALESCE(MAX(sortOrder), 0) + 1, ?, ?, ?, ?
+         FROM backgrounds WHERE deleted = 0
+         RETURNING *`
+      )
+      .bind(input.name, input.assetPath, input.offsetX, input.offsetY, input.width, input.height)
+      .first<BackgroundRow>();
+  try {
+    return (await attempt())!;
+  } catch (e) {
+    if (!/UNIQUE constraint failed/i.test(e instanceof Error ? e.message : String(e))) throw e;
+    console.warn('sortOrder unique conflict on background create; retrying once:', e);
+    return (await attempt())!;
+  }
+}
+
 const app = new Hono<Vars>();
 
 // GET /api/background
@@ -95,17 +129,8 @@ app.post('/', requireAdminEnabled, authenticate, requireAdmin, async (c) => {
     ) {
       return c.json({ error: 'Invalid position/size values' }, 400);
     }
-    const maxRow = await c.env.DB.prepare(
-      'SELECT MAX(sortOrder) AS maxSortOrder FROM backgrounds WHERE deleted = 0'
-    ).first<{ maxSortOrder: number | null }>();
-    const sortOrder = maxRow && maxRow.maxSortOrder !== null ? maxRow.maxSortOrder + 1 : 1;
-
-    const inserted = await c.env.DB.prepare(
-      'INSERT INTO backgrounds (name, assetPath, sortOrder, offsetX, offsetY, width, height) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *'
-    )
-      .bind(name, assetPath, sortOrder, offsetX, offsetY, width, height)
-      .first<BackgroundRow>();
-    return c.json(toJson(inserted!));
+    const inserted = await insertBackground(c.env.DB, { name, assetPath, offsetX, offsetY, width, height });
+    return c.json(toJson(inserted));
   } catch (err) {
     console.error('Background create error:', err);
     return c.json({ error: 'Internal server error' }, 500);
@@ -126,9 +151,20 @@ app.delete('/:id', requireAdminEnabled, authenticate, requireAdmin, async (c) =>
       ),
     ];
     if (deletedSortOrder > 0) {
+      // 詰め直しは「全行 -1」を1文でやらず、大きなオフセットを経由する2文に分ける。
+      // sortOrder には有効行の一意制約（部分インデックス）があるため、-1 の一括更新は
+      // 行の処理順によっては途中状態で重複と判定され得る。いったん全対象を +OFFSET の
+      // 未使用レンジへ退避させてから -(OFFSET+1) で戻せば、どの行から処理されても
+      // 退避先・戻し先のどちらでも既存値と重ならない。
+      const COMPACT_OFFSET = 1_000_000;
       statements.push(
-        c.env.DB.prepare('UPDATE backgrounds SET sortOrder = sortOrder - 1 WHERE deleted = 0 AND sortOrder > ?').bind(
+        c.env.DB.prepare('UPDATE backgrounds SET sortOrder = sortOrder + ? WHERE deleted = 0 AND sortOrder > ?').bind(
+          COMPACT_OFFSET,
           deletedSortOrder
+        ),
+        c.env.DB.prepare('UPDATE backgrounds SET sortOrder = sortOrder - ? WHERE deleted = 0 AND sortOrder > ?').bind(
+          COMPACT_OFFSET + 1,
+          COMPACT_OFFSET
         )
       );
     }
@@ -168,9 +204,13 @@ app.put('/:id/order', requireAdminEnabled, authenticate, requireAdmin, async (c)
     if (swapIndex === -1) return c.json({ success: true, message: 'Already at edge' });
 
     const swapItem = allItems[swapIndex];
+    // sortOrder の交換は一時値 0 を経由する3文にする。有効行の一意制約（部分インデックス）があるため、
+    // 2文で直接入れ替えると1文目で相手の値と重複して制約に当たる。有効行の sortOrder は 1 以上で
+    // 0 は未使用なので、まず自分を 0 へ退避させ、相手に自分の旧値を渡し、最後に相手の旧値を受け取る。
     await c.env.DB.batch([
-      c.env.DB.prepare('UPDATE backgrounds SET sortOrder = ? WHERE id = ?').bind(swapItem.sortOrder, currentItem.id),
+      c.env.DB.prepare('UPDATE backgrounds SET sortOrder = 0 WHERE id = ?').bind(currentItem.id),
       c.env.DB.prepare('UPDATE backgrounds SET sortOrder = ? WHERE id = ?').bind(currentItem.sortOrder, swapItem.id),
+      c.env.DB.prepare('UPDATE backgrounds SET sortOrder = ? WHERE id = ?').bind(swapItem.sortOrder, currentItem.id),
     ]);
     return c.json({ success: true });
   } catch (error) {
