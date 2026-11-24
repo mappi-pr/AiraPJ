@@ -72,7 +72,11 @@ before(async () => {
 });
 
 after(async () => {
-  await new Promise((resolve) => server.close(resolve));
+  // before() が途中で失敗した場合 server は未初期化なので、初期化済みのものだけ閉じる
+  // （未初期化のまま close すると二次エラーになり、本来の失敗原因が見えなくなる）。
+  if (server) {
+    await new Promise((resolve) => server.close(resolve));
+  }
   await sequelize.close();
   fs.rmSync(process.env.UPLOADS_DIR, { recursive: true, force: true });
 });
