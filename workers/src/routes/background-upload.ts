@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import type { Env, AuthenticatedUser } from '../auth';
 import { requireAdminEnabled, authenticate, requireAdmin } from '../middleware';
-import { toJson, type BackgroundRow } from './backgrounds';
+import { toJson, insertBackground } from './backgrounds';
 
 // 現行 api/routes/background-upload.ts（multer → ローカルディスク保存）の Workers 版スパイク。
 // 保存先を R2 に替えるが、DB に入る assetPath は現行互換の /uploads/bg/<filename> のままにし、
@@ -80,17 +80,10 @@ app.post('/upload', requireAdminEnabled, authenticate, requireAdmin, async (c) =
       httpMetadata: { contentType: file.type },
     });
 
-    const maxRow = await c.env.DB.prepare(
-      'SELECT MAX(sortOrder) AS maxSortOrder FROM backgrounds WHERE deleted = 0'
-    ).first<{ maxSortOrder: number | null }>();
-    const sortOrder = maxRow && maxRow.maxSortOrder !== null ? maxRow.maxSortOrder + 1 : 1;
-
-    const inserted = await c.env.DB.prepare(
-      'INSERT INTO backgrounds (name, assetPath, sortOrder, offsetX, offsetY, width, height) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *'
-    )
-      .bind(name, assetPath, sortOrder, offsetX, offsetY, width, height)
-      .first<BackgroundRow>();
-    return c.json(toJson(inserted!));
+    // 採番は JSON POST 側と共通の insertBackground（単一文採番＋制約競合時の1回再試行）を使う。
+    // 再試行しても失敗した場合は例外になり、下の catch で R2 側を巻き戻す（従来どおり）
+    const inserted = await insertBackground(c.env.DB, { name, assetPath, offsetX, offsetY, width, height });
+    return c.json(toJson(inserted));
   } catch (err) {
     console.error('Background upload error:', err);
     if (key) {
