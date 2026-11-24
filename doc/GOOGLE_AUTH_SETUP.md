@@ -44,10 +44,12 @@ DB_HOST=localhost
 DB_PORT=5432
 PORT=4000
 GOOGLE_CLIENT_ID=あなたのクライアントID.apps.googleusercontent.com
-ADMIN_EMAILS=admin@example.com,anotheradmin@example.com
+SYSTEM_ADMIN_EMAILS=admin@example.com,anotheradmin@example.com
 ```
 
-**重要**: `ADMIN_EMAILS` には管理者として登録したいGoogleアカウントのメールアドレスをカンマ区切りで指定してください。
+**重要**: `SYSTEM_ADMIN_EMAILS` にはシステム管理者として登録したいGoogleアカウントのメールアドレスをカンマ区切りで指定してください。
+
+権限は2段階あります。**システム管理者**はこの環境変数で指定し、全機能に加えてゲームマスターの登録・削除が行えます。**ゲームマスター**はシステム管理者が設定画面から登録し、アセットのアップロード・削除などの管理機能を利用できます。
 
 ## 4. 動作確認
 
@@ -91,7 +93,7 @@ npm run dev
 ## セキュリティ上の注意事項
 
 - **絶対に** `.env` ファイルをGitにコミットしないでください
-- 本番環境では必ず `ADMIN_EMAILS` を適切に設定してください
+- 本番環境では必ず `SYSTEM_ADMIN_EMAILS` を適切に設定してください
 - Google Cloud Consoleで承認済みドメインを正しく設定してください
 - 本番環境では HTTPS を使用してください
 
@@ -105,7 +107,7 @@ npm run dev
 
 ### 管理画面にアクセスできない場合
 
-1. `api/.env` の `ADMIN_EMAILS` にログインしたメールアドレスが含まれているか確認
+1. システム管理者の場合は `api/.env` の `SYSTEM_ADMIN_EMAILS` に、ゲームマスターの場合は設定画面でゲームマスターとして登録されているか確認
 2. APIサーバーが起動しているか確認
 3. ブラウザの開発者ツールでネットワークタブを確認し、APIレスポンスを確認
 
