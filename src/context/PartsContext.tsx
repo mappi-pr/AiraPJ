@@ -11,6 +11,7 @@ export const PartsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     backHair: null,
     face: null,
     frontHair: null,
+    stickers: [],
   });
   const [scale, setScale] = useState(1);
   const [dragPos, setDragPos] = useState({ x: 0, y: 0 });

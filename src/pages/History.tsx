@@ -87,6 +87,8 @@ const History: React.FC = () => {
         backHair: backHairs?.data || null,
         face: faces?.data || null,
         frontHair: frontHairs?.data || null,
+        // 生成履歴にはステッカー情報を保存していないため、履歴表示時は未配置にする
+        stickers: [],
       });
       partsContext.setScale(history.scale);
       partsContext.setDragPos({ x: history.dragX, y: history.dragY });

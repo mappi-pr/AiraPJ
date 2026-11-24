@@ -14,6 +14,8 @@ import frontHairRouter from './routes/frontHair';
 import frontHairUploadRouter from './routes/frontHair-upload';
 import backHairRouter from './routes/backHair';
 import backHairUploadRouter from './routes/backHair-upload';
+import stickerRouter from './routes/sticker';
+import stickerUploadRouter from './routes/sticker-upload';
 import generationHistoryRouter from './routes/generation-history';
 import navigationButtonRouter from './routes/navigationButton';
 import navigationButtonUploadRouter from './routes/navigationButton-upload';
@@ -116,6 +118,7 @@ app.use('/api/favorite', favoriteRouter);
 app.use('/api/face', faceRouter);
 app.use('/api/front-hair', frontHairRouter);
 app.use('/api/back-hair', backHairRouter);
+app.use('/api/sticker', stickerRouter);
 
 // 管理者専用API（認証＋管理者権限必要）
 app.use('/api/background', requireAdminEnabled, authenticate, requireAdmin, backgroundUploadRouter);
@@ -123,6 +126,7 @@ app.use('/api/costume', requireAdminEnabled, authenticate, requireAdmin, costume
 app.use('/api/face', requireAdminEnabled, authenticate, requireAdmin, faceUploadRouter);
 app.use('/api/front-hair', requireAdminEnabled, authenticate, requireAdmin, frontHairUploadRouter);
 app.use('/api/back-hair', requireAdminEnabled, authenticate, requireAdmin, backHairUploadRouter);
+app.use('/api/sticker', requireAdminEnabled, authenticate, requireAdmin, stickerUploadRouter);
 app.use('/api/generation-history', generationHistoryRouter);
 app.use('/api/navigation-buttons', navigationButtonRouter);
 app.use('/api/navigation-buttons', requireAdminEnabled, authenticate, requireAdmin, navigationButtonUploadRouter);

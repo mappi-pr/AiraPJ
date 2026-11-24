@@ -54,7 +54,12 @@
     "resetButton": "位置リセット",
     "noBackground": "背景未選択",
     "noCostume": "衣装未選択",
-    "noPartsContext": "パーツ情報が取得できません"
+    "noPartsContext": "パーツ情報が取得できません",
+    "stickerAddButton": "ステッカー追加",
+    "stickerSelectTitle": "ステッカーを選択",
+    "stickerPlacedTitle": "配置済みステッカー",
+    "stickerCloseButton": "閉じる",
+    "stickerRemoveButton": "削除"
   },
   "history": {
     "title": "履歴表示",
@@ -90,6 +95,7 @@
     "backHairLabel": "後髪パーツ",
     "backgroundLabel": "背景",
     "costumeLabel": "衣装",
+    "stickerLabel": "ステッカー",
     "deleteBtn": "削除",
     "deleteConfirm": "本当に削除しますか？（画像は物理削除・DBは論理削除されます）",
     "deleteSuccess": "削除しました",

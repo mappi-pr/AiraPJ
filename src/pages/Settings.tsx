@@ -105,6 +105,7 @@ const Settings: React.FC = () => {
     backHair: '/api/back-hair/upload',
     background: '/api/background/upload',
     costume: '/api/costume/upload',
+    sticker: '/api/sticker/upload',
   };
 
   // useMemoで最適化：tが変わったときのみ再計算
@@ -114,6 +115,7 @@ const Settings: React.FC = () => {
     { key: 'backHair', label: t.settings.backHairLabel },
     { key: 'background', label: t.settings.backgroundLabel },
     { key: 'costume', label: t.settings.costumeLabel },
+    { key: 'sticker', label: t.settings.stickerLabel },
   ], [t]);
 
   // セクション展開時のみアセットを取得

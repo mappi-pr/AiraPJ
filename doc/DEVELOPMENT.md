@@ -839,6 +839,14 @@ AiraPJ/
 - `PUT /api/costume/:id/order` - 衣装の並び替え
 - `DELETE /api/costume/:id` - 衣装削除
 
+#### ステッカー
+- `GET /api/sticker` - ステッカー一覧取得
+- `GET /api/sticker/:id` - ステッカー取得
+- `POST /api/sticker/upload` - ステッカーアップロード
+- `PUT /api/sticker/:id` - ステッカー更新（位置・サイズ等）
+- `PUT /api/sticker/:id/order` - ステッカーの並び替え
+- `DELETE /api/sticker/:id` - ステッカー削除（論理削除）
+
 #### お気に入り
 - `GET /api/favorite` - お気に入り一覧取得
 - `POST /api/favorite` - お気に入り追加
