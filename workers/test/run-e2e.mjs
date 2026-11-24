@@ -605,6 +605,54 @@ try {
   check('adminGate: gm list with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'GET', '/api/game-masters', { token: adminToken })).status, 404);
   check('adminGate: gm create with ADMIN_ENABLED=false -> 404', (await req(BASE_NOADMIN, 'POST', '/api/game-masters', { token: adminToken, body: { email: 'x@example.com' } })).status, 404);
   check('adminGate: gm list without token and ADMIN_ENABLED=false -> 404 (gate before auth)', (await req(BASE_NOADMIN, 'GET', '/api/game-masters')).status, 404);
+
+  // ---- お気に入り（認証不要、userId がキー。履歴と違い users への自動登録はしない） ----
+  const costumeA = (await req(BASE, 'GET', '/api/costume')).json?.find((x) => x.name === 'costume-a');
+  // costume-b はパーツ系テストで削除済みのため、2件目用はここで新規作成する
+  const costumeFav = await req(BASE, 'POST', '/api/costume', { token: gmToken, body: { name: 'costume-fav', assetPath: '/uploads/costume/fav.png' } });
+  const costumeB = costumeFav.json;
+
+  const favNoUser = await req(BASE, 'GET', '/api/favorite');
+  check('favorite: GET without userId -> 400', favNoUser.status, 400);
+  check('favorite: GET without userId error', favNoUser.json?.error, 'userId required');
+  const favEmpty = await req(BASE, 'GET', '/api/favorite?userId=fav-user');
+  check('favorite: GET for new user -> 200', favEmpty.status, 200);
+  check('favorite: GET for new user -> empty', favEmpty.json, []);
+
+  const favNoBody = await req(BASE, 'POST', '/api/favorite', { body: {} });
+  check('favorite: POST without userId/costumeId -> 400', favNoBody.status, 400);
+  check('favorite: POST without userId/costumeId error', favNoBody.json?.error, 'userId and costumeId required');
+  check('favorite: POST without costumeId -> 400', (await req(BASE, 'POST', '/api/favorite', { body: { userId: 'fav-user' } })).status, 400);
+  check('favorite: POST costumeId=0 -> 400 (falsy check)', (await req(BASE, 'POST', '/api/favorite', { body: { userId: 'fav-user', costumeId: 0 } })).status, 400);
+
+  const fav1 = await req(BASE, 'POST', '/api/favorite', { body: { userId: 'fav-user', costumeId: costumeA.id } });
+  check('favorite: POST -> 200', fav1.status, 200);
+  check('favorite: POST stores userId/costumeId', [fav1.json?.userId, fav1.json?.costumeId], ['fav-user', costumeA.id]);
+  check('favorite: POST response has no timestamps', ['createdAt' in (fav1.json ?? {}), 'updatedAt' in (fav1.json ?? {})], [false, false]);
+  const fav2 = await req(BASE, 'POST', '/api/favorite', { body: { userId: 'fav-user', costumeId: costumeB.id } });
+  check('favorite: POST second -> 200', fav2.status, 200);
+
+  const favList = await req(BASE, 'GET', '/api/favorite?userId=fav-user');
+  check('favorite: list has 2 items', favList.json?.length, 2);
+  check('favorite: list is in insertion order', favList.json?.map((f) => f.costumeId), [costumeA.id, costumeB.id]);
+  check('favorite: list rows carry only id/userId/costumeId', favList.json?.map((f) => Object.keys(f).sort().join(',')), ['costumeId,id,userId', 'costumeId,id,userId']);
+  check('favorite: other user list is empty', (await req(BASE, 'GET', '/api/favorite?userId=other-user')).json, []);
+
+  // 現行に一意制約は無いため、同じ衣装の重複登録もそのまま通る（現行挙動の再現）
+  const favDup = await req(BASE, 'POST', '/api/favorite', { body: { userId: 'fav-user', costumeId: costumeA.id } });
+  check('favorite: duplicate POST -> 200 (no unique constraint)', favDup.status, 200);
+  check('favorite: duplicate creates a separate row', favDup.json?.id !== fav1.json?.id, true);
+  check('favorite: list has 3 items after duplicate', (await req(BASE, 'GET', '/api/favorite?userId=fav-user')).json?.length, 3);
+
+  // 削除: userId が一致しない場合は消えない（ただし応答は success）。存在しなくても success
+  check('favorite: DELETE without userId -> 400', (await req(BASE, 'DELETE', `/api/favorite/${fav1.json?.id}`)).status, 400);
+  const favDelWrong = await req(BASE, 'DELETE', `/api/favorite/${fav1.json?.id}?userId=other-user`);
+  check('favorite: DELETE with wrong userId -> success (no-op)', favDelWrong.json?.success, true);
+  check('favorite: wrong-user delete keeps the row', (await req(BASE, 'GET', '/api/favorite?userId=fav-user')).json?.some((f) => f.id === fav1.json?.id), true);
+  const favDel = await req(BASE, 'DELETE', `/api/favorite/${fav1.json?.id}?userId=fav-user`);
+  check('favorite: DELETE -> success', favDel.json?.success, true);
+  check('favorite: deleted row is gone', (await req(BASE, 'GET', '/api/favorite?userId=fav-user')).json?.some((f) => f.id === fav1.json?.id), false);
+  check('favorite: DELETE nonexistent -> success', (await req(BASE, 'DELETE', '/api/favorite/999999?userId=fav-user')).json?.success, true);
 } finally {
   stopDev(dev);
   stopDev(devNoAdmin);

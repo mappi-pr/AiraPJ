@@ -5,6 +5,7 @@ import backgroundUpload from './routes/background-upload';
 import { PART_CONFIGS, createPartCrudApp, createPartUploadApp } from './routes/parts';
 import navigationButtons from './routes/navigation-buttons';
 import generationHistory from './routes/generation-history';
+import favorites from './routes/favorites';
 import gameMasters from './routes/game-masters';
 import { serveUpload } from './routes/uploads';
 
@@ -50,6 +51,7 @@ for (const config of PART_CONFIGS) {
 
 app.route('/api/navigation-buttons', navigationButtons);
 app.route('/api/generation-history', generationHistory);
+app.route('/api/favorite', favorites);
 app.route('/api/game-masters', gameMasters);
 
 // GET /uploads/* — R2 から画像を配信（現行 express.static 相当、assetPath 互換の要）

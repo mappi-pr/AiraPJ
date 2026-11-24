@@ -1,6 +1,7 @@
 DELETE FROM backgrounds;
 DELETE FROM game_masters;
 DELETE FROM generation_histories;
+DELETE FROM favorites;
 DELETE FROM users;
 DELETE FROM faces;
 DELETE FROM front_hairs;
