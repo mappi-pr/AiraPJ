@@ -50,7 +50,7 @@ Express API サーバーと PostgreSQL データベースを連携し、キャ�
 ### バックエンド
 - **Express** 4.18.2 - Web フレームワーク
 - **Sequelize** 6.37.7 - ORM
-- **pg** 8.16.1 - PostgreSQL クライアント
+- **pg** 8.16.3 - PostgreSQL クライアント
 - **dotenv** 16.5.0 - 環境変数管理
 - **multer** 2.0.1 - ファイルアップロード
 - **cors** 2.8.5 - CORS 対応
@@ -240,10 +240,10 @@ docker compose -f docker/docker-compose.dev.yml exec api npm install axios
 cp .env.example .env
 
 # コンテナの起動
-docker compose up -d
+docker compose -f docker/docker-compose.yml up -d
 
 # ログを表示しながら起動（初回推奨）
-docker compose up
+docker compose -f docker/docker-compose.yml up
 ```
 
 初回起動時は、フロントエンドのビルド・APIサーバーのビルド・データベースの初期化が実行されます。
@@ -264,7 +264,7 @@ docker compose up
 docker compose -f docker/docker-compose.yml down
 
 # イメージを再ビルドして起動
-docker compose up -d --build
+docker compose -f docker/docker-compose.yml up -d --build
 ```
 
 **Git でブランチやコミットを切り替えた場合:**
@@ -277,14 +277,14 @@ git checkout main
 docker compose -f docker/docker-compose.yml down
 
 # イメージを再ビルドして起動
-docker compose up -d --build
+docker compose -f docker/docker-compose.yml up -d --build
 ```
 
 **環境変数のみ変更した場合:**
 
 ```bash
 # .env ファイルを編集後、コンテナを再作成
-docker compose up -d --force-recreate
+docker compose -f docker/docker-compose.yml up -d --force-recreate
 ```
 
 **注意**: 本番モードでは、すべてのコード変更がDockerイメージに反映されるまで数分かかります。頻繁にコードを変更する場合は、開発モード（`docker-compose.dev.yml`）の使用を推奨します。
@@ -536,7 +536,7 @@ FRONTEND_PORT=80
 
 **1. 本番用の docker-compose 設定（オプション）**
 
-本番環境用に `docker-compose.prod.yml` を作成することを推奨します：
+本番環境用に `docker/docker-compose.prod.yml` を作成することを推奨します：
 
 ```yaml
 services:
@@ -560,16 +560,16 @@ services:
 
 ```bash
 # 本番環境用の設定でデプロイ
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d --build
 
 # または標準設定のみ
-docker compose up -d --build
+docker compose -f docker/docker-compose.yml up -d --build
 ```
 
 **3. ログの監視**
 
 ```bash
-docker compose logs -f
+docker compose -f docker/docker-compose.yml logs -f
 ```
 
 #### HTTPS/SSL の設定
@@ -630,10 +630,10 @@ server {
 
 ```bash
 # バックアップ
-docker compose exec db pg_dump -U postgres airapj > backup_$(date +%Y%m%d).sql
+docker compose -f docker/docker-compose.yml exec db pg_dump -U postgres airapj > backup_$(date +%Y%m%d).sql
 
 # リストア
-docker compose exec -T db psql -U postgres airapj < backup_20231201.sql
+docker compose -f docker/docker-compose.yml exec -T db psql -U postgres airapj < backup_20231201.sql
 ```
 
 **アップロードファイルのバックアップ**
@@ -801,33 +801,66 @@ AiraPJ/
 
 #### 顔パーツ
 - `GET /api/face` - 顔パーツ一覧取得
+- `GET /api/face/:id` - 顔パーツ取得
 - `POST /api/face/upload` - 顔パーツアップロード
+- `PUT /api/face/:id` - 顔パーツ更新（位置・サイズ等）
+- `PUT /api/face/:id/order` - 顔パーツの並び替え
 - `DELETE /api/face/:id` - 顔パーツ削除（論理削除）
 
 #### 前髪パーツ
 - `GET /api/front-hair` - 前髪パーツ一覧取得
+- `GET /api/front-hair/:id` - 前髪パーツ取得
 - `POST /api/front-hair/upload` - 前髪パーツアップロード
+- `PUT /api/front-hair/:id` - 前髪パーツ更新（位置・サイズ等）
+- `PUT /api/front-hair/:id/order` - 前髪パーツの並び替え
 - `DELETE /api/front-hair/:id` - 前髪パーツ削除
 
 #### 後髪パーツ
 - `GET /api/back-hair` - 後髪パーツ一覧取得
+- `GET /api/back-hair/:id` - 後髪パーツ取得
 - `POST /api/back-hair/upload` - 後髪パーツアップロード
+- `PUT /api/back-hair/:id` - 後髪パーツ更新（位置・サイズ等）
+- `PUT /api/back-hair/:id/order` - 後髪パーツの並び替え
 - `DELETE /api/back-hair/:id` - 後髪パーツ削除
 
 #### 背景
 - `GET /api/background` - 背景一覧取得
+- `GET /api/background/:id` - 背景取得
 - `POST /api/background/upload` - 背景アップロード
+- `PUT /api/background/:id` - 背景更新（位置・サイズ等）
+- `PUT /api/background/:id/order` - 背景の並び替え
 - `DELETE /api/background/:id` - 背景削除
 
 #### 衣装
 - `GET /api/costume` - 衣装一覧取得
+- `GET /api/costume/:id` - 衣装取得
 - `POST /api/costume/upload` - 衣装アップロード
+- `PUT /api/costume/:id` - 衣装更新（位置・サイズ等）
+- `PUT /api/costume/:id/order` - 衣装の並び替え
 - `DELETE /api/costume/:id` - 衣装削除
 
 #### お気に入り
 - `GET /api/favorite` - お気に入り一覧取得
 - `POST /api/favorite` - お気に入り追加
 - `DELETE /api/favorite/:id` - お気に入り削除
+
+#### ナビゲーションボタン
+- `GET /api/navigation-buttons` - ナビゲーションボタン設定取得
+- `POST /api/navigation-buttons/upload` - ナビゲーションボタン画像アップロード
+- `DELETE /api/navigation-buttons/:buttonType/reset` - ナビゲーションボタン画像のリセット
+
+#### ゲームマスター
+- `GET /api/game-masters` - ゲームマスター一覧取得（システム管理者のみ）
+- `POST /api/game-masters` - ゲームマスター登録（システム管理者のみ）
+- `DELETE /api/game-masters/:id` - ゲームマスター削除（システム管理者のみ）
+
+#### 生成履歴
+- `GET /api/generation-history` - 生成履歴一覧取得
+- `POST /api/generation-history` - 生成履歴追加
+- `DELETE /api/generation-history/:id` - 生成履歴削除
+
+#### 認証
+- `POST /api/auth/verify` - Google IDトークンの検証
 
 #### ヘルスチェック
 - `GET /api/health` - API サーバーの稼働確認
@@ -846,14 +879,13 @@ AiraPJ/
 - レイヤー順: 背景 → 後髪 → 衣装 → 顔 → 前髪
 - スライダーでキャラクター（顔系+衣装）の拡大率を調整
 - 「PNGで保存」ボタンで合成画像をダウンロード
-  - `html2canvas` による画面キャプチャ方式
-  - Canvas API による手動合成方式（高精度）
+  - 保存方式は `html2canvas` による画面キャプチャのみ（Canvas API による手動合成は未実装）
 
 ### BGM/SE/ボイス管理
 
 - BGM は `App.tsx` で管理し、画面遷移しても継続再生
 - SE は各ページで必要に応じて再生
-- ボイスはキャラクター選択などで特定のタイミングで再生
+- ボイス再生は未実装（`src/assets/sound/voice/` は配置先のガイドのみで、再生処理はコードに存在しない）
 - 音声ファイルは `src/assets/sound/` 配下に配置
   - BGM: `src/assets/sound/bgm/`
   - SE: `src/assets/sound/se/`
@@ -1079,8 +1111,14 @@ AiraPJ では以下の2つの方法でデータベーススキーマを管理し
 
 ```
 api/migrations/
-├── 20250625_add_deleted_columns.js  # 論理削除カラム追加
-└── 20251111_add_sort_order.js      # ソート順カラム追加
+├── 20250625_add_deleted_columns.js        # 論理削除カラム追加
+├── 20251111_add_sort_order.js             # ソート順カラム追加
+├── 20251222_create_game_masters.js        # ゲームマスターテーブル作成
+├── 20251223_add_user_generation_history.js # 生成履歴テーブル作成
+├── 20251223_create_navigation_buttons.js  # ナビゲーションボタンテーブル作成
+├── 20251225_fix_sort_order_recovery.js    # ソート順の復旧（値の再設定）
+├── 20261123_normalize_sort_order.js       # ソート順の正規化
+└── 20261124_add_position_size_columns.js  # 位置・サイズカラム追加
 ```
 
 各マイグレーションファイルは以下の構造を持ちます：
@@ -1314,7 +1352,7 @@ AiraPJの機能別ドキュメント：
 
 ## ライセンス
 
-このプロジェクトのライセンスについては、リポジトリの LICENSE ファイルを参照してください。
+現在、リポジトリに LICENSE ファイルは含まれていません。ライセンス条件についてはリポジトリ管理者に確認してください。
 
 ---
 
