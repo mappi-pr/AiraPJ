@@ -17,10 +17,17 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}${ext}`);
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`);
   },
 });
 const upload = multer({ storage, fileFilter: imageFileFilter, limits: { fileSize: MAX_UPLOAD_FILE_SIZE } });
+
+// アップロードを取り消す場合（バリデーションエラー・処理失敗時）に、保存済みファイルを削除する
+const removeUploadedFile = (file: { path: string } | undefined) => {
+  if (file && fs.existsSync(file.path)) {
+    fs.unlinkSync(file.path);
+  }
+};
 
 // POST /api/navigation-buttons/upload
 router.post('/upload', singleImageUpload(upload, 'asset'), async (req, res) => {
@@ -32,6 +39,7 @@ router.post('/upload', singleImageUpload(upload, 'asset'), async (req, res) => {
     const { buttonType } = req.body;
     
     if (buttonType !== 'prev' && buttonType !== 'next') {
+      removeUploadedFile(req.file);
       res.status(400).json({ error: 'Invalid buttonType. Must be "prev" or "next".' });
       return;
     }
@@ -62,7 +70,10 @@ router.post('/upload', singleImageUpload(upload, 'asset'), async (req, res) => {
     res.json(button);
   } catch (err) {
     console.error('Navigation button upload error:', err);
-    res.status(500).json({ error: 'Internal server error', details: String(err) });
+    if (!res.headersSent) {
+      removeUploadedFile(req.file);
+    }
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

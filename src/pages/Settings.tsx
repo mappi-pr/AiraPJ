@@ -30,7 +30,12 @@ interface Asset {
 }
 
 const Settings: React.FC = () => {
-  const [result, setResult] = useState<string>('');
+  const [result, setResultText] = useState<string>('');
+  const [resultImage, setResultImage] = useState<string | null>(null);
+  const setResult = (text: string, imagePath?: string) => {
+    setResultText(text);
+    setResultImage(imagePath ?? null);
+  };
   const [assets, setAssets] = useState<Record<string, Asset[]>>({});
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -182,7 +187,8 @@ const Settings: React.FC = () => {
       if (assetPath && id) {
         playSuccess();
         setResult(
-          `${t.settings.resultSuccess}\nID: ${id}\n${t.settings.resultImage} <img src="${assetPath}" width="100" />`
+          `${t.settings.resultSuccess}\nID: ${id}\n${t.settings.resultImage}`,
+          assetPath
         );
         // アップロード後、該当タイプのアセットリストを再取得
         if (type) {
@@ -474,7 +480,20 @@ const Settings: React.FC = () => {
               {uploading ? t.settings.uploadingBtn : t.settings.uploadBtn}
             </button>
           </form>
-          <div id="uploadResult" dangerouslySetInnerHTML={{ __html: result }} />
+          <div id="uploadResult">
+            {result.split('\n').map((line, idx, lines) => (
+              <React.Fragment key={idx}>
+                {line}
+                {idx < lines.length - 1 && <br />}
+              </React.Fragment>
+            ))}
+            {resultImage && (
+              <>
+                {' '}
+                <img src={resultImage} width="100" alt="" />
+              </>
+            )}
+          </div>
         </div>
 
         {/* ②アセット一覧・削除 */}
