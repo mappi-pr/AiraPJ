@@ -9,7 +9,7 @@ import { imageFileFilter, singleImageUpload, MAX_UPLOAD_FILE_SIZE } from '../mid
 const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(getUploadsBasePath(), 'nav');
+    const dir = path.join(getUploadsBasePath(), 'navigationButton');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -44,7 +44,7 @@ router.post('/upload', singleImageUpload(upload, 'asset'), async (req, res) => {
       return;
     }
     
-    const assetPath = `/uploads/nav/${req.file.filename}`;
+    const assetPath = `/uploads/navigationButton/${req.file.filename}`;
     
     // Find or create the button configuration
     let button = await NavigationButton.findOne({ where: { buttonType } });

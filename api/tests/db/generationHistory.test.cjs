@@ -41,12 +41,12 @@ after(async () => {
 test('isAvailable reflects whether all referenced parts still exist', async () => {
   const alive = await Background.create({
     name: 'alive-bg',
-    assetPath: '/uploads/bg/alive.png',
+    assetPath: '/uploads/background/alive.png',
     deleted: false,
   });
   const deleted = await Background.create({
     name: 'deleted-bg',
-    assetPath: '/uploads/bg/deleted.png',
+    assetPath: '/uploads/background/deleted.png',
     deleted: true,
     deletedAt: new Date(),
   });
